@@ -25,8 +25,6 @@ function readSearchValue(
   return value;
 }
 
-// Matches a requested provider against the allowed provider list and falls
-// back to mock so malformed or missing URLs still render a valid setup screen.
 function resolveProviderValue(fieldId: ProviderFieldId, value?: string) {
   const fallback = providerOptions[fieldId][0];
 

@@ -32,7 +32,7 @@ export function SetupForm({ mode, providers }: SetupFormProps) {
 
         <CardFooter className="flex flex-col gap-3 border-t sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm leading-6 text-muted-foreground">
-            Session screens are still mocked in the next chunk.
+            Continue into a mock session shell for this interview.
           </p>
           <Button type="submit" className="h-10 justify-between sm:w-48">
             Continue
