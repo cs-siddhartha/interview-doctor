@@ -3,6 +3,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, status
 
+from app.providers.registry import build_provider_stack
 from app.schemas.common import ApiMeta, ApiResponse
 from app.schemas.session import (
     CreateSessionRequest,
@@ -23,6 +24,7 @@ async def create_session(
     request: CreateSessionRequest,
 ) -> ApiResponse[Session]:
     now = datetime.now(UTC)
+    build_provider_stack(request.providers)
 
     session = Session(
         id=str(uuid4()),
