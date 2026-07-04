@@ -1,5 +1,6 @@
 import { LandingHeader } from "@/components/interview/landing-header";
 import { ModeCard } from "@/components/interview/mode-card";
+import { APP_COPY } from "@/constants/app";
 import { interviewModes } from "@/lib/interview-options";
 
 export default function Home() {
@@ -9,7 +10,7 @@ export default function Home() {
         <LandingHeader />
 
         <section
-          aria-label="Interview modes"
+          aria-label={APP_COPY.interviewModesAriaLabel}
           className="grid gap-4 md:grid-cols-3"
         >
           {interviewModes.map((mode) => (

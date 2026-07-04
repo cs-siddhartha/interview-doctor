@@ -2,6 +2,15 @@ import { IconCode, IconFileUpload } from "@tabler/icons-react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  DSA_MODE,
+  RESUME_MODE,
+} from "@/constants/interview-modes";
+import {
+  DOMAIN_SETUP_FIELDS,
+  DSA_SETUP_FIELDS,
+  RESUME_SETUP_FIELDS,
+} from "@/constants/setup";
 import { type InterviewMode } from "@/lib/interview-options";
 
 import { SelectInput, TextInput } from "./form-controls";
@@ -11,11 +20,11 @@ type SetupFieldsProps = {
 };
 
 export function SetupFields({ mode }: SetupFieldsProps) {
-  if (mode === "resume") {
+  if (mode === RESUME_MODE.id) {
     return <ResumeSetupFields />;
   }
 
-  if (mode === "dsa") {
+  if (mode === DSA_MODE.id) {
     return <DsaSetupFields />;
   }
 
@@ -26,20 +35,24 @@ function ResumeSetupFields() {
   return (
     <>
       <div className="grid gap-2">
-        <Label htmlFor="resume">Resume file</Label>
+        <Label htmlFor={RESUME_SETUP_FIELDS.file.name}>
+          {RESUME_SETUP_FIELDS.file.label}
+        </Label>
         <span className="flex min-h-36 flex-col items-center justify-center gap-3 border border-dashed border-border bg-background px-4 py-6 text-center">
           <IconFileUpload className="size-8 text-muted-foreground" />
           <span className="grid gap-1">
-            <span className="text-sm font-medium">Upload placeholder</span>
+            <span className="text-sm font-medium">
+              {RESUME_SETUP_FIELDS.file.uploadTitle}
+            </span>
             <span className="text-sm text-muted-foreground">
-              PDF or DOCX parsing will be added in a later chunk.
+              {RESUME_SETUP_FIELDS.file.uploadDescription}
             </span>
           </span>
           <Input
-            id="resume"
+            id={RESUME_SETUP_FIELDS.file.name}
             type="file"
-            name="resume"
-            accept=".pdf,.doc,.docx"
+            name={RESUME_SETUP_FIELDS.file.name}
+            accept={RESUME_SETUP_FIELDS.file.accept}
             className="h-10 w-full max-w-sm rounded-none bg-background"
           />
         </span>
@@ -47,14 +60,14 @@ function ResumeSetupFields() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <TextInput
-          label="Target role"
-          name="targetRole"
-          placeholder="Senior frontend engineer"
+          label={RESUME_SETUP_FIELDS.targetRole.label}
+          name={RESUME_SETUP_FIELDS.targetRole.name}
+          placeholder={RESUME_SETUP_FIELDS.targetRole.placeholder}
         />
         <SelectInput
-          label="Grilling intensity"
-          name="intensity"
-          options={["Balanced", "Strict", "Very strict"]}
+          label={RESUME_SETUP_FIELDS.intensity.label}
+          name={RESUME_SETUP_FIELDS.intensity.name}
+          options={[...RESUME_SETUP_FIELDS.intensity.options]}
         />
       </div>
     </>
@@ -65,20 +78,20 @@ function DomainSetupFields() {
   return (
     <div className="grid gap-4">
       <TextInput
-        label="Interview domain"
-        name="domain"
-        placeholder="React performance, system design, behavioral..."
+        label={DOMAIN_SETUP_FIELDS.topic.label}
+        name={DOMAIN_SETUP_FIELDS.topic.name}
+        placeholder={DOMAIN_SETUP_FIELDS.topic.placeholder}
       />
       <div className="grid gap-4 sm:grid-cols-2">
         <SelectInput
-          label="Seniority"
-          name="seniority"
-          options={["Junior", "Mid-level", "Senior", "Staff"]}
+          label={DOMAIN_SETUP_FIELDS.seniority.label}
+          name={DOMAIN_SETUP_FIELDS.seniority.name}
+          options={[...DOMAIN_SETUP_FIELDS.seniority.options]}
         />
         <SelectInput
-          label="Interview style"
-          name="style"
-          options={["Conversational", "Structured", "Rapid follow-up"]}
+          label={DOMAIN_SETUP_FIELDS.style.label}
+          name={DOMAIN_SETUP_FIELDS.style.name}
+          options={[...DOMAIN_SETUP_FIELDS.style.options]}
         />
       </div>
     </div>
@@ -90,24 +103,24 @@ function DsaSetupFields() {
     <div className="grid gap-4">
       <div className="flex items-center gap-2 border border-border bg-background p-3 text-sm text-muted-foreground">
         <IconCode className="size-4" aria-hidden="true" />
-        Code editor and problem bank arrive with the session chunk.
+        {DSA_SETUP_FIELDS.editorNotice}
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <SelectInput
-          label="Topic"
-          name="topic"
-          options={["Arrays", "Strings", "Graphs", "Dynamic programming"]}
+          label={DSA_SETUP_FIELDS.topic.label}
+          name={DSA_SETUP_FIELDS.topic.name}
+          options={[...DSA_SETUP_FIELDS.topic.options]}
         />
         <SelectInput
-          label="Difficulty"
-          name="difficulty"
-          options={["Easy", "Medium", "Hard"]}
+          label={DSA_SETUP_FIELDS.difficulty.label}
+          name={DSA_SETUP_FIELDS.difficulty.name}
+          options={[...DSA_SETUP_FIELDS.difficulty.options]}
         />
       </div>
       <TextInput
-        label="Preferred language"
-        name="language"
-        placeholder="TypeScript, Python, Java..."
+        label={DSA_SETUP_FIELDS.language.label}
+        name={DSA_SETUP_FIELDS.language.name}
+        placeholder={DSA_SETUP_FIELDS.language.placeholder}
       />
     </div>
   );

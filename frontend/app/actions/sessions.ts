@@ -3,6 +3,12 @@
 import { redirect } from "next/navigation";
 
 import { createSession } from "@/lib/api/sessions";
+import { QUERY_PARAM_NAMES } from "@/constants/routes";
+import { FORM_FIELD_NAMES } from "@/constants/setup";
+import {
+  DEFAULT_PROVIDER_VALUE,
+  PROVIDER_FIELD_IDS,
+} from "@/constants/providers";
 import { providerFields, type ProviderFieldId } from "@/lib/interview-options";
 import {
   interviewModeSchema,
@@ -10,7 +16,11 @@ import {
 } from "@/lib/schemas/interview";
 import { setupFormSchema } from "@/lib/schemas/session";
 
-const ignoredSetupKeys = new Set(["mode", "stt", "llm", "tts", "resume"]);
+const ignoredSetupKeys = new Set<string>([
+  FORM_FIELD_NAMES.mode,
+  ...PROVIDER_FIELD_IDS,
+  FORM_FIELD_NAMES.resume,
+]);
 
 export async function createSessionFromSetup(formData: FormData) {
   const parsedForm = setupFormSchema.parse({
@@ -29,13 +39,14 @@ export async function createSessionFromSetup(formData: FormData) {
 }
 
 function readMode(formData: FormData) {
-  return interviewModeSchema.parse(formData.get("mode"));
+  return interviewModeSchema.parse(formData.get(FORM_FIELD_NAMES.mode));
 }
 
 function readProviders(formData: FormData): Record<ProviderFieldId, string> {
   const providers = providerFields.reduce(
     (providers, field) => {
-      providers[field.id] = readString(formData, field.id) || "mock";
+      providers[field.id] =
+        readString(formData, field.id) || DEFAULT_PROVIDER_VALUE;
       return providers;
     },
     {} as Record<ProviderFieldId, string>,
@@ -63,7 +74,9 @@ function buildSessionParams(
   providers: Record<ProviderFieldId, string>,
   setup: Record<string, string>,
 ) {
-  const params = new URLSearchParams({ sessionId });
+  const params = new URLSearchParams({
+    [QUERY_PARAM_NAMES.sessionId]: sessionId,
+  });
 
   for (const field of providerFields) {
     params.set(field.id, providers[field.id]);

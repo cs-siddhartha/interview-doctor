@@ -1,3 +1,4 @@
+import { SESSION_API } from "@/constants/api";
 import {
   createSessionRequestSchema,
   createSessionResponseSchema,
@@ -6,25 +7,25 @@ import {
 
 function getApiBaseUrl() {
   return (
-    process.env.API_BASE_URL ??
-    process.env.NEXT_PUBLIC_API_BASE_URL ??
-    "http://localhost:8000"
+    process.env[SESSION_API.apiBaseUrlEnv] ??
+    process.env[SESSION_API.publicApiBaseUrlEnv] ??
+    SESSION_API.defaultBaseUrl
   );
 }
 
 export async function createSession(request: CreateSessionRequest) {
   const body = createSessionRequestSchema.parse(request);
-  const response = await fetch(`${getApiBaseUrl()}/api/v1/sessions`, {
-    method: "POST",
+  const response = await fetch(`${getApiBaseUrl()}${SESSION_API.sessionsPath}`, {
+    method: SESSION_API.method,
     headers: {
-      "Content-Type": "application/json",
+      [SESSION_API.contentTypeHeader]: SESSION_API.jsonContentType,
     },
     body: JSON.stringify(body),
-    cache: "no-store",
+    cache: SESSION_API.fetchCache,
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to create session: ${response.status}`);
+    throw new Error(`${SESSION_API.createErrorPrefix} ${response.status}`);
   }
 
   const payload = createSessionResponseSchema.parse(await response.json());

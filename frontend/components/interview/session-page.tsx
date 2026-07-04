@@ -18,6 +18,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { DSA_MODE } from "@/constants/interview-modes";
+import { SESSION_COPY } from "@/constants/session";
 import { type InterviewMode } from "@/lib/interview-options";
 import { type ProviderSelection } from "@/lib/provider-selection";
 import { type SessionSetupItem } from "@/lib/session-setup";
@@ -30,21 +32,6 @@ type SessionPageProps = {
   sessionId?: string;
 };
 
-const transcriptTurns = [
-  {
-    speaker: "AI interviewer",
-    text: "Welcome. I will start with a focused question and adapt based on your answer.",
-  },
-  {
-    speaker: "Candidate",
-    text: "This is where the live transcript from streamed speech will appear.",
-  },
-  {
-    speaker: "AI interviewer",
-    text: "Mock follow-up: explain the tradeoff behind your previous answer.",
-  },
-];
-
 export function SessionPage({
   mode,
   providers,
@@ -52,7 +39,7 @@ export function SessionPage({
   backHref,
   sessionId,
 }: SessionPageProps) {
-  const isDsa = mode.mode === "dsa";
+  const isDsa = mode.mode === DSA_MODE.id;
 
   return (
     <main className="min-h-screen bg-background px-5 py-6 text-foreground sm:px-8 lg:px-10">
@@ -93,24 +80,24 @@ function SessionHeader({
             aria-hidden="true"
             data-icon="inline-start"
           />
-          Setup
+          {SESSION_COPY.setupBackLabel}
         </Link>
       </Button>
 
       <div className="max-w-3xl space-y-3">
         <Badge variant="outline" className="rounded-none uppercase">
-          Mock session
+          {SESSION_COPY.badge}
         </Badge>
         <h1 className="text-4xl font-semibold tracking-normal">
           {mode.title}
         </h1>
         <p className="text-base leading-7 text-muted-foreground">
-          This mock session shell now starts from a backend-created session and
-          keeps layout, state, transcript, and mode-specific workspace visible.
+          {SESSION_COPY.description}
         </p>
         {sessionId ? (
           <p className="text-sm font-medium text-muted-foreground">
-            Session ID: <span className="text-foreground">{sessionId}</span>
+            {SESSION_COPY.sessionIdLabel}{" "}
+            <span className="text-foreground">{sessionId}</span>
           </p>
         ) : null}
       </div>
@@ -122,16 +109,22 @@ function VoiceSessionPanel({ mode }: { mode: InterviewMode }) {
   return (
     <Card className="rounded-none shadow-none">
       <CardHeader>
-        <CardTitle>Live interview</CardTitle>
+        <CardTitle>{SESSION_COPY.liveInterviewTitle}</CardTitle>
         <CardDescription>
-          Turn-taking and audio streaming will connect here later.
+          {SESSION_COPY.liveInterviewDescription}
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-5">
         <div className="grid gap-3 sm:grid-cols-3">
-          <StatusMetric label="State" value="Listening" />
-          <StatusMetric label="Mode" value={mode.signal} />
-          <StatusMetric label="Elapsed" value="00:00" />
+          <StatusMetric
+            label={SESSION_COPY.metrics.state.label}
+            value={SESSION_COPY.metrics.state.value}
+          />
+          <StatusMetric label={SESSION_COPY.metrics.mode.label} value={mode.signal} />
+          <StatusMetric
+            label={SESSION_COPY.metrics.elapsed.label}
+            value={SESSION_COPY.metrics.elapsed.value}
+          />
         </div>
 
         <div className="flex min-h-56 flex-col items-center justify-center gap-5 border border-border bg-background p-6 text-center">
@@ -139,10 +132,9 @@ function VoiceSessionPanel({ mode }: { mode: InterviewMode }) {
             <IconMicrophone className="size-8" aria-hidden="true" />
           </div>
           <div className="space-y-2">
-            <p className="text-lg font-medium">Ready for mock audio</p>
+            <p className="text-lg font-medium">{SESSION_COPY.audioTitle}</p>
             <p className="max-w-md text-sm leading-6 text-muted-foreground">
-              The real session will stream microphone audio to the backend and
-              play synthesized interviewer responses.
+              {SESSION_COPY.audioDescription}
             </p>
           </div>
         </div>
@@ -154,7 +146,7 @@ function VoiceSessionPanel({ mode }: { mode: InterviewMode }) {
             aria-hidden="true"
             data-icon="inline-start"
           />
-          Start mock turn
+          {SESSION_COPY.startTurnLabel}
         </Button>
         <Button type="button" variant="outline" className="h-10 w-full sm:w-auto">
           <IconPlayerStop
@@ -162,7 +154,7 @@ function VoiceSessionPanel({ mode }: { mode: InterviewMode }) {
             aria-hidden="true"
             data-icon="inline-start"
           />
-          End session
+          {SESSION_COPY.endSessionLabel}
         </Button>
       </CardFooter>
     </Card>
@@ -176,7 +168,7 @@ function StatusMetric({ label, value }: { label: string; value: string }) {
         {label}
       </span>
       <span className="flex items-center gap-2 text-sm font-medium">
-        {label === "State" ? (
+        {label === SESSION_COPY.metrics.state.label ? (
           <IconCircleFilled className="size-2 text-primary" aria-hidden="true" />
         ) : null}
         {value}
@@ -189,13 +181,13 @@ function TranscriptPanel() {
   return (
     <Card className="rounded-none shadow-none">
       <CardHeader>
-        <CardTitle>Transcript</CardTitle>
+        <CardTitle>{SESSION_COPY.transcriptTitle}</CardTitle>
         <CardDescription>
-          Mock turns show the structure that streaming events will fill.
+          {SESSION_COPY.transcriptDescription}
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-3">
-        {transcriptTurns.map((turn) => (
+        {SESSION_COPY.transcriptTurns.map((turn) => (
           <div key={turn.speaker} className="border border-border bg-background p-4">
             <p className="mb-2 text-xs font-medium uppercase tracking-normal text-muted-foreground">
               {turn.speaker}
@@ -214,18 +206,15 @@ function CodeWorkspace() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <IconCode className="size-4" aria-hidden="true" />
-          Code workspace
+          {SESSION_COPY.codeWorkspaceTitle}
         </CardTitle>
         <CardDescription>
-          Monaco and problem execution will be added after the backend skeleton.
+          {SESSION_COPY.codeWorkspaceDescription}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <pre className="min-h-80 overflow-auto border border-border bg-background p-4 text-sm leading-6 text-muted-foreground">
-          <code>{`function solve(input) {
-  // Mock editor placeholder
-  return input
-}`}</code>
+          <code>{SESSION_COPY.codeWorkspacePlaceholder}</code>
         </pre>
       </CardContent>
     </Card>
@@ -236,8 +225,8 @@ function SetupSummary({ setup }: { setup: SessionSetupItem[] }) {
   return (
     <Card className="rounded-none shadow-none">
       <CardHeader>
-        <CardTitle>Setup</CardTitle>
-        <CardDescription>Inputs carried from the setup page.</CardDescription>
+        <CardTitle>{SESSION_COPY.setupSummaryTitle}</CardTitle>
+        <CardDescription>{SESSION_COPY.setupSummaryDescription}</CardDescription>
       </CardHeader>
       <CardContent>
         <dl className="grid gap-3">

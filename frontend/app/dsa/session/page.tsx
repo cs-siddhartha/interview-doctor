@@ -1,4 +1,5 @@
 import { SessionPage } from "@/components/interview/session-page";
+import { DSA_MODE } from "@/constants/interview-modes";
 import { interviewModeById } from "@/lib/interview-options";
 import { resolveProviderSelection } from "@/lib/provider-selection";
 import { type SearchParamsRecord } from "@/lib/schemas/session";
@@ -19,10 +20,10 @@ export default async function DsaSessionPage({
 
   return (
     <SessionPage
-      mode={interviewModeById.get("dsa")!}
+      mode={interviewModeById.get(DSA_MODE.id)!}
       providers={resolveProviderSelection(query)}
-      setup={resolveSessionSetup("dsa", query)}
-      backHref={`/dsa/setup${buildProviderQuery(query)}`}
+      setup={resolveSessionSetup(DSA_MODE.id, query)}
+      backHref={`${DSA_MODE.setupPath}${buildProviderQuery(query)}`}
       sessionId={resolveSessionId(query)}
     />
   );

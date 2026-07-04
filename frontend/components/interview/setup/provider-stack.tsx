@@ -6,6 +6,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { PROVIDER_FIELDS } from "@/constants/providers";
+import { SESSION_COPY } from "@/constants/session";
 import {
   type ProviderFieldId,
   providerFields,
@@ -16,11 +18,9 @@ type ProviderStackProps = {
   providers: ProviderSelection;
 };
 
-const providerLabels: Record<ProviderFieldId, string> = {
-  stt: "STT",
-  llm: "LLM",
-  tts: "TTS",
-};
+const providerLabels = Object.fromEntries(
+  PROVIDER_FIELDS.map(({ id, shortLabel }) => [id, shortLabel]),
+) as Record<ProviderFieldId, string>;
 
 export function ProviderStack({ providers }: ProviderStackProps) {
   return (
@@ -28,7 +28,7 @@ export function ProviderStack({ providers }: ProviderStackProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <IconSettings className="size-4" aria-hidden="true" />
-          Provider stack
+          {SESSION_COPY.providerStackTitle}
         </CardTitle>
       </CardHeader>
       <CardContent>

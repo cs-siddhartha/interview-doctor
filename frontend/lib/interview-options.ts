@@ -6,6 +6,12 @@ import {
 } from "@tabler/icons-react";
 
 import {
+  DOMAIN_MODE,
+  DSA_MODE,
+  RESUME_MODE,
+} from "@/constants/interview-modes";
+import { PROVIDER_FIELDS, PROVIDER_OPTIONS } from "@/constants/providers";
+import {
   type InterviewModeId,
   type ProviderFieldId,
 } from "@/lib/schemas/interview";
@@ -27,58 +33,39 @@ export type InterviewMode = {
 };
 
 export const providerOptions: Record<ProviderFieldId, ProviderOption[]> = {
-  stt: [
-    { label: "Mock", value: "mock" },
-    { label: "Deepgram", value: "deepgram" },
-    { label: "Smallest AI", value: "smallest-ai" },
-    { label: "Whisper", value: "whisper" },
-  ],
-  llm: [
-    { label: "Mock", value: "mock" },
-    { label: "OpenAI", value: "openai" },
-    { label: "Anthropic", value: "anthropic" },
-  ],
-  tts: [
-    { label: "Mock", value: "mock" },
-    { label: "Cartesia", value: "cartesia" },
-    { label: "ElevenLabs", value: "elevenlabs" },
-    { label: "Smallest AI", value: "smallest-ai" },
-  ],
+  stt: [...PROVIDER_OPTIONS.stt],
+  llm: [...PROVIDER_OPTIONS.llm],
+  tts: [...PROVIDER_OPTIONS.tts],
 };
 
 export const providerFields: { id: ProviderFieldId; label: string }[] = [
-  { id: "stt", label: "Speech to text" },
-  { id: "llm", label: "Interviewer brain" },
-  { id: "tts", label: "Voice output" },
+  ...PROVIDER_FIELDS.map(({ id, label }) => ({ id, label })),
 ];
 
 export const interviewModes: InterviewMode[] = [
   {
-    title: "Resume Grilling",
-    mode: "resume",
-    action: "/resume/setup",
-    description:
-      "Upload a resume and let the interviewer challenge claims, projects, and experience depth.",
+    title: RESUME_MODE.title,
+    mode: RESUME_MODE.id,
+    action: RESUME_MODE.setupPath,
+    description: RESUME_MODE.description,
     icon: IconFileText,
-    signal: "Resume-aware",
+    signal: RESUME_MODE.signal,
   },
   {
-    title: "Domain Interview",
-    mode: "domain",
-    action: "/domain/setup",
-    description:
-      "Choose a role, skill, or topic and run a focused conversational interview.",
+    title: DOMAIN_MODE.title,
+    mode: DOMAIN_MODE.id,
+    action: DOMAIN_MODE.setupPath,
+    description: DOMAIN_MODE.description,
     icon: IconBrain,
-    signal: "Topic-driven",
+    signal: DOMAIN_MODE.signal,
   },
   {
-    title: "DSA Interview",
-    mode: "dsa",
-    action: "/dsa/setup",
-    description:
-      "Pick a data structures topic and practice explaining a solution while coding.",
+    title: DSA_MODE.title,
+    mode: DSA_MODE.id,
+    action: DSA_MODE.setupPath,
+    description: DSA_MODE.description,
     icon: IconCode,
-    signal: "Code-assisted",
+    signal: DSA_MODE.signal,
   },
 ];
 

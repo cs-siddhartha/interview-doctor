@@ -20,6 +20,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  MODE_CARD_COPY,
+} from "@/constants/app";
+import { DEFAULT_PROVIDER_VALUE } from "@/constants/providers";
+import { FORM_FIELD_NAMES } from "@/constants/setup";
+import {
   type InterviewMode,
   providerFields,
   providerOptions,
@@ -33,23 +38,23 @@ export function ModeCard({ mode }: ModeCardProps) {
   return (
     <form action={mode.action}>
       <Card className="min-h-[520px] rounded-none shadow-none">
-        <input type="hidden" name="mode" value={mode.mode} />
+        <input type="hidden" name={FORM_FIELD_NAMES.mode} value={mode.mode} />
 
         <CardHeader className="gap-5">
           <CardAction>
             <Badge variant="outline" className="rounded-none uppercase">
-            {mode.signal}
-          </Badge>
-        </CardAction>
-        <div className="space-y-3">
-          <CardTitle className="text-2xl font-semibold tracking-normal">
-            {mode.title}
-          </CardTitle>
-          <CardDescription className="min-h-[78px] leading-6">
-            {mode.description}
-          </CardDescription>
-        </div>
-      </CardHeader>
+              {mode.signal}
+            </Badge>
+          </CardAction>
+          <div className="space-y-3">
+            <CardTitle className="text-2xl font-semibold tracking-normal">
+              {mode.title}
+            </CardTitle>
+            <CardDescription className="min-h-[78px] leading-6">
+              {mode.description}
+            </CardDescription>
+          </div>
+        </CardHeader>
 
         <CardContent className="flex-1">
           <div className="grid gap-3">
@@ -67,7 +72,7 @@ export function ModeCard({ mode }: ModeCardProps) {
 
         <CardFooter className="border-t">
           <Button type="submit" className="h-10 w-full justify-between">
-            Start setup
+            {MODE_CARD_COPY.startSetupLabel}
             <IconChevronRight
               className="size-4"
               aria-hidden="true"
@@ -96,7 +101,7 @@ function ProviderSelect({ id, name, label, options }: ProviderSelectProps) {
       >
         {label}
       </Label>
-      <Select name={name} defaultValue="mock">
+      <Select name={name} defaultValue={DEFAULT_PROVIDER_VALUE}>
         <SelectTrigger id={id} className="h-10 w-full rounded-none bg-background">
           <SelectValue />
         </SelectTrigger>

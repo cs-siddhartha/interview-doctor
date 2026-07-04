@@ -3,6 +3,7 @@ import { IconChevronRight } from "@tabler/icons-react";
 import { createSessionFromSetup } from "@/app/actions/sessions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { FORM_FIELD_NAMES, SETUP_COPY } from "@/constants/setup";
 import { type InterviewMode, providerFields } from "@/lib/interview-options";
 import { type ProviderSelection } from "@/lib/provider-selection";
 
@@ -25,7 +26,7 @@ export function SetupForm({ mode, providers }: SetupFormProps) {
             value={providers[field.id].value}
           />
         ))}
-        <input type="hidden" name="mode" value={mode.mode} />
+        <input type="hidden" name={FORM_FIELD_NAMES.mode} value={mode.mode} />
 
         <CardContent className="grid gap-5">
           <SetupFields mode={mode.mode} />
@@ -33,10 +34,10 @@ export function SetupForm({ mode, providers }: SetupFormProps) {
 
         <CardFooter className="flex flex-col gap-3 border-t sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm leading-6 text-muted-foreground">
-            Continue into a mock session shell for this interview.
+            {SETUP_COPY.footerDescription}
           </p>
           <Button type="submit" className="h-10 justify-between sm:w-48">
-            Continue
+            {SETUP_COPY.continueLabel}
             <IconChevronRight
               className="size-4"
               aria-hidden="true"

@@ -1,4 +1,5 @@
 import { SetupPage } from "@/components/interview/setup-page";
+import { RESUME_MODE } from "@/constants/interview-modes";
 import { interviewModeById } from "@/lib/interview-options";
 import { resolveProviderSelection } from "@/lib/provider-selection";
 import { type SearchParamsRecord } from "@/lib/schemas/session";
@@ -12,7 +13,7 @@ export default async function ResumeSetupPage({
 }: ResumeSetupPageProps) {
   return (
     <SetupPage
-      mode={interviewModeById.get("resume")!}
+      mode={interviewModeById.get(RESUME_MODE.id)!}
       providers={resolveProviderSelection(await searchParams)}
     />
   );

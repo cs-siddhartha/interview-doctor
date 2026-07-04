@@ -3,6 +3,8 @@ import { IconArrowLeft } from "@tabler/icons-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ROUTE_PATHS } from "@/constants/routes";
+import { SETUP_COPY } from "@/constants/setup";
 import { type InterviewMode } from "@/lib/interview-options";
 
 type SetupHeaderProps = {
@@ -15,13 +17,13 @@ export function SetupHeader({ mode }: SetupHeaderProps) {
   return (
     <header className="space-y-5 border-b border-border pb-6">
       <Button asChild variant="outline">
-        <Link href="/" className="w-fit">
+        <Link href={ROUTE_PATHS.home} className="w-fit">
           <IconArrowLeft
             className="size-4"
             aria-hidden="true"
             data-icon="inline-start"
           />
-          Back
+          {SETUP_COPY.backLabel}
         </Link>
       </Button>
 
@@ -34,11 +36,10 @@ export function SetupHeader({ mode }: SetupHeaderProps) {
             {mode.signal}
           </Badge>
           <h1 className="text-4xl font-semibold tracking-normal">
-            {mode.title} setup
+            {mode.title} {SETUP_COPY.titleSuffix}
           </h1>
           <p className="text-base leading-7 text-muted-foreground">
-            Confirm the basic interview inputs before moving into the mock live
-            session. This step keeps provider choices scoped to this interview.
+            {SETUP_COPY.description}
           </p>
         </div>
       </div>
