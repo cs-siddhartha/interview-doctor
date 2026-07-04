@@ -1,5 +1,6 @@
 import { IconChevronRight } from "@tabler/icons-react";
 
+import { createSessionFromSetup } from "@/app/actions/sessions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { type InterviewMode, providerFields } from "@/lib/interview-options";
@@ -14,7 +15,7 @@ type SetupFormProps = {
 
 export function SetupForm({ mode, providers }: SetupFormProps) {
   return (
-    <form action={`/${mode.mode}/session`}>
+    <form action={createSessionFromSetup}>
       <Card className="rounded-none shadow-none">
         {providerFields.map((field) => (
           <input

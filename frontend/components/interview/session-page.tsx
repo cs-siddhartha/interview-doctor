@@ -27,6 +27,7 @@ type SessionPageProps = {
   providers: ProviderSelection;
   setup: SessionSetupItem[];
   backHref: string;
+  sessionId?: string;
 };
 
 const transcriptTurns = [
@@ -49,6 +50,7 @@ export function SessionPage({
   providers,
   setup,
   backHref,
+  sessionId,
 }: SessionPageProps) {
   const isDsa = mode.mode === "dsa";
 
@@ -56,7 +58,7 @@ export function SessionPage({
     <main className="min-h-screen bg-background px-5 py-6 text-foreground sm:px-8 lg:px-10">
       <section className="mx-auto grid w-full max-w-7xl gap-6 xl:grid-cols-[1fr_340px]">
         <div className="space-y-6">
-          <SessionHeader mode={mode} backHref={backHref} />
+          <SessionHeader mode={mode} backHref={backHref} sessionId={sessionId} />
           <div className={isDsa ? "grid gap-6 lg:grid-cols-[1fr_420px]" : ""}>
             <VoiceSessionPanel mode={mode} />
             {isDsa ? <CodeWorkspace /> : null}
@@ -76,9 +78,11 @@ export function SessionPage({
 function SessionHeader({
   mode,
   backHref,
+  sessionId,
 }: {
   mode: InterviewMode;
   backHref: string;
+  sessionId?: string;
 }) {
   return (
     <header className="space-y-5 border-b border-border pb-6">
@@ -101,9 +105,14 @@ function SessionHeader({
           {mode.title}
         </h1>
         <p className="text-base leading-7 text-muted-foreground">
-          This is a non-functional session shell for reviewing layout, state,
-          transcript, and mode-specific workspace before backend integration.
+          This mock session shell now starts from a backend-created session and
+          keeps layout, state, transcript, and mode-specific workspace visible.
         </p>
+        {sessionId ? (
+          <p className="text-sm font-medium text-muted-foreground">
+            Session ID: <span className="text-foreground">{sessionId}</span>
+          </p>
+        ) : null}
       </div>
     </header>
   );

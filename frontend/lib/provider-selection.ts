@@ -4,11 +4,11 @@ import {
   providerFields,
   providerOptions,
 } from "@/lib/interview-options";
-
-export type SearchParamsRecord = Record<
-  string,
-  string | string[] | undefined
->;
+import {
+  searchParamsSchema,
+  searchParamValueSchema,
+  type SearchParamsRecord,
+} from "@/lib/schemas/session";
 
 export type ProviderSelection = Record<ProviderFieldId, ProviderOption>;
 
@@ -16,13 +16,7 @@ function readSearchValue(
   searchParams: SearchParamsRecord,
   key: ProviderFieldId,
 ) {
-  const value = searchParams[key];
-
-  if (Array.isArray(value)) {
-    return value[0];
-  }
-
-  return value;
+  return searchParamValueSchema.parse(searchParams[key]);
 }
 
 function resolveProviderValue(fieldId: ProviderFieldId, value?: string) {
@@ -37,10 +31,12 @@ function resolveProviderValue(fieldId: ProviderFieldId, value?: string) {
 // Converts route search params into the stable provider contract that setup
 // forms and later backend session creation can share.
 export function resolveProviderSelection(searchParams: SearchParamsRecord) {
+  const query = searchParamsSchema.parse(searchParams);
+
   return providerFields.reduce<ProviderSelection>((selection, field) => {
     selection[field.id] = resolveProviderValue(
       field.id,
-      readSearchValue(searchParams, field.id),
+      readSearchValue(query, field.id),
     );
 
     return selection;

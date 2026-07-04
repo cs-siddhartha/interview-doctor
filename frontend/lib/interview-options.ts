@@ -5,8 +5,12 @@ import {
   type Icon,
 } from "@tabler/icons-react";
 
-export type ProviderFieldId = "stt" | "llm" | "tts";
-export type InterviewModeId = "resume" | "domain" | "dsa";
+import {
+  type InterviewModeId,
+  type ProviderFieldId,
+} from "@/lib/schemas/interview";
+
+export type { InterviewModeId, ProviderFieldId };
 
 export type ProviderOption = {
   label: string;

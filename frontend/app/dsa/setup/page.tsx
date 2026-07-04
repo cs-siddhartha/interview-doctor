@@ -1,9 +1,7 @@
 import { SetupPage } from "@/components/interview/setup-page";
 import { interviewModeById } from "@/lib/interview-options";
-import {
-  type SearchParamsRecord,
-  resolveProviderSelection,
-} from "@/lib/provider-selection";
+import { resolveProviderSelection } from "@/lib/provider-selection";
+import { type SearchParamsRecord } from "@/lib/schemas/session";
 
 type DsaSetupPageProps = {
   searchParams: Promise<SearchParamsRecord>;

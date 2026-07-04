@@ -2,7 +2,11 @@ import {
   type InterviewModeId,
   type ProviderFieldId,
 } from "@/lib/interview-options";
-import { type SearchParamsRecord } from "@/lib/provider-selection";
+import {
+  searchParamsSchema,
+  searchParamValueSchema,
+  type SearchParamsRecord,
+} from "@/lib/schemas/session";
 
 export type SessionSetupItem = {
   label: string;
@@ -37,17 +41,20 @@ export function resolveSessionSetup(
   mode: InterviewModeId,
   searchParams: SearchParamsRecord,
 ) {
+  const query = searchParamsSchema.parse(searchParams);
+
   return setupFieldsByMode[mode].map(({ key, label }) => ({
     label,
-    value: formatSearchValue(readSearchValue(searchParams, key)),
+    value: formatSearchValue(readSearchValue(query, key)),
   }));
 }
 
 export function buildProviderQuery(searchParams: SearchParamsRecord) {
+  const parsedParams = searchParamsSchema.parse(searchParams);
   const params = new URLSearchParams();
 
   for (const key of providerKeys) {
-    const value = readSearchValue(searchParams, key);
+    const value = readSearchValue(parsedParams, key);
 
     if (value) {
       params.set(key, value);
@@ -59,14 +66,17 @@ export function buildProviderQuery(searchParams: SearchParamsRecord) {
   return query ? `?${query}` : "";
 }
 
+// Reads the optional backend-created session id from route query params so
+// pages do not need inline type narrowing for repeated Next search param shapes.
+export function resolveSessionId(searchParams: SearchParamsRecord) {
+  const query = searchParamsSchema.parse(searchParams);
+  const sessionId = readSearchValue(query, "sessionId");
+
+  return sessionId || undefined;
+}
+
 function readSearchValue(searchParams: SearchParamsRecord, key: string) {
-  const value = searchParams[key];
-
-  if (Array.isArray(value)) {
-    return value[0];
-  }
-
-  return value;
+  return searchParamValueSchema.parse(searchParams[key]);
 }
 
 
