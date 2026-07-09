@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import StrEnum
-from typing import Any
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
 
@@ -37,6 +37,29 @@ class ProviderSelection(BaseModel):
     tts: TTSProvider = TTSProvider.MOCK
 
 
+# Captures the resume setup fields the frontend submits so session creation
+# rejects missing or unrelated setup payloads before provider work begins.
+class ResumeSetup(BaseModel):
+    targetRole: str = Field(min_length=1)
+    intensity: Literal["Balanced", "Strict", "Very strict"]
+
+
+# Captures topic-led interview setup separately from other modes because the
+# values drive different interviewer context and should not share a loose dict.
+class DomainSetup(BaseModel):
+    domain: str = Field(min_length=1)
+    seniority: Literal["Junior", "Mid-level", "Senior", "Staff"]
+    style: Literal["Conversational", "Structured", "Rapid follow-up"]
+
+
+# Captures DSA setup as its own contract because this mode needs code-workspace
+# context and problem difficulty instead of resume/domain fields.
+class DsaSetup(BaseModel):
+    topic: Literal["Arrays", "Strings", "Graphs", "Dynamic programming"]
+    difficulty: Literal["Easy", "Medium", "Hard"]
+    language: str = Field(min_length=1)
+
+
 class SessionState(StrEnum):
     SETUP_COMPLETE = "setup_complete"
     LISTENING = "listening"
@@ -45,17 +68,43 @@ class SessionState(StrEnum):
     SESSION_END = "session_end"
 
 
-class CreateSessionRequest(BaseModel):
-    mode: InterviewMode
+# Binds the resume mode discriminator to the exact setup shape accepted for
+# resume-driven sessions while preserving the shared provider selection contract.
+class CreateResumeSessionRequest(BaseModel):
+    mode: Literal[InterviewMode.RESUME]
     providers: ProviderSelection = Field(default_factory=ProviderSelection)
-    setup: dict[str, Any] = Field(default_factory=dict)
+    setup: ResumeSetup
+
+
+# Binds the domain mode discriminator to the exact setup shape accepted for
+# topic-led sessions while preserving the shared provider selection contract.
+class CreateDomainSessionRequest(BaseModel):
+    mode: Literal[InterviewMode.DOMAIN]
+    providers: ProviderSelection = Field(default_factory=ProviderSelection)
+    setup: DomainSetup
+
+
+# Binds the DSA mode discriminator to the exact setup shape accepted for
+# code-focused sessions while preserving the shared provider selection contract.
+class CreateDsaSessionRequest(BaseModel):
+    mode: Literal[InterviewMode.DSA]
+    providers: ProviderSelection = Field(default_factory=ProviderSelection)
+    setup: DsaSetup
+
+
+CreateSessionRequest = Annotated[
+    CreateResumeSessionRequest | CreateDomainSessionRequest | CreateDsaSessionRequest,
+    Field(discriminator="mode"),
+]
+
+SessionSetup = ResumeSetup | DomainSetup | DsaSetup
 
 
 class Session(BaseModel):
     id: str
     mode: InterviewMode
     providers: ProviderSelection
-    setup: dict[str, Any]
+    setup: SessionSetup
     state: SessionState
     created_at: datetime
     updated_at: datetime

@@ -1,6 +1,16 @@
 import { z } from "zod";
 
 import {
+  DOMAIN_MODE,
+  DSA_MODE,
+  RESUME_MODE,
+} from "@/constants/interview-modes";
+import {
+  DOMAIN_SETUP_FIELDS,
+  DSA_SETUP_FIELDS,
+  RESUME_SETUP_FIELDS,
+} from "@/constants/setup";
+import {
   interviewModeSchema,
   providerSelectionSchema,
 } from "@/lib/schemas/interview";
@@ -26,11 +36,44 @@ export const setupValueSchema = z
   .optional()
   .transform((value) => value ?? "");
 
-export const createSessionRequestSchema = z.object({
-  mode: interviewModeSchema,
-  providers: providerSelectionSchema,
-  setup: z.record(z.string(), z.string()),
+const requiredSetupValueSchema = z.string().trim().min(1);
+
+export const resumeSetupSchema = z.object({
+  [RESUME_SETUP_FIELDS.targetRole.name]: requiredSetupValueSchema,
+  [RESUME_SETUP_FIELDS.intensity.name]: z.enum(RESUME_SETUP_FIELDS.intensity.options),
 });
+
+export const domainSetupSchema = z.object({
+  [DOMAIN_SETUP_FIELDS.topic.name]: requiredSetupValueSchema,
+  [DOMAIN_SETUP_FIELDS.seniority.name]: z.enum(DOMAIN_SETUP_FIELDS.seniority.options),
+  [DOMAIN_SETUP_FIELDS.style.name]: z.enum(DOMAIN_SETUP_FIELDS.style.options),
+});
+
+export const dsaSetupSchema = z.object({
+  [DSA_SETUP_FIELDS.topic.name]: z.enum(DSA_SETUP_FIELDS.topic.options),
+  [DSA_SETUP_FIELDS.difficulty.name]: z.enum(DSA_SETUP_FIELDS.difficulty.options),
+  [DSA_SETUP_FIELDS.language.name]: requiredSetupValueSchema,
+});
+
+export const setupFormSchema = z.discriminatedUnion("mode", [
+  z.object({
+    mode: z.literal(RESUME_MODE.id),
+    providers: providerSelectionSchema,
+    setup: resumeSetupSchema,
+  }),
+  z.object({
+    mode: z.literal(DOMAIN_MODE.id),
+    providers: providerSelectionSchema,
+    setup: domainSetupSchema,
+  }),
+  z.object({
+    mode: z.literal(DSA_MODE.id),
+    providers: providerSelectionSchema,
+    setup: dsaSetupSchema,
+  }),
+]);
+
+export const createSessionRequestSchema = setupFormSchema;
 
 export const createSessionResponseSchema = z.object({
   data: z.object({
@@ -42,12 +85,6 @@ export const createSessionResponseSchema = z.object({
     created_at: z.string(),
     updated_at: z.string(),
   }),
-});
-
-export const setupFormSchema = z.object({
-  mode: interviewModeSchema,
-  providers: providerSelectionSchema,
-  setup: z.record(z.string(), z.string()),
 });
 
 export type SearchParamsRecord = z.input<typeof searchParamsSchema>;
