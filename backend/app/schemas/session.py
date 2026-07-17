@@ -76,8 +76,32 @@ class SessionState(StrEnum):
     SETUP_COMPLETE = "setup_complete"
     LISTENING = "listening"
     PROCESSING = "processing"
+    LLM_THINKING = "llm_thinking"
     AI_SPEAKING = "ai_speaking"
     SESSION_END = "session_end"
+
+
+class TranscriptSpeaker(StrEnum):
+    CANDIDATE = "candidate"
+    AI_INTERVIEWER = "ai_interviewer"
+
+
+class TranscriptTurn(BaseModel):
+    speaker: TranscriptSpeaker
+    text: str = Field(min_length=1)
+    created_at: datetime
+
+
+class CreateTurnRequest(BaseModel):
+    audio_base64: str = Field(default="")
+
+
+class TurnResult(BaseModel):
+    session_id: str
+    candidate_turn: TranscriptTurn
+    ai_turn: TranscriptTurn
+    audio_base64: str
+    state: SessionState
 
 
 class CreateResumeSessionRequest(BaseModel):
@@ -112,5 +136,6 @@ class Session(BaseModel):
     providers: ProviderSelection
     setup: SessionSetup
     state: SessionState
+    transcript: list[TranscriptTurn] = Field(default_factory=list)
     created_at: datetime
     updated_at: datetime
