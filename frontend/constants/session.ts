@@ -36,28 +36,38 @@ export const DSA_SESSION_SETUP_FIELDS = [
 export const SESSION_COPY = {
   providerStackTitle: "Provider stack",
   setupBackLabel: "Setup",
-  badge: "Mock session",
+  badge: "Interview session",
   description:
-    "This mock session shell now starts from a backend-created session and keeps layout, state, transcript, and mode-specific workspace visible.",
+    "This session starts from backend state and keeps provider choices, setup, transcript, and mode-specific workspace visible.",
   sessionIdLabel: "Session ID:",
   liveInterviewTitle: "Live interview",
-  liveInterviewDescription: "Turn-taking and audio streaming will connect here later.",
+  liveInterviewDescription: "Record an answer, send it to the selected providers, and listen to the AI follow-up.",
   metrics: {
     state: { label: "State", value: "Listening" },
     mode: { label: "Mode" },
     elapsed: { label: "Elapsed", value: "00:00" },
   },
-  audioTitle: "Ready for mock audio",
+  recordingStateLabel: "Recording",
+  processingStateLabel: "Processing",
+  audioTitle: "Ready for your answer",
+  recordingAudioTitle: "Recording your answer",
+  processingAudioTitle: "Processing provider turn",
   audioDescription:
-    "The real session will stream microphone audio to the backend and play synthesized interviewer responses.",
-  startTurnLabel: "Start mock turn",
-  turnInProgressLabel: "Running mock turn",
+    "Use the microphone control to capture one answer and run a complete STT, LLM, and TTS turn.",
+  recordingAudioDescription: "Stop recording when you finish this answer.",
+  processingAudioDescription: "The backend is transcribing, generating the follow-up, and synthesizing audio.",
+  startTurnLabel: "Start recording",
+  stopRecordingLabel: "Stop recording",
+  turnInProgressLabel: "Processing turn",
   endSessionLabel: "End session",
-  turnErrorMessage: "Mock turn failed.",
+  microphoneUnavailableMessage: "Microphone recording is not available in this browser.",
+  microphonePermissionMessage: "Could not access the microphone.",
+  emptyRecordingMessage: "No audio was captured.",
+  turnErrorMessage: "Interview turn failed.",
   transcriptTitle: "Transcript",
-  transcriptDescription: "Mock turns show the structure that streaming events will fill.",
+  transcriptDescription: "Completed turns from this interview session.",
   transcriptEmptyTitle: "No turns yet.",
-  transcriptEmptyDescription: "Start a mock turn to add the first transcript entries.",
+  transcriptEmptyDescription: "Record an answer to add the first transcript entries.",
   transcriptTurns: [
     {
       speaker: "AI interviewer",
@@ -76,10 +86,15 @@ export const SESSION_COPY = {
   codeWorkspaceDescription:
     "Monaco and problem execution will be added after the backend skeleton.",
   codeWorkspacePlaceholder: `function solve(input) {
-  // Mock editor placeholder
   return input
 }`,
   setupSummaryTitle: "Setup",
   setupSummaryDescription: "Inputs carried from the setup page.",
   missingSetupValue: "Not set",
+} as const;
+
+export const SESSION_AUDIO = {
+  mimeTypes: ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"] as const,
+  fallbackMimeType: "audio/webm",
+  base64Marker: "base64,",
 } as const;
