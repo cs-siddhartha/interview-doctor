@@ -25,20 +25,21 @@ class DeepgramSTTProvider(STTProviderBase):
     def is_configured(self) -> bool:
         return bool(os.getenv(DEEPGRAM_API_KEY_ENV))
 
-    async def transcribe(self, audio: bytes) -> str:
+    async def transcribe(self, audio: bytes, mime_type: str) -> str:
         if not self.is_configured():
             raise RuntimeError("DEEPGRAM_API_KEY is required for Deepgram provider")
 
-        payload = await asyncio.to_thread(self._transcribe_sync, audio)
+        payload = await asyncio.to_thread(self._transcribe_sync, audio, mime_type)
 
         return extract_deepgram_transcript(payload)
 
 
-    def _transcribe_sync(self, audio: bytes) -> dict[str, Any]:
+    def _transcribe_sync(self, audio: bytes, mime_type: str) -> dict[str, Any]:
         return post_bytes_for_json(
             DEEPGRAM_API_URL,
             audio,
             headers={"Authorization": f"Token {os.environ[DEEPGRAM_API_KEY_ENV]}"},
+            content_type=mime_type,
             params={
                 "model": os.getenv(DEEPGRAM_MODEL_ENV, DEFAULT_DEEPGRAM_MODEL),
                 "smart_format": "true",

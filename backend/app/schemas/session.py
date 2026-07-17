@@ -94,6 +94,7 @@ class TranscriptTurn(BaseModel):
 
 class CreateTurnRequest(BaseModel):
     audio_base64: str = Field(default="")
+    mime_type: str = Field(default="application/octet-stream", min_length=1)
 
 
 class TurnResult(BaseModel):

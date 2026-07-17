@@ -145,7 +145,7 @@ async def create_turn(
 
     try:
         audio = decode_turn_audio(request.audio_base64)
-        transcript = await provider_stack.stt.transcribe(audio)
+        transcript = await provider_stack.stt.transcribe(audio, request.mime_type)
         ai_text = await provider_stack.llm.generate_response(
             prompt=transcript,
             context=session.model_dump(mode="json"),

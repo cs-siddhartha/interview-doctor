@@ -15,5 +15,5 @@ class MockSTTProvider(STTProviderBase):
     def is_configured(self) -> bool:
         return True
 
-    async def transcribe(self, audio: bytes) -> str:
+    async def transcribe(self, audio: bytes, mime_type: str) -> str:
         return "Mock transcript from audio input."

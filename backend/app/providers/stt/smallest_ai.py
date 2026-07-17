@@ -27,19 +27,20 @@ class SmallestAISTTProvider(STTProviderBase):
     def is_configured(self) -> bool:
         return bool(os.getenv(SMALLEST_API_KEY_ENV))
 
-    async def transcribe(self, audio: bytes) -> str:
+    async def transcribe(self, audio: bytes, mime_type: str) -> str:
         if not self.is_configured():
             raise RuntimeError("SMALLEST_API_KEY is required for Smallest AI provider")
 
-        payload = await asyncio.to_thread(self._transcribe_sync, audio)
+        payload = await asyncio.to_thread(self._transcribe_sync, audio, mime_type)
 
         return extract_smallest_transcript(payload)
 
-    def _transcribe_sync(self, audio: bytes) -> dict[str, Any]:
+    def _transcribe_sync(self, audio: bytes, mime_type: str) -> dict[str, Any]:
         return post_bytes_for_json(
             SMALLEST_STT_API_URL,
             audio,
             headers={"Authorization": f"Bearer {os.environ[SMALLEST_API_KEY_ENV]}"},
+            content_type=mime_type,
             params={
                 "model": os.getenv(SMALLEST_STT_MODEL_ENV, DEFAULT_SMALLEST_STT_MODEL),
                 "language": os.getenv(

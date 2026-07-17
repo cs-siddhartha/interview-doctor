@@ -136,7 +136,11 @@ export function SessionTurnPanel({
     startTransition(async () => {
       try {
         const audioBase64 = await blobToBase64(audioBlob);
-        const result = await createAudioTurn(sessionId, audioBase64);
+        const result = await createAudioTurn(
+          sessionId,
+          audioBase64,
+          audioBlob.type || SESSION_AUDIO.fallbackMimeType,
+        );
 
         setTranscript((currentTranscript) => [
           ...currentTranscript,

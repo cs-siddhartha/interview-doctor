@@ -41,6 +41,7 @@ def post_bytes_for_json(
     url: str,
     audio: bytes,
     headers: dict[str, str],
+    content_type: str,
     params: dict[str, str] | None = None,
     timeout: int = 30,
 ) -> dict[str, Any]:
@@ -48,7 +49,7 @@ def post_bytes_for_json(
     request = urllib.request.Request(
         request_url,
         data=audio,
-        headers={"Content-Type": "application/octet-stream", **headers},
+        headers={"Content-Type": content_type, **headers},
         method="POST",
     )
 
@@ -61,11 +62,19 @@ def post_multipart_for_json(
     file_field: str,
     filename: str,
     file_content: bytes,
+    file_content_type: str,
     headers: dict[str, str],
     timeout: int = 30,
 ) -> dict[str, Any]:
     boundary = "----interview-doctor-boundary"
-    body = build_multipart_body(boundary, fields, file_field, filename, file_content)
+    body = build_multipart_body(
+        boundary,
+        fields,
+        file_field,
+        filename,
+        file_content,
+        file_content_type,
+    )
     request = urllib.request.Request(
         url,
         data=body,
@@ -94,6 +103,7 @@ def build_multipart_body(
     file_field: str,
     filename: str,
     file_content: bytes,
+    file_content_type: str,
 ) -> bytes:
     chunks: list[bytes] = []
 
@@ -114,7 +124,7 @@ def build_multipart_body(
                 f'Content-Disposition: form-data; name="{file_field}"; '
                 f'filename="{filename}"\r\n'
             ).encode(),
-            b"Content-Type: audio/wav\r\n\r\n",
+            f"Content-Type: {file_content_type}\r\n\r\n".encode(),
             file_content,
             b"\r\n",
             f"--{boundary}--\r\n".encode(),

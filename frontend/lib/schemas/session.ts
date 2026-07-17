@@ -98,6 +98,7 @@ export const createSessionResponseSchema = z.object({
 
 export const createTurnRequestSchema = z.object({
   audio_base64: z.string(),
+  mime_type: z.string().min(1),
 });
 
 export const turnResultSchema = z.object({
