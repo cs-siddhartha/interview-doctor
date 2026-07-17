@@ -26,6 +26,14 @@ export function SetupForm({ mode, providers }: SetupFormProps) {
             value={providers[field.id].value}
           />
         ))}
+        {providerFields.map((field) => (
+          <input
+            key={`${field.id}-transport`}
+            type="hidden"
+            name={`${field.id}Transport`}
+            value={providers[field.id].transport}
+          />
+        ))}
         <input type="hidden" name={FORM_FIELD_NAMES.mode} value={mode.mode} />
 
         <CardContent className="grid gap-5">

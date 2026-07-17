@@ -42,7 +42,7 @@ export function ProviderStack({ providers }: ProviderStackProps) {
                 {providerLabels[field.id]}
               </dt>
               <dd className="text-sm font-medium">
-                {providers[field.id].label}
+                {providers[field.id].label} - {providers[field.id].transportLabel}
               </dd>
             </div>
           ))}

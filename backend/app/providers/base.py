@@ -8,6 +8,12 @@ class ProviderKind(StrEnum):
     LLM = "llm"
     TTS = "tts"
 
+class ProviderTransport(StrEnum):
+    BATCH_HTTP = "batch_http"
+    STREAMING_HTTP = "streaming_http"
+    WEBSOCKET = "websocket"
+    WEBRTC = "webrtc"
+
 
 @dataclass(frozen=True)
 class ProviderMetadata:
@@ -15,6 +21,8 @@ class ProviderMetadata:
     kind: ProviderKind
     display_name: str
     is_mock: bool
+    transports: frozenset[ProviderTransport]
+    default_transport: ProviderTransport
 
 
 class Provider(ABC):

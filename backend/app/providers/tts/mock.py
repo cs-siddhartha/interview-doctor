@@ -1,4 +1,4 @@
-from app.providers.base import ProviderKind, ProviderMetadata
+from app.providers.base import ProviderKind, ProviderMetadata, ProviderTransport
 from app.providers.tts.base import TTSProviderBase
 
 
@@ -8,6 +8,8 @@ class MockTTSProvider(TTSProviderBase):
         kind=ProviderKind.TTS,
         display_name="Mock TTS",
         is_mock=True,
+        transports=frozenset({ProviderTransport.BATCH_HTTP}),
+        default_transport=ProviderTransport.BATCH_HTTP,
     )
 
     def is_configured(self) -> bool:

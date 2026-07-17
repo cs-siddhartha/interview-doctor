@@ -4,6 +4,8 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
 
+from app.providers.base import ProviderTransport
+
 
 class InterviewMode(StrEnum):
     RESUME = "resume"
@@ -31,29 +33,39 @@ class TTSProvider(StrEnum):
     SMALLEST_AI = "smallest-ai"
 
 
+class STTProviderConfig(BaseModel):
+    provider: STTProvider = STTProvider.MOCK
+    transport: ProviderTransport = ProviderTransport.BATCH_HTTP
+
+
+class LLMProviderConfig(BaseModel):
+    provider: LLMProvider = LLMProvider.MOCK
+    transport: ProviderTransport = ProviderTransport.BATCH_HTTP
+
+
+class TTSProviderConfig(BaseModel):
+    provider: TTSProvider = TTSProvider.MOCK
+    transport: ProviderTransport = ProviderTransport.BATCH_HTTP
+
+
 class ProviderSelection(BaseModel):
-    stt: STTProvider = STTProvider.MOCK
-    llm: LLMProvider = LLMProvider.MOCK
-    tts: TTSProvider = TTSProvider.MOCK
+    stt: STTProviderConfig = Field(default_factory=STTProviderConfig)
+    llm: LLMProviderConfig = Field(default_factory=LLMProviderConfig)
+    tts: TTSProviderConfig = Field(default_factory=TTSProviderConfig)
 
 
-# Captures the resume setup fields the frontend submits so session creation
-# rejects missing or unrelated setup payloads before provider work begins.
+
 class ResumeSetup(BaseModel):
     targetRole: str = Field(min_length=1)
     intensity: Literal["Balanced", "Strict", "Very strict"]
 
 
-# Captures topic-led interview setup separately from other modes because the
-# values drive different interviewer context and should not share a loose dict.
 class DomainSetup(BaseModel):
     domain: str = Field(min_length=1)
     seniority: Literal["Junior", "Mid-level", "Senior", "Staff"]
     style: Literal["Conversational", "Structured", "Rapid follow-up"]
 
 
-# Captures DSA setup as its own contract because this mode needs code-workspace
-# context and problem difficulty instead of resume/domain fields.
 class DsaSetup(BaseModel):
     topic: Literal["Arrays", "Strings", "Graphs", "Dynamic programming"]
     difficulty: Literal["Easy", "Medium", "Hard"]
@@ -68,24 +80,18 @@ class SessionState(StrEnum):
     SESSION_END = "session_end"
 
 
-# Binds the resume mode discriminator to the exact setup shape accepted for
-# resume-driven sessions while preserving the shared provider selection contract.
 class CreateResumeSessionRequest(BaseModel):
     mode: Literal[InterviewMode.RESUME]
     providers: ProviderSelection = Field(default_factory=ProviderSelection)
     setup: ResumeSetup
 
 
-# Binds the domain mode discriminator to the exact setup shape accepted for
-# topic-led sessions while preserving the shared provider selection contract.
 class CreateDomainSessionRequest(BaseModel):
     mode: Literal[InterviewMode.DOMAIN]
     providers: ProviderSelection = Field(default_factory=ProviderSelection)
     setup: DomainSetup
 
 
-# Binds the DSA mode discriminator to the exact setup shape accepted for
-# code-focused sessions while preserving the shared provider selection contract.
 class CreateDsaSessionRequest(BaseModel):
     mode: Literal[InterviewMode.DSA]
     providers: ProviderSelection = Field(default_factory=ProviderSelection)

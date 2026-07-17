@@ -57,6 +57,7 @@ export function buildProviderQueryFromSelection(providers: ProviderSelection) {
 
   for (const key of providerKeys) {
     params.set(key, providers[key].value);
+    params.set(`${key}Transport`, providers[key].transport);
   }
 
   const query = params.toString();

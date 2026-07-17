@@ -1,4 +1,4 @@
-from app.providers.base import ProviderKind, ProviderMetadata
+from app.providers.base import ProviderKind, ProviderMetadata, ProviderTransport
 from app.providers.llm.base import LLMProviderBase
 
 
@@ -8,6 +8,8 @@ class MockLLMProvider(LLMProviderBase):
         kind=ProviderKind.LLM,
         display_name="Mock LLM",
         is_mock=True,
+        transports=frozenset({ProviderTransport.BATCH_HTTP}),
+        default_transport=ProviderTransport.BATCH_HTTP,
     )
 
     def is_configured(self) -> bool:

@@ -7,18 +7,22 @@ import { QUERY_PARAM_NAMES } from "@/constants/routes";
 import { FORM_FIELD_NAMES } from "@/constants/setup";
 import {
   DEFAULT_PROVIDER_VALUE,
+  DEFAULT_PROVIDER_TRANSPORT,
   PROVIDER_FIELD_IDS,
+  PROVIDER_TRANSPORT_FIELD_IDS,
 } from "@/constants/providers";
-import { providerFields, type ProviderFieldId } from "@/lib/interview-options";
+import { providerFields } from "@/lib/interview-options";
 import {
   interviewModeSchema,
   providerSelectionSchema,
+  type ProviderSelectionValue,
 } from "@/lib/schemas/interview";
 import { setupFormSchema } from "@/lib/schemas/session";
 
 const ignoredSetupKeys = new Set<string>([
   FORM_FIELD_NAMES.mode,
   ...PROVIDER_FIELD_IDS,
+  ...PROVIDER_TRANSPORT_FIELD_IDS,
   FORM_FIELD_NAMES.resume,
 ]);
 
@@ -42,14 +46,18 @@ function readMode(formData: FormData) {
   return interviewModeSchema.parse(formData.get(FORM_FIELD_NAMES.mode));
 }
 
-function readProviders(formData: FormData): Record<ProviderFieldId, string> {
+function readProviders(formData: FormData): ProviderSelectionValue {
   const providers = providerFields.reduce(
     (providers, field) => {
-      providers[field.id] =
-        readString(formData, field.id) || DEFAULT_PROVIDER_VALUE;
+      providers[field.id] = {
+        provider: readString(formData, field.id) || DEFAULT_PROVIDER_VALUE,
+        transport:
+          readString(formData, `${field.id}Transport`) ||
+          DEFAULT_PROVIDER_TRANSPORT,
+      };
       return providers;
     },
-    {} as Record<ProviderFieldId, string>,
+    {} as Record<string, { provider: string; transport: string }>,
   );
 
   return providerSelectionSchema.parse(providers);
@@ -71,7 +79,7 @@ function readSetup(formData: FormData) {
 
 function buildSessionParams(
   sessionId: string,
-  providers: Record<ProviderFieldId, string>,
+  providers: ProviderSelectionValue,
   setup: Record<string, string>,
 ) {
   const params = new URLSearchParams({
@@ -79,7 +87,8 @@ function buildSessionParams(
   });
 
   for (const field of providerFields) {
-    params.set(field.id, providers[field.id]);
+    params.set(field.id, providers[field.id].provider);
+    params.set(`${field.id}Transport`, providers[field.id].transport);
   }
 
   for (const [key, value] of Object.entries(setup)) {

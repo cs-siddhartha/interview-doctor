@@ -1,4 +1,4 @@
-from app.providers.base import ProviderKind, ProviderMetadata
+from app.providers.base import ProviderKind, ProviderMetadata, ProviderTransport
 from app.providers.stt.base import STTProviderBase
 
 
@@ -8,6 +8,8 @@ class MockSTTProvider(STTProviderBase):
         kind=ProviderKind.STT,
         display_name="Mock STT",
         is_mock=True,
+        transports=frozenset({ProviderTransport.BATCH_HTTP}),
+        default_transport=ProviderTransport.BATCH_HTTP,
     )
 
     def is_configured(self) -> bool:

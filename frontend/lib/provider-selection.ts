@@ -1,17 +1,29 @@
 import {
+  PROVIDER_TRANSPORT_OPTIONS,
+} from "@/constants/providers";
+import {
   type ProviderFieldId,
   type ProviderOption,
   providerFields,
   providerOptions,
 } from "@/lib/interview-options";
-import { type ProviderSelectionValue } from "@/lib/schemas/interview";
+import {
+  providerTransportSchema,
+  type ProviderSelectionValue,
+  type ProviderTransportValue,
+} from "@/lib/schemas/interview";
 import {
   searchParamsSchema,
   searchParamValueSchema,
   type SearchParamsRecord,
 } from "@/lib/schemas/session";
 
-export type ProviderSelection = Record<ProviderFieldId, ProviderOption>;
+export type ProviderSelectionItem = ProviderOption & {
+  transport: ProviderTransportValue;
+  transportLabel: string;
+};
+
+export type ProviderSelection = Record<ProviderFieldId, ProviderSelectionItem>;
 
 function readSearchValue(
   searchParams: SearchParamsRecord,
@@ -29,16 +41,43 @@ function resolveProviderValue(fieldId: ProviderFieldId, value?: string) {
   );
 }
 
+function readTransportValue(
+  searchParams: SearchParamsRecord,
+  key: `${ProviderFieldId}Transport`,
+) {
+  const value = searchParamValueSchema.parse(searchParams[key]);
+
+  return value ? providerTransportSchema.parse(value) : undefined;
+}
+
+// Converts transport ids into display labels so provider panels can show the
+// selected API path without duplicating label lookup logic.
+function resolveTransportLabel(transport: ProviderTransportValue) {
+  return (
+    PROVIDER_TRANSPORT_OPTIONS.find((option) => option.value === transport)
+      ?.label ?? transport
+  );
+}
+
 // Converts route search params into the stable provider contract that setup
 // forms and later backend session creation can share.
 export function resolveProviderSelection(searchParams: SearchParamsRecord) {
   const query = searchParamsSchema.parse(searchParams);
 
   return providerFields.reduce<ProviderSelection>((selection, field) => {
-    selection[field.id] = resolveProviderValue(
+    const provider = resolveProviderValue(
       field.id,
       readSearchValue(query, field.id),
     );
+    const transport =
+      readTransportValue(query, `${field.id}Transport`) ??
+      provider.defaultTransport;
+
+    selection[field.id] = {
+      ...provider,
+      transport,
+      transportLabel: resolveTransportLabel(transport),
+    };
 
     return selection;
   }, {} as ProviderSelection);
@@ -50,7 +89,13 @@ export function resolveProviderSelectionFromValues(
   values: ProviderSelectionValue,
 ) {
   return providerFields.reduce<ProviderSelection>((selection, field) => {
-    selection[field.id] = resolveProviderValue(field.id, values[field.id]);
+    const provider = resolveProviderValue(field.id, values[field.id].provider);
+
+    selection[field.id] = {
+      ...provider,
+      transport: values[field.id].transport,
+      transportLabel: resolveTransportLabel(values[field.id].transport),
+    };
 
     return selection;
   }, {} as ProviderSelection);

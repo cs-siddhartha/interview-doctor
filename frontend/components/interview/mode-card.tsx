@@ -22,7 +22,12 @@ import {
 import {
   MODE_CARD_COPY,
 } from "@/constants/app";
-import { DEFAULT_PROVIDER_VALUE } from "@/constants/providers";
+import {
+  DEFAULT_PROVIDER_TRANSPORT,
+  DEFAULT_PROVIDER_VALUE,
+  PROVIDER_TRANSPORT_LABEL,
+  PROVIDER_TRANSPORT_OPTIONS,
+} from "@/constants/providers";
 import { FORM_FIELD_NAMES } from "@/constants/setup";
 import {
   type InterviewMode,
@@ -109,6 +114,30 @@ function ProviderSelect({ id, name, label, options }: ProviderSelectProps) {
           {options.map((provider) => (
             <SelectItem key={provider.value} value={provider.value}>
               {provider.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Label
+        htmlFor={`${id}-transport`}
+        className="text-xs uppercase tracking-normal text-muted-foreground"
+      >
+        {PROVIDER_TRANSPORT_LABEL}
+      </Label>
+      <Select
+        name={`${name}Transport`}
+        defaultValue={DEFAULT_PROVIDER_TRANSPORT}
+      >
+        <SelectTrigger
+          id={`${id}-transport`}
+          className="h-10 w-full rounded-none bg-background"
+        >
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {PROVIDER_TRANSPORT_OPTIONS.map((transport) => (
+            <SelectItem key={transport.value} value={transport.value}>
+              {transport.label}
             </SelectItem>
           ))}
         </SelectContent>
