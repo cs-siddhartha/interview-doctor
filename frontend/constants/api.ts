@@ -8,4 +8,5 @@ export const SESSION_API = {
   jsonContentType: "application/json",
   fetchCache: "no-store",
   createErrorPrefix: "Failed to create session:",
+  getErrorPrefix: "Failed to load session:",
 } as const;

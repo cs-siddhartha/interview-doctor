@@ -4,6 +4,7 @@ import {
   providerFields,
   providerOptions,
 } from "@/lib/interview-options";
+import { type ProviderSelectionValue } from "@/lib/schemas/interview";
 import {
   searchParamsSchema,
   searchParamValueSchema,
@@ -38,6 +39,18 @@ export function resolveProviderSelection(searchParams: SearchParamsRecord) {
       field.id,
       readSearchValue(query, field.id),
     );
+
+    return selection;
+  }, {} as ProviderSelection);
+}
+
+// Converts stored backend provider ids into display-ready labels so fetched
+// sessions and setup query params share the same provider rendering contract.
+export function resolveProviderSelectionFromValues(
+  values: ProviderSelectionValue,
+) {
+  return providerFields.reduce<ProviderSelection>((selection, field) => {
+    selection[field.id] = resolveProviderValue(field.id, values[field.id]);
 
     return selection;
   }, {} as ProviderSelection);

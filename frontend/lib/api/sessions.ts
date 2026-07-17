@@ -32,3 +32,26 @@ export async function createSession(request: CreateSessionRequest) {
 
   return payload.data;
 }
+
+// Loads the short-lived backend session by id so session pages use Redis state
+// as the source of truth instead of reconstructing setup/provider data from URLs.
+export async function getSession(sessionId: string) {
+  const response = await fetch(
+    `${getApiBaseUrl()}${SESSION_API.sessionsPath}/${sessionId}`,
+    {
+      cache: SESSION_API.fetchCache,
+    },
+  );
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error(`${SESSION_API.getErrorPrefix} ${response.status}`);
+  }
+
+  const payload = createSessionResponseSchema.parse(await response.json());
+
+  return payload.data;
+}

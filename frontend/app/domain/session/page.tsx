@@ -1,12 +1,15 @@
+import { notFound } from "next/navigation";
+
 import { SessionPage } from "@/components/interview/session-page";
 import { DOMAIN_MODE } from "@/constants/interview-modes";
+import { getSession } from "@/lib/api/sessions";
 import { interviewModeById } from "@/lib/interview-options";
-import { resolveProviderSelection } from "@/lib/provider-selection";
+import { resolveProviderSelectionFromValues } from "@/lib/provider-selection";
 import { type SearchParamsRecord } from "@/lib/schemas/session";
 import {
-  buildProviderQuery,
+  buildProviderQueryFromSelection,
   resolveSessionId,
-  resolveSessionSetup,
+  resolveSessionSetupFromValues,
 } from "@/lib/session-setup";
 
 type DomainSessionPageProps = {
@@ -17,14 +20,27 @@ export default async function DomainSessionPage({
   searchParams,
 }: DomainSessionPageProps) {
   const query = await searchParams;
+  const sessionId = resolveSessionId(query);
+
+  if (!sessionId) {
+    notFound();
+  }
+
+  const session = await getSession(sessionId);
+
+  if (!session || session.mode !== DOMAIN_MODE.id) {
+    notFound();
+  }
+
+  const providers = resolveProviderSelectionFromValues(session.providers);
 
   return (
     <SessionPage
       mode={interviewModeById.get(DOMAIN_MODE.id)!}
-      providers={resolveProviderSelection(query)}
-      setup={resolveSessionSetup(DOMAIN_MODE.id, query)}
-      backHref={`${DOMAIN_MODE.setupPath}${buildProviderQuery(query)}`}
-      sessionId={resolveSessionId(query)}
+      providers={providers}
+      setup={resolveSessionSetupFromValues(DOMAIN_MODE.id, session.setup)}
+      backHref={`${DOMAIN_MODE.setupPath}${buildProviderQueryFromSelection(providers)}`}
+      sessionId={session.id}
     />
   );
 }

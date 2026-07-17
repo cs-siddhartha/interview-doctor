@@ -15,6 +15,7 @@ import {
   type InterviewModeId,
   type ProviderFieldId,
 } from "@/lib/interview-options";
+import { type ProviderSelection } from "@/lib/provider-selection";
 import {
   searchParamsSchema,
   searchParamValueSchema,
@@ -37,30 +38,25 @@ const setupFieldsByMode: Record<
 
 const providerKeys = new Set<ProviderFieldId>(PROVIDER_FIELD_IDS);
 
-// Builds a display-ready setup summary from mode-specific query params so the
-// mock session can show what will later become backend session context.
-export function resolveSessionSetup(
+// Builds the setup summary from stored session setup values so the session page
+// reflects backend state instead of stale setup fields left in the URL.
+export function resolveSessionSetupFromValues(
   mode: InterviewModeId,
-  searchParams: SearchParamsRecord,
+  setup: Record<string, string>,
 ) {
-  const query = searchParamsSchema.parse(searchParams);
-
   return setupFieldsByMode[mode].map(({ key, label }) => ({
     label,
-    value: formatSearchValue(readSearchValue(query, key)),
+    value: formatSearchValue(setup[key]),
   }));
 }
 
-export function buildProviderQuery(searchParams: SearchParamsRecord) {
-  const parsedParams = searchParamsSchema.parse(searchParams);
+// Preserves provider selections when linking back to setup while still deriving
+// those values from the fetched session rather than the original route query.
+export function buildProviderQueryFromSelection(providers: ProviderSelection) {
   const params = new URLSearchParams();
 
   for (const key of providerKeys) {
-    const value = readSearchValue(parsedParams, key);
-
-    if (value) {
-      params.set(key, value);
-    }
+    params.set(key, providers[key].value);
   }
 
   const query = params.toString();
