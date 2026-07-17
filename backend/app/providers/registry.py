@@ -1,12 +1,20 @@
 from dataclasses import dataclass
 
 from app.providers.base import ProviderKind, ProviderMetadata, ProviderTransport
+from app.providers.llm.anthropic import AnthropicLLMProvider
 from app.providers.llm.base import LLMProviderBase
 from app.providers.llm.mock import MockLLMProvider
+from app.providers.llm.openai import OpenAILLMProvider
 from app.providers.stt.base import STTProviderBase
+from app.providers.stt.deepgram import DeepgramSTTProvider
 from app.providers.stt.mock import MockSTTProvider
+from app.providers.stt.smallest_ai import SmallestAISTTProvider
+from app.providers.stt.whisper import WhisperSTTProvider
 from app.providers.tts.base import TTSProviderBase
+from app.providers.tts.cartesia import CartesiaTTSProvider
+from app.providers.tts.elevenlabs import ElevenLabsTTSProvider
 from app.providers.tts.mock import MockTTSProvider
+from app.providers.tts.smallest_ai import SmallestAITTSProvider
 from app.schemas.session import ProviderSelection
 
 
@@ -29,6 +37,10 @@ class ProviderNotImplementedError(ProviderRegistryError):
     pass
 
 
+class ProviderNotConfiguredError(ProviderRegistryError):
+    pass
+
+
 stt_provider_catalog: dict[str, ProviderMetadata] = {
     MockSTTProvider.metadata.key: MockSTTProvider.metadata,
     "deepgram": ProviderMetadata(
@@ -39,7 +51,7 @@ stt_provider_catalog: dict[str, ProviderMetadata] = {
         transports=frozenset(
             {ProviderTransport.BATCH_HTTP, ProviderTransport.WEBSOCKET}
         ),
-        default_transport=ProviderTransport.WEBSOCKET,
+        default_transport=ProviderTransport.BATCH_HTTP,
     ),
     "smallest-ai": ProviderMetadata(
         key="smallest-ai",
@@ -49,7 +61,7 @@ stt_provider_catalog: dict[str, ProviderMetadata] = {
         transports=frozenset(
             {ProviderTransport.BATCH_HTTP, ProviderTransport.WEBSOCKET}
         ),
-        default_transport=ProviderTransport.WEBSOCKET,
+        default_transport=ProviderTransport.BATCH_HTTP,
     ),
     "whisper": ProviderMetadata(
         key="whisper",
@@ -76,7 +88,7 @@ llm_provider_catalog: dict[str, ProviderMetadata] = {
                 ProviderTransport.WEBRTC,
             }
         ),
-        default_transport=ProviderTransport.STREAMING_HTTP,
+        default_transport=ProviderTransport.BATCH_HTTP,
     ),
     "anthropic": ProviderMetadata(
         key="anthropic",
@@ -86,7 +98,7 @@ llm_provider_catalog: dict[str, ProviderMetadata] = {
         transports=frozenset(
             {ProviderTransport.BATCH_HTTP, ProviderTransport.STREAMING_HTTP}
         ),
-        default_transport=ProviderTransport.STREAMING_HTTP,
+        default_transport=ProviderTransport.BATCH_HTTP,
     ),
 }
 
@@ -104,7 +116,7 @@ tts_provider_catalog: dict[str, ProviderMetadata] = {
                 ProviderTransport.WEBSOCKET,
             }
         ),
-        default_transport=ProviderTransport.WEBSOCKET,
+        default_transport=ProviderTransport.BATCH_HTTP,
     ),
     "elevenlabs": ProviderMetadata(
         key="elevenlabs",
@@ -118,7 +130,7 @@ tts_provider_catalog: dict[str, ProviderMetadata] = {
                 ProviderTransport.WEBSOCKET,
             }
         ),
-        default_transport=ProviderTransport.WEBSOCKET,
+        default_transport=ProviderTransport.BATCH_HTTP,
     ),
     "smallest-ai": ProviderMetadata(
         key="smallest-ai",
@@ -132,20 +144,28 @@ tts_provider_catalog: dict[str, ProviderMetadata] = {
                 ProviderTransport.WEBSOCKET,
             }
         ),
-        default_transport=ProviderTransport.WEBSOCKET,
+        default_transport=ProviderTransport.BATCH_HTTP,
     ),
 }
 
 stt_providers: dict[str, type[STTProviderBase]] = {
     MockSTTProvider.metadata.key: MockSTTProvider,
+    DeepgramSTTProvider.metadata.key: DeepgramSTTProvider,
+    SmallestAISTTProvider.metadata.key: SmallestAISTTProvider,
+    WhisperSTTProvider.metadata.key: WhisperSTTProvider,
 }
 
 llm_providers: dict[str, type[LLMProviderBase]] = {
     MockLLMProvider.metadata.key: MockLLMProvider,
+    OpenAILLMProvider.metadata.key: OpenAILLMProvider,
+    AnthropicLLMProvider.metadata.key: AnthropicLLMProvider,
 }
 
 tts_providers: dict[str, type[TTSProviderBase]] = {
     MockTTSProvider.metadata.key: MockTTSProvider,
+    CartesiaTTSProvider.metadata.key: CartesiaTTSProvider,
+    ElevenLabsTTSProvider.metadata.key: ElevenLabsTTSProvider,
+    SmallestAITTSProvider.metadata.key: SmallestAITTSProvider,
 }
 
 
@@ -167,7 +187,9 @@ def resolve_stt_provider(
     if provider_type is None:
         raise ProviderNotImplementedError(f"STT provider '{key}' is not implemented")
 
-    return provider_type()
+    validate_adapter_transport(key, transport, provider_type.metadata)
+
+    return build_configured_provider(provider_type)
 
 
 def resolve_llm_provider(
@@ -180,7 +202,9 @@ def resolve_llm_provider(
     if provider_type is None:
         raise ProviderNotImplementedError(f"LLM provider '{key}' is not implemented")
 
-    return provider_type()
+    validate_adapter_transport(key, transport, provider_type.metadata)
+
+    return build_configured_provider(provider_type)
 
 
 def resolve_tts_provider(
@@ -193,7 +217,9 @@ def resolve_tts_provider(
     if provider_type is None:
         raise ProviderNotImplementedError(f"TTS provider '{key}' is not implemented")
 
-    return provider_type()
+    validate_adapter_transport(key, transport, provider_type.metadata)
+
+    return build_configured_provider(provider_type)
 
 
 def validate_provider_transport(
@@ -209,3 +235,29 @@ def validate_provider_transport(
         )
 
     return metadata
+
+def validate_adapter_transport(
+    key: str,
+    transport: ProviderTransport,
+    metadata: ProviderMetadata,
+) -> None:
+    if transport not in metadata.transports:
+        raise ProviderNotImplementedError(
+            f"{metadata.display_name} provider '{key}' does not implement "
+            f"{transport.value}"
+        )
+
+
+def build_configured_provider[
+    ProviderType: STTProviderBase | LLMProviderBase | TTSProviderBase,
+](
+    provider_type: type[ProviderType],
+) -> ProviderType:
+    provider = provider_type()
+
+    if not provider.is_configured():
+        raise ProviderNotConfiguredError(
+            f"{provider.metadata.display_name} provider is not configured"
+        )
+
+    return provider

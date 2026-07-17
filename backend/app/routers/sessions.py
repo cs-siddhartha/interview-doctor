@@ -9,6 +9,7 @@ from redis.asyncio import Redis
 
 from app.core.redis import get_redis_client
 from app.providers.registry import (
+    ProviderNotConfiguredError,
     ProviderNotImplementedError,
     UnsupportedProviderTransportError,
     build_provider_stack,
@@ -59,6 +60,11 @@ async def create_session(
     except ProviderNotImplementedError as error:
         raise HTTPException(
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail=str(error),
+        ) from error
+    except ProviderNotConfiguredError as error:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=str(error),
         ) from error
 
@@ -131,14 +137,25 @@ async def create_turn(
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
             detail=str(error),
         ) from error
+    except ProviderNotConfiguredError as error:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(error),
+        ) from error
 
-    audio = decode_turn_audio(request.audio_base64)
-    transcript = await provider_stack.stt.transcribe(audio)
-    ai_text = await provider_stack.llm.generate_response(
-        prompt=transcript,
-        context=session.model_dump(mode="json"),
-    )
-    ai_audio = await provider_stack.tts.synthesize(ai_text)
+    try:
+        audio = decode_turn_audio(request.audio_base64)
+        transcript = await provider_stack.stt.transcribe(audio)
+        ai_text = await provider_stack.llm.generate_response(
+            prompt=transcript,
+            context=session.model_dump(mode="json"),
+        )
+        ai_audio = await provider_stack.tts.synthesize(ai_text)
+    except RuntimeError as error:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=str(error),
+        ) from error
     candidate_turn = TranscriptTurn(
         speaker=TranscriptSpeaker.CANDIDATE,
         text=transcript,

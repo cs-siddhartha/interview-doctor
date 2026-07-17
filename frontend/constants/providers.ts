@@ -44,12 +44,12 @@ export const PROVIDER_OPTIONS = {
     {
       label: "Deepgram",
       value: STT_PROVIDER_VALUES[1],
-      defaultTransport: "websocket",
+      defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
     {
       label: "Smallest AI",
       value: STT_PROVIDER_VALUES[2],
-      defaultTransport: "websocket",
+      defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
     {
       label: "Whisper",
@@ -66,12 +66,12 @@ export const PROVIDER_OPTIONS = {
     {
       label: "OpenAI",
       value: LLM_PROVIDER_VALUES[1],
-      defaultTransport: "streaming_http",
+      defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
     {
       label: "Anthropic",
       value: LLM_PROVIDER_VALUES[2],
-      defaultTransport: "streaming_http",
+      defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
   ],
   tts: [
@@ -83,17 +83,17 @@ export const PROVIDER_OPTIONS = {
     {
       label: "Cartesia",
       value: TTS_PROVIDER_VALUES[1],
-      defaultTransport: "websocket",
+      defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
     {
       label: "ElevenLabs",
       value: TTS_PROVIDER_VALUES[2],
-      defaultTransport: "websocket",
+      defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
     {
       label: "Smallest AI",
       value: TTS_PROVIDER_VALUES[3],
-      defaultTransport: "websocket",
+      defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
   ],
 } as const;
