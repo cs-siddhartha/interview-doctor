@@ -2,7 +2,10 @@ import { SESSION_API } from "@/constants/api";
 import {
   createSessionRequestSchema,
   createSessionResponseSchema,
+  createTurnRequestSchema,
+  createTurnResponseSchema,
   type CreateSessionRequest,
+  type CreateTurnRequest,
 } from "@/lib/schemas/session";
 
 function getApiBaseUrl() {
@@ -52,6 +55,32 @@ export async function getSession(sessionId: string) {
   }
 
   const payload = createSessionResponseSchema.parse(await response.json());
+
+  return payload.data;
+}
+
+export async function createTurn(
+  sessionId: string,
+  request: CreateTurnRequest,
+) {
+  const body = createTurnRequestSchema.parse(request);
+  const response = await fetch(
+    `${getApiBaseUrl()}${SESSION_API.sessionsPath}/${sessionId}/turns`,
+    {
+      method: SESSION_API.method,
+      headers: {
+        [SESSION_API.contentTypeHeader]: SESSION_API.jsonContentType,
+      },
+      body: JSON.stringify(body),
+      cache: SESSION_API.fetchCache,
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(`${SESSION_API.getErrorPrefix} ${response.status}`);
+  }
+
+  const payload = createTurnResponseSchema.parse(await response.json());
 
   return payload.data;
 }

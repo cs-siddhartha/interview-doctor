@@ -1,12 +1,10 @@
 import Link from "next/link";
 import {
   IconArrowLeft,
-  IconCircleFilled,
   IconCode,
-  IconMicrophone,
-  IconPlayerStop,
 } from "@tabler/icons-react";
 
+import { SessionTurnPanel } from "@/components/interview/session-turn-panel";
 import { ProviderStack } from "@/components/interview/setup/provider-stack";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,7 +12,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -22,6 +19,7 @@ import { DSA_MODE } from "@/constants/interview-modes";
 import { SESSION_COPY } from "@/constants/session";
 import { type InterviewMode } from "@/lib/interview-options";
 import { type ProviderSelection } from "@/lib/provider-selection";
+import { type TranscriptTurn } from "@/lib/schemas/session";
 import { type SessionSetupItem } from "@/lib/session-setup";
 
 type SessionPageProps = {
@@ -29,7 +27,8 @@ type SessionPageProps = {
   providers: ProviderSelection;
   setup: SessionSetupItem[];
   backHref: string;
-  sessionId?: string;
+  sessionId: string;
+  transcript: TranscriptTurn[];
 };
 
 export function SessionPage({
@@ -38,6 +37,7 @@ export function SessionPage({
   setup,
   backHref,
   sessionId,
+  transcript,
 }: SessionPageProps) {
   const isDsa = mode.mode === DSA_MODE.id;
 
@@ -47,10 +47,13 @@ export function SessionPage({
         <div className="space-y-6">
           <SessionHeader mode={mode} backHref={backHref} sessionId={sessionId} />
           <div className={isDsa ? "grid gap-6 lg:grid-cols-[1fr_420px]" : ""}>
-            <VoiceSessionPanel mode={mode} />
+            <SessionTurnPanel
+              mode={mode}
+              sessionId={sessionId}
+              initialTranscript={transcript}
+            />
             {isDsa ? <CodeWorkspace /> : null}
           </div>
-          <TranscriptPanel />
         </div>
 
         <div className="space-y-6">
@@ -69,7 +72,7 @@ function SessionHeader({
 }: {
   mode: InterviewMode;
   backHref: string;
-  sessionId?: string;
+  sessionId: string;
 }) {
   return (
     <header className="space-y-5 border-b border-border pb-6">
@@ -94,109 +97,12 @@ function SessionHeader({
         <p className="text-base leading-7 text-muted-foreground">
           {SESSION_COPY.description}
         </p>
-        {sessionId ? (
-          <p className="text-sm font-medium text-muted-foreground">
-            {SESSION_COPY.sessionIdLabel}{" "}
-            <span className="text-foreground">{sessionId}</span>
-          </p>
-        ) : null}
+        <p className="text-sm font-medium text-muted-foreground">
+          {SESSION_COPY.sessionIdLabel}{" "}
+          <span className="text-foreground">{sessionId}</span>
+        </p>
       </div>
     </header>
-  );
-}
-
-function VoiceSessionPanel({ mode }: { mode: InterviewMode }) {
-  return (
-    <Card className="rounded-none shadow-none">
-      <CardHeader>
-        <CardTitle>{SESSION_COPY.liveInterviewTitle}</CardTitle>
-        <CardDescription>
-          {SESSION_COPY.liveInterviewDescription}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-5">
-        <div className="grid gap-3 sm:grid-cols-3">
-          <StatusMetric
-            label={SESSION_COPY.metrics.state.label}
-            value={SESSION_COPY.metrics.state.value}
-          />
-          <StatusMetric label={SESSION_COPY.metrics.mode.label} value={mode.signal} />
-          <StatusMetric
-            label={SESSION_COPY.metrics.elapsed.label}
-            value={SESSION_COPY.metrics.elapsed.value}
-          />
-        </div>
-
-        <div className="flex min-h-56 flex-col items-center justify-center gap-5 border border-border bg-background p-6 text-center">
-          <div className="grid size-20 place-items-center rounded-full bg-primary text-primary-foreground">
-            <IconMicrophone className="size-8" aria-hidden="true" />
-          </div>
-          <div className="space-y-2">
-            <p className="text-lg font-medium">{SESSION_COPY.audioTitle}</p>
-            <p className="max-w-md text-sm leading-6 text-muted-foreground">
-              {SESSION_COPY.audioDescription}
-            </p>
-          </div>
-        </div>
-      </CardContent>
-      <CardFooter className="flex flex-col gap-3 border-t sm:flex-row">
-        <Button type="button" className="h-10 w-full sm:w-auto">
-          <IconMicrophone
-            className="size-4"
-            aria-hidden="true"
-            data-icon="inline-start"
-          />
-          {SESSION_COPY.startTurnLabel}
-        </Button>
-        <Button type="button" variant="outline" className="h-10 w-full sm:w-auto">
-          <IconPlayerStop
-            className="size-4"
-            aria-hidden="true"
-            data-icon="inline-start"
-          />
-          {SESSION_COPY.endSessionLabel}
-        </Button>
-      </CardFooter>
-    </Card>
-  );
-}
-
-function StatusMetric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="grid gap-1 border border-border bg-background p-3">
-      <span className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
-        {label}
-      </span>
-      <span className="flex items-center gap-2 text-sm font-medium">
-        {label === SESSION_COPY.metrics.state.label ? (
-          <IconCircleFilled className="size-2 text-primary" aria-hidden="true" />
-        ) : null}
-        {value}
-      </span>
-    </div>
-  );
-}
-
-function TranscriptPanel() {
-  return (
-    <Card className="rounded-none shadow-none">
-      <CardHeader>
-        <CardTitle>{SESSION_COPY.transcriptTitle}</CardTitle>
-        <CardDescription>
-          {SESSION_COPY.transcriptDescription}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-3">
-        {SESSION_COPY.transcriptTurns.map((turn) => (
-          <div key={turn.speaker} className="border border-border bg-background p-4">
-            <p className="mb-2 text-xs font-medium uppercase tracking-normal text-muted-foreground">
-              {turn.speaker}
-            </p>
-            <p className="text-sm leading-6">{turn.text}</p>
-          </div>
-        ))}
-      </CardContent>
-    </Card>
   );
 }
 

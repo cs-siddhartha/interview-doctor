@@ -82,10 +82,48 @@ export const createSessionResponseSchema = z.object({
     providers: providerSelectionSchema,
     setup: z.record(z.string(), z.string()),
     state: z.string(),
+    transcript: z
+      .array(
+        z.object({
+          speaker: z.string().min(1),
+          text: z.string().min(1),
+          created_at: z.string(),
+        }),
+      )
+      .default([]),
     created_at: z.string(),
     updated_at: z.string(),
   }),
 });
 
+export const createTurnRequestSchema = z.object({
+  audio_base64: z.string(),
+});
+
+export const turnResultSchema = z.object({
+  session_id: z.string().min(1),
+  candidate_turn: z.object({
+    speaker: z.string().min(1),
+    text: z.string().min(1),
+    created_at: z.string(),
+  }),
+  ai_turn: z.object({
+    speaker: z.string().min(1),
+    text: z.string().min(1),
+    created_at: z.string(),
+  }),
+  audio_base64: z.string(),
+  state: z.string(),
+});
+
+export const createTurnResponseSchema = z.object({
+  data: turnResultSchema,
+});
+
 export type SearchParamsRecord = z.input<typeof searchParamsSchema>;
 export type CreateSessionRequest = z.infer<typeof createSessionRequestSchema>;
+export type CreateTurnRequest = z.infer<typeof createTurnRequestSchema>;
+export type TurnResult = z.infer<typeof turnResultSchema>;
+export type TranscriptTurn = z.infer<
+  typeof createSessionResponseSchema
+>["data"]["transcript"][number];

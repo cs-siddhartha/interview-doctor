@@ -41,6 +41,7 @@ export default async function DsaSessionPage({
       setup={resolveSessionSetupFromValues(DSA_MODE.id, session.setup)}
       backHref={`${DSA_MODE.setupPath}${buildProviderQueryFromSelection(providers)}`}
       sessionId={session.id}
+      transcript={session.transcript}
     />
   );
 }

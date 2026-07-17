@@ -51,9 +51,13 @@ export const SESSION_COPY = {
   audioDescription:
     "The real session will stream microphone audio to the backend and play synthesized interviewer responses.",
   startTurnLabel: "Start mock turn",
+  turnInProgressLabel: "Running mock turn",
   endSessionLabel: "End session",
+  turnErrorMessage: "Mock turn failed.",
   transcriptTitle: "Transcript",
   transcriptDescription: "Mock turns show the structure that streaming events will fill.",
+  transcriptEmptyTitle: "No turns yet.",
+  transcriptEmptyDescription: "Start a mock turn to add the first transcript entries.",
   transcriptTurns: [
     {
       speaker: "AI interviewer",

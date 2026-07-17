@@ -41,6 +41,7 @@ export default async function ResumeSessionPage({
       setup={resolveSessionSetupFromValues(RESUME_MODE.id, session.setup)}
       backHref={`${RESUME_MODE.setupPath}${buildProviderQueryFromSelection(providers)}`}
       sessionId={session.id}
+      transcript={session.transcript}
     />
   );
 }

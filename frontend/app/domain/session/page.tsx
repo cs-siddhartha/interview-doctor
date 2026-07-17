@@ -41,6 +41,7 @@ export default async function DomainSessionPage({
       setup={resolveSessionSetupFromValues(DOMAIN_MODE.id, session.setup)}
       backHref={`${DOMAIN_MODE.setupPath}${buildProviderQueryFromSelection(providers)}`}
       sessionId={session.id}
+      transcript={session.transcript}
     />
   );
 }
