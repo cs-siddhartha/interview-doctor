@@ -1,5 +1,7 @@
 export const PROVIDER_FIELD_IDS = ["stt", "llm", "tts"] as const;
-export const DEFAULT_PROVIDER_VALUE = "mock";
+export const DEFAULT_STT_PROVIDER_VALUE = "whisper";
+export const DEFAULT_LLM_PROVIDER_VALUE = "openai";
+export const DEFAULT_TTS_PROVIDER_VALUE = "elevenlabs";
 export const PROVIDER_TRANSPORT_VALUES = [
   "batch_http",
   "streaming_http",
@@ -15,29 +17,26 @@ export const PROVIDER_TRANSPORT_FIELD_IDS = [
 export const PROVIDER_TRANSPORT_LABEL = "Transport";
 
 export const STT_PROVIDER_VALUES = [
-  DEFAULT_PROVIDER_VALUE,
+  DEFAULT_STT_PROVIDER_VALUE,
   "deepgram",
   "smallest-ai",
-  "whisper",
 ] as const;
 
 export const LLM_PROVIDER_VALUES = [
-  DEFAULT_PROVIDER_VALUE,
-  "openai",
+  DEFAULT_LLM_PROVIDER_VALUE,
   "anthropic",
 ] as const;
 
 export const TTS_PROVIDER_VALUES = [
-  DEFAULT_PROVIDER_VALUE,
+  DEFAULT_TTS_PROVIDER_VALUE,
   "cartesia",
-  "elevenlabs",
   "smallest-ai",
 ] as const;
 
 export const PROVIDER_OPTIONS = {
   stt: [
     {
-      label: "Mock",
+      label: "Whisper",
       value: STT_PROVIDER_VALUES[0],
       defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
@@ -51,32 +50,22 @@ export const PROVIDER_OPTIONS = {
       value: STT_PROVIDER_VALUES[2],
       defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
-    {
-      label: "Whisper",
-      value: STT_PROVIDER_VALUES[3],
-      defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
-    },
   ],
   llm: [
     {
-      label: "Mock",
+      label: "OpenAI",
       value: LLM_PROVIDER_VALUES[0],
       defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
     {
-      label: "OpenAI",
-      value: LLM_PROVIDER_VALUES[1],
-      defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
-    },
-    {
       label: "Anthropic",
-      value: LLM_PROVIDER_VALUES[2],
+      value: LLM_PROVIDER_VALUES[1],
       defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
   ],
   tts: [
     {
-      label: "Mock",
+      label: "ElevenLabs",
       value: TTS_PROVIDER_VALUES[0],
       defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
@@ -86,13 +75,8 @@ export const PROVIDER_OPTIONS = {
       defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
     {
-      label: "ElevenLabs",
-      value: TTS_PROVIDER_VALUES[2],
-      defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
-    },
-    {
       label: "Smallest AI",
-      value: TTS_PROVIDER_VALUES[3],
+      value: TTS_PROVIDER_VALUES[2],
       defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
   ],

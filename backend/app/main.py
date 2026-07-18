@@ -7,7 +7,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="Interview Doctor API",
         version="0.1.0",
-        description="Mock-first API for voice AI interview sessions.",
+        description="API for configurable voice AI interview sessions.",
     )
     app.include_router(api.router)
 

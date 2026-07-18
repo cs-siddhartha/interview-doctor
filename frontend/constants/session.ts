@@ -79,7 +79,7 @@ export const SESSION_COPY = {
     },
     {
       speaker: "AI interviewer",
-      text: "Mock follow-up: explain the tradeoff behind your previous answer.",
+      text: "Follow-up: explain the tradeoff behind your previous answer.",
     },
   ],
   codeWorkspaceTitle: "Code workspace",

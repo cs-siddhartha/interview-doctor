@@ -19,7 +19,6 @@ class AnthropicLLMProvider(LLMProviderBase):
         key="anthropic",
         kind=ProviderKind.LLM,
         display_name="Anthropic",
-        is_mock=False,
         transports=frozenset({ProviderTransport.BATCH_HTTP}),
         default_transport=ProviderTransport.BATCH_HTTP,
     )

@@ -24,7 +24,6 @@ import {
 } from "@/constants/app";
 import {
   DEFAULT_PROVIDER_TRANSPORT,
-  DEFAULT_PROVIDER_VALUE,
   PROVIDER_TRANSPORT_LABEL,
   PROVIDER_TRANSPORT_OPTIONS,
 } from "@/constants/providers";
@@ -94,7 +93,7 @@ type ProviderSelectProps = {
   id: string;
   name: string;
   label: string;
-  options: { label: string; value: string }[];
+  options: { label: string; value: string; defaultTransport: string }[];
 };
 
 function ProviderSelect({ id, name, label, options }: ProviderSelectProps) {
@@ -106,7 +105,7 @@ function ProviderSelect({ id, name, label, options }: ProviderSelectProps) {
       >
         {label}
       </Label>
-      <Select name={name} defaultValue={DEFAULT_PROVIDER_VALUE}>
+      <Select name={name} defaultValue={options[0].value}>
         <SelectTrigger id={id} className="h-10 w-full rounded-none bg-background">
           <SelectValue />
         </SelectTrigger>

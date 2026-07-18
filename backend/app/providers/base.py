@@ -20,7 +20,6 @@ class ProviderMetadata:
     key: str
     kind: ProviderKind
     display_name: str
-    is_mock: bool
     transports: frozenset[ProviderTransport]
     default_transport: ProviderTransport
 

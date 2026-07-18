@@ -14,37 +14,34 @@ class InterviewMode(StrEnum):
 
 
 class STTProvider(StrEnum):
-    MOCK = "mock"
     DEEPGRAM = "deepgram"
     SMALLEST_AI = "smallest-ai"
     WHISPER = "whisper"
 
 
 class LLMProvider(StrEnum):
-    MOCK = "mock"
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
 
 
 class TTSProvider(StrEnum):
-    MOCK = "mock"
     CARTESIA = "cartesia"
     ELEVENLABS = "elevenlabs"
     SMALLEST_AI = "smallest-ai"
 
 
 class STTProviderConfig(BaseModel):
-    provider: STTProvider = STTProvider.MOCK
+    provider: STTProvider = STTProvider.WHISPER
     transport: ProviderTransport = ProviderTransport.BATCH_HTTP
 
 
 class LLMProviderConfig(BaseModel):
-    provider: LLMProvider = LLMProvider.MOCK
+    provider: LLMProvider = LLMProvider.OPENAI
     transport: ProviderTransport = ProviderTransport.BATCH_HTTP
 
 
 class TTSProviderConfig(BaseModel):
-    provider: TTSProvider = TTSProvider.MOCK
+    provider: TTSProvider = TTSProvider.ELEVENLABS
     transport: ProviderTransport = ProviderTransport.BATCH_HTTP
 
 

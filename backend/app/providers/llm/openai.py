@@ -18,7 +18,6 @@ class OpenAILLMProvider(LLMProviderBase):
         key="openai",
         kind=ProviderKind.LLM,
         display_name="OpenAI",
-        is_mock=False,
         transports=frozenset({ProviderTransport.BATCH_HTTP}),
         default_transport=ProviderTransport.BATCH_HTTP,
     )

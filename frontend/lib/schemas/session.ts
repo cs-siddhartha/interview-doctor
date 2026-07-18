@@ -121,6 +121,10 @@ export const createTurnResponseSchema = z.object({
   data: turnResultSchema,
 });
 
+export const apiErrorResponseSchema = z.object({
+  detail: z.string().min(1),
+});
+
 export type SearchParamsRecord = z.input<typeof searchParamsSchema>;
 export type CreateSessionRequest = z.infer<typeof createSessionRequestSchema>;
 export type CreateTurnRequest = z.infer<typeof createTurnRequestSchema>;

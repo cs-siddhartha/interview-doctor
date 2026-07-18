@@ -1,5 +1,6 @@
 import { SESSION_API } from "@/constants/api";
 import {
+  apiErrorResponseSchema,
   createSessionRequestSchema,
   createSessionResponseSchema,
   createTurnRequestSchema,
@@ -28,7 +29,7 @@ export async function createSession(request: CreateSessionRequest) {
   });
 
   if (!response.ok) {
-    throw new Error(`${SESSION_API.createErrorPrefix} ${response.status}`);
+    throw new Error(await readApiErrorMessage(response, SESSION_API.createErrorPrefix));
   }
 
   const payload = createSessionResponseSchema.parse(await response.json());
@@ -51,7 +52,7 @@ export async function getSession(sessionId: string) {
   }
 
   if (!response.ok) {
-    throw new Error(`${SESSION_API.getErrorPrefix} ${response.status}`);
+    throw new Error(await readApiErrorMessage(response, SESSION_API.getErrorPrefix));
   }
 
   const payload = createSessionResponseSchema.parse(await response.json());
@@ -77,10 +78,22 @@ export async function createTurn(
   );
 
   if (!response.ok) {
-    throw new Error(`${SESSION_API.getErrorPrefix} ${response.status}`);
+    throw new Error(await readApiErrorMessage(response, SESSION_API.getErrorPrefix));
   }
 
   const payload = createTurnResponseSchema.parse(await response.json());
 
   return payload.data;
+}
+
+// Reads FastAPI error payloads so setup and session screens can display the
+// actual provider/configuration failure instead of a bare HTTP status code.
+async function readApiErrorMessage(response: Response, prefix: string) {
+  try {
+    const payload = apiErrorResponseSchema.parse(await response.json());
+
+    return `${prefix} ${payload.detail}`;
+  } catch {
+    return `${prefix} ${response.status}`;
+  }
 }

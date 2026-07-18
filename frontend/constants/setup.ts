@@ -64,7 +64,10 @@ export const SETUP_COPY = {
   backLabel: "Back",
   titleSuffix: "setup",
   description:
-    "Confirm the basic interview inputs before moving into the mock live session. This step keeps provider choices scoped to this interview.",
-  footerDescription: "Continue into a mock session shell for this interview.",
+    "Confirm the basic interview inputs before moving into the live session. This step keeps provider choices scoped to this interview.",
+  footerDescription: "Continue into a live session for this interview.",
   continueLabel: "Continue",
+  submittingLabel: "Creating",
+  invalidSetupMessage: "Check the setup fields and try again.",
+  createSessionErrorMessage: "Could not create the interview session.",
 } as const;

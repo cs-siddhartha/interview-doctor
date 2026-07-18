@@ -16,8 +16,7 @@ docker compose up --build
 
 ## Provider Configuration
 
-Mock providers work without credentials. Real providers require these environment
-variables before session creation:
+Provider credentials are required before session creation:
 
 ```text
 DEEPGRAM_API_KEY

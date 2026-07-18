@@ -9,6 +9,6 @@ export const MODE_CARD_COPY = {
 
 export const APP_METADATA = {
   title: "Interview Doctor",
-  description: "Practice focused mock interviews against an AI interviewer.",
+  description: "Practice focused interviews against an AI interviewer.",
   htmlLang: "en",
 } as const;

@@ -1,6 +1,12 @@
+"use client";
+
+import { useActionState } from "react";
 import { IconChevronRight } from "@tabler/icons-react";
 
-import { createSessionFromSetup } from "@/app/actions/sessions";
+import {
+  createSessionFromSetup,
+  initialCreateSessionActionState,
+} from "@/app/actions/sessions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { FORM_FIELD_NAMES, SETUP_COPY } from "@/constants/setup";
@@ -15,8 +21,13 @@ type SetupFormProps = {
 };
 
 export function SetupForm({ mode, providers }: SetupFormProps) {
+  const [state, formAction, isPending] = useActionState(
+    createSessionFromSetup,
+    initialCreateSessionActionState,
+  );
+
   return (
-    <form action={createSessionFromSetup}>
+    <form action={formAction}>
       <Card className="rounded-none shadow-none">
         {providerFields.map((field) => (
           <input
@@ -38,14 +49,23 @@ export function SetupForm({ mode, providers }: SetupFormProps) {
 
         <CardContent className="grid gap-5">
           <SetupFields mode={mode.mode} />
+          {state.error ? (
+            <p className="border border-destructive/40 bg-destructive/5 p-3 text-sm font-medium text-destructive">
+              {state.error}
+            </p>
+          ) : null}
         </CardContent>
 
         <CardFooter className="flex flex-col gap-3 border-t sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm leading-6 text-muted-foreground">
             {SETUP_COPY.footerDescription}
           </p>
-          <Button type="submit" className="h-10 justify-between sm:w-48">
-            {SETUP_COPY.continueLabel}
+          <Button
+            type="submit"
+            className="h-10 justify-between sm:w-48"
+            disabled={isPending}
+          >
+            {isPending ? SETUP_COPY.submittingLabel : SETUP_COPY.continueLabel}
             <IconChevronRight
               className="size-4"
               aria-hidden="true"

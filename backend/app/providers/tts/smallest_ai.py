@@ -20,7 +20,6 @@ class SmallestAITTSProvider(TTSProviderBase):
         key="smallest-ai",
         kind=ProviderKind.TTS,
         display_name="Smallest AI",
-        is_mock=False,
         transports=frozenset({ProviderTransport.BATCH_HTTP}),
         default_transport=ProviderTransport.BATCH_HTTP,
     )

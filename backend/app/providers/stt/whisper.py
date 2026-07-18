@@ -24,7 +24,6 @@ class WhisperSTTProvider(STTProviderBase):
         key="whisper",
         kind=ProviderKind.STT,
         display_name="Whisper",
-        is_mock=False,
         transports=frozenset({ProviderTransport.BATCH_HTTP}),
         default_transport=ProviderTransport.BATCH_HTTP,
     )

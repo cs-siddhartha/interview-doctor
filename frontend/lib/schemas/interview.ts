@@ -1,8 +1,10 @@
 import { z } from "zod";
 
 import {
-  DEFAULT_PROVIDER_VALUE,
+  DEFAULT_LLM_PROVIDER_VALUE,
   DEFAULT_PROVIDER_TRANSPORT,
+  DEFAULT_STT_PROVIDER_VALUE,
+  DEFAULT_TTS_PROVIDER_VALUE,
   LLM_PROVIDER_VALUES,
   PROVIDER_FIELD_IDS,
   PROVIDER_TRANSPORT_VALUES,
@@ -20,17 +22,17 @@ export const llmProviderSchema = z.enum(LLM_PROVIDER_VALUES);
 export const ttsProviderSchema = z.enum(TTS_PROVIDER_VALUES);
 
 export const sttProviderConfigSchema = z.object({
-  provider: sttProviderSchema.catch(DEFAULT_PROVIDER_VALUE),
+  provider: sttProviderSchema.catch(DEFAULT_STT_PROVIDER_VALUE),
   transport: providerTransportSchema.catch(DEFAULT_PROVIDER_TRANSPORT),
 });
 
 export const llmProviderConfigSchema = z.object({
-  provider: llmProviderSchema.catch(DEFAULT_PROVIDER_VALUE),
+  provider: llmProviderSchema.catch(DEFAULT_LLM_PROVIDER_VALUE),
   transport: providerTransportSchema.catch(DEFAULT_PROVIDER_TRANSPORT),
 });
 
 export const ttsProviderConfigSchema = z.object({
-  provider: ttsProviderSchema.catch(DEFAULT_PROVIDER_VALUE),
+  provider: ttsProviderSchema.catch(DEFAULT_TTS_PROVIDER_VALUE),
   transport: providerTransportSchema.catch(DEFAULT_PROVIDER_TRANSPORT),
 });
 
