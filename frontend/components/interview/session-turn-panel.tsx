@@ -50,7 +50,9 @@ export function SessionTurnPanel({
         modeId={modeId}
         modeSignal={modeSignal}
         question={
-          session.currentQuestion ?? SESSION_COPY.waitingForQuestionMessage
+          session.hasStarted
+            ? session.currentQuestion ?? SESSION_COPY.waitingForQuestionMessage
+            : SESSION_COPY.hiddenQuestionMessage
         }
         turnState={session.turnState}
         recorderState={session.recorderState}
@@ -64,7 +66,9 @@ export function SessionTurnPanel({
         onRecordButton={session.toggleRecording}
         onEndSession={session.endSession}
       />
-      <TranscriptPanel transcript={session.transcript} />
+      {session.hasStarted ? (
+        <TranscriptPanel transcript={session.transcript} />
+      ) : null}
     </div>
   );
 }

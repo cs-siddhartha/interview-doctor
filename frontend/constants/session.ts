@@ -66,6 +66,7 @@ export const SESSION_COPY = {
   browserVoiceFallbackMessage: "Using the browser voice because provider audio is unavailable.",
   serverVoiceFallbackMessage: "Using OpenAI speech because the selected TTS provider rejected the request.",
   audioPlaybackErrorMessage: "The interviewer audio could not be played.",
+  hiddenQuestionMessage: "Your first question is ready.",
   waitingForQuestionMessage: "Preparing the interviewer question...",
   startTurnLabel: "Start recording",
   stopRecordingLabel: "Stop recording",
