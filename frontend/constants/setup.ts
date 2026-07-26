@@ -68,7 +68,10 @@ export const SETUP_COPY = {
   providersTitle: "Provider configuration",
   providersDescription:
     "Choose the speech, interviewer, voice, and transport providers for this interview.",
-  footerDescription: "Continue into a live session for this interview.",
+  focusTitle: "Shape the pressure test",
+  focusDescription:
+    "Give the interviewer enough context to make every follow-up specific.",
+  footerDescription: "Your interview room is ready when you are.",
   continueLabel: "Continue",
   submittingLabel: "Creating",
   invalidSetupMessage: "Check the setup fields and try again.",

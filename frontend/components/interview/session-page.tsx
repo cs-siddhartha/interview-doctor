@@ -2,12 +2,11 @@ import Link from "next/link";
 import {
   IconArrowLeft,
   IconCode,
+  IconStethoscope,
 } from "@tabler/icons-react";
 
 import { SessionTurnPanel } from "@/components/interview/session-turn-panel";
 import { ProviderStack } from "@/components/interview/setup/provider-stack";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -15,9 +14,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { APP_COPY } from "@/constants/app";
 import { DSA_MODE } from "@/constants/interview-modes";
 import { SESSION_COPY } from "@/constants/session";
 import { type InterviewMode } from "@/lib/interview-options";
+import { MODE_PRESENTATION } from "@/lib/mode-presentation";
 import { type ProviderSelection } from "@/lib/provider-selection";
 import { type TranscriptTurn } from "@/lib/schemas/session";
 import { type SessionSetupItem } from "@/lib/session-setup";
@@ -48,26 +49,29 @@ export function SessionPage({
   const isDsa = mode.mode === DSA_MODE.id;
 
   return (
-    <main className="min-h-screen bg-background px-5 py-6 text-foreground sm:px-8 lg:px-10">
-      <section className="mx-auto grid w-full max-w-7xl gap-6 xl:grid-cols-[1fr_340px]">
-        <div className="space-y-6">
-          <SessionHeader mode={mode} backHref={backHref} sessionId={sessionId} />
-          <div className={isDsa ? "grid gap-6 lg:grid-cols-[1fr_420px]" : ""}>
-            <SessionTurnPanel
-              modeSignal={mode.signal}
-              sessionId={sessionId}
-              initialState={sessionState}
-              initialTranscript={transcript}
-              initialAudioBase64={openingAudioBase64}
-              initialAudioError={openingAudioError}
-            />
-            {isDsa ? <CodeWorkspace /> : null}
+    <main className="min-h-screen bg-[#f3f0e8] px-5 py-5 text-[#171a1c] sm:px-8 lg:px-10">
+      <section className="mx-auto w-full max-w-7xl space-y-6">
+        <SessionHeader mode={mode} backHref={backHref} sessionId={sessionId} />
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
+          <div className="space-y-6">
+            <div className={isDsa ? "grid gap-6 2xl:grid-cols-[1fr_400px]" : ""}>
+              <SessionTurnPanel
+                modeId={mode.mode}
+                modeSignal={mode.signal}
+                sessionId={sessionId}
+                initialState={sessionState}
+                initialTranscript={transcript}
+                initialAudioBase64={openingAudioBase64}
+                initialAudioError={openingAudioError}
+              />
+              {isDsa ? <CodeWorkspace /> : null}
+            </div>
           </div>
-        </div>
 
-        <div className="space-y-6">
-          <ProviderStack providers={providers} />
-          <SetupSummary setup={setup} />
+          <aside className="space-y-5 xl:sticky xl:top-5 xl:self-start">
+            <ProviderStack providers={providers} />
+            <SetupSummary setup={setup} />
+          </aside>
         </div>
       </section>
     </main>
@@ -83,33 +87,52 @@ function SessionHeader({
   backHref: string;
   sessionId: string;
 }) {
+  const ModeIcon = mode.icon;
+  const presentation = MODE_PRESENTATION[mode.mode];
+
   return (
-    <header className="space-y-5 border-b border-border pb-6">
-      <Button asChild variant="outline">
-        <Link href={backHref} className="w-fit">
-          <IconArrowLeft
-            className="size-4"
-            aria-hidden="true"
-            data-icon="inline-start"
-          />
+    <header className="space-y-5">
+      <nav className="flex items-center justify-between py-2">
+        <Link href="/" className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.14em]">
+          <span className="grid size-9 place-items-center rounded-full bg-[#171a1c] text-white">
+            <IconStethoscope className="size-5" aria-hidden="true" />
+          </span>
+          <span className="hidden sm:inline">{APP_COPY.brand}</span>
+        </Link>
+        <Link
+          href={backHref}
+          className="flex items-center gap-2 rounded-full border border-black/15 px-4 py-2 text-sm font-semibold transition-colors hover:bg-black/5"
+        >
+          <IconArrowLeft className="size-4" aria-hidden="true" />
           {SESSION_COPY.setupBackLabel}
         </Link>
-      </Button>
+      </nav>
 
-      <div className="max-w-3xl space-y-3">
-        <Badge variant="outline" className="rounded-none uppercase">
-          {SESSION_COPY.badge}
-        </Badge>
-        <h1 className="text-4xl font-semibold tracking-normal">
-          {mode.title}
-        </h1>
-        <p className="text-base leading-7 text-muted-foreground">
-          {SESSION_COPY.description}
-        </p>
-        <p className="text-sm font-medium text-muted-foreground">
-          {SESSION_COPY.sessionIdLabel}{" "}
-          <span className="text-foreground">{sessionId}</span>
-        </p>
+      <div className={`overflow-hidden rounded-[2rem] border border-black/10 ${presentation.softSurface}`}>
+        <div className="flex items-center justify-between border-b border-black/10 px-6 py-4">
+          <span className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-black/50">
+            {SESSION_COPY.badge}
+          </span>
+          <span className="font-mono text-xs text-black/45">
+            {SESSION_COPY.sessionIdLabel} {sessionId.slice(0, 8)}
+          </span>
+        </div>
+        <div className="flex flex-col gap-5 px-6 py-7 sm:flex-row sm:items-center sm:px-8">
+          <span className="grid size-12 shrink-0 place-items-center rounded-full bg-[#171a1c] text-white">
+            <ModeIcon className="size-6" aria-hidden="true" />
+          </span>
+          <div>
+            <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-black/45">
+              {mode.signal}
+            </p>
+            <h1 className="text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">
+              {mode.title}
+            </h1>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-black/50">
+              {SESSION_COPY.description}
+            </p>
+          </div>
+        </div>
       </div>
     </header>
   );
@@ -117,18 +140,18 @@ function SessionHeader({
 
 function CodeWorkspace() {
   return (
-    <Card className="rounded-none shadow-none">
-      <CardHeader>
+    <Card className="overflow-hidden rounded-[2rem] border-black/10 bg-[#171a1c] py-0 text-white shadow-none">
+      <CardHeader className="border-b border-white/10 px-6 py-5">
         <CardTitle className="flex items-center gap-2">
-          <IconCode className="size-4" aria-hidden="true" />
+          <IconCode className="size-5 text-[#ffb5a5]" aria-hidden="true" />
           {SESSION_COPY.codeWorkspaceTitle}
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-white/45">
           {SESSION_COPY.codeWorkspaceDescription}
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <pre className="min-h-80 overflow-auto border border-border bg-background p-4 text-sm leading-6 text-muted-foreground">
+      <CardContent className="p-5">
+        <pre className="min-h-80 overflow-auto rounded-2xl border border-white/10 bg-black/20 p-5 text-sm leading-7 text-white/60">
           <code>{SESSION_COPY.codeWorkspacePlaceholder}</code>
         </pre>
       </CardContent>
@@ -138,22 +161,21 @@ function CodeWorkspace() {
 
 function SetupSummary({ setup }: { setup: SessionSetupItem[] }) {
   return (
-    <Card className="rounded-none shadow-none">
-      <CardHeader>
-        <CardTitle>{SESSION_COPY.setupSummaryTitle}</CardTitle>
-        <CardDescription>{SESSION_COPY.setupSummaryDescription}</CardDescription>
+    <Card className="rounded-[1.5rem] border-black/10 bg-white/70 shadow-none">
+      <CardHeader className="border-b border-black/10 px-5 pb-4">
+        <CardTitle className="text-lg">{SESSION_COPY.setupSummaryTitle}</CardTitle>
+        <CardDescription className="text-black/45">
+          {SESSION_COPY.setupSummaryDescription}
+        </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-5">
         <dl className="grid gap-3">
           {setup.map((item) => (
-            <div
-              key={item.label}
-              className="grid gap-1 border border-border bg-background p-3"
-            >
-              <dt className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
+            <div key={item.label} className="grid gap-1 rounded-xl bg-black/[0.035] p-4">
+              <dt className="text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-black/40">
                 {item.label}
               </dt>
-              <dd className="text-sm font-medium">{item.value}</dd>
+              <dd className="text-sm font-semibold">{item.value}</dd>
             </div>
           ))}
         </dl>

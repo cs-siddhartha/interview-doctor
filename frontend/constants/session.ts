@@ -34,14 +34,15 @@ export const DSA_SESSION_SETUP_FIELDS = [
 ] as const;
 
 export const SESSION_COPY = {
-  providerStackTitle: "Provider stack",
+  providerStackTitle: "Interview stack",
   setupBackLabel: "Setup",
   badge: "Interview session",
   description:
-    "This session starts from backend state and keeps provider choices, setup, transcript, and mode-specific workspace visible.",
-  sessionIdLabel: "Session ID:",
+    "Stay specific and think out loud. Every answer decides what the interviewer challenges next.",
+  sessionIdLabel: "Room",
   liveInterviewTitle: "Live interview",
-  liveInterviewDescription: "Record an answer, send it to the selected providers, and listen to the AI follow-up.",
+  liveInterviewDescription:
+    "Answer naturally—the next question is built from what you say.",
   metrics: {
     state: { label: "State", value: "Listening" },
     mode: { label: "Mode" },
@@ -50,14 +51,18 @@ export const SESSION_COPY = {
   recordingStateLabel: "Recording",
   processingStateLabel: "Processing",
   audioTitle: "Ready for your answer",
+  interviewerReadyTitle: "Your interviewer is ready",
   recordingAudioTitle: "Recording your answer",
   processingAudioTitle: "Processing provider turn",
   audioDescription:
-    "Use the microphone control to capture one answer and run a complete STT, LLM, and TTS turn.",
+    "Take a breath, structure the answer, then speak when you are ready.",
+  interviewerReadyDescription:
+    "Start the interview to hear the opening question and unlock voice playback.",
   recordingAudioDescription: "Stop recording when you finish this answer.",
   processingAudioDescription: "The backend is transcribing, generating the follow-up, and synthesizing audio.",
   playQuestionLabel: "Play question",
-  autoplayBlockedMessage: "Autoplay was blocked. Press Play question to hear the interviewer.",
+  startInterviewLabel: "Start interview",
+  followUpReadyMessage: "The next question is ready. Press Play question to hear it.",
   browserVoiceFallbackMessage: "Using the browser voice because provider audio is unavailable.",
   serverVoiceFallbackMessage: "Using OpenAI speech because the selected TTS provider rejected the request.",
   audioPlaybackErrorMessage: "The interviewer audio could not be played.",
@@ -70,7 +75,7 @@ export const SESSION_COPY = {
   endSessionError: "Could not end the interview session.",
   completedTitle: "Interview complete",
   completedDescription:
-    "The session has ended. Review the completed transcript below.",
+    "The room is closed. Review where your answers were specific—and where the interviewer had to keep digging.",
   completedAnswersLabel: "Candidate answers",
   completedQuestionsLabel: "Interviewer questions",
   microphoneUnavailableMessage: "Microphone recording is not available in this browser.",
@@ -78,7 +83,7 @@ export const SESSION_COPY = {
   emptyRecordingMessage: "No audio was captured.",
   turnErrorMessage: "Interview turn failed.",
   transcriptTitle: "Transcript",
-  transcriptDescription: "Completed turns from this interview session.",
+  transcriptDescription: "Your interview, turn by turn.",
   transcriptEmptyTitle: "No turns yet.",
   transcriptEmptyDescription: "Record an answer to add the first transcript entries.",
   transcriptTurns: [
@@ -97,12 +102,12 @@ export const SESSION_COPY = {
   ],
   codeWorkspaceTitle: "Code workspace",
   codeWorkspaceDescription:
-    "Monaco and problem execution will be added after the backend skeleton.",
+    "Use this space to outline the solution while you explain your reasoning.",
   codeWorkspacePlaceholder: `function solve(input) {
   return input
 }`,
-  setupSummaryTitle: "Setup",
-  setupSummaryDescription: "Inputs carried from the setup page.",
+  setupSummaryTitle: "Your brief",
+  setupSummaryDescription: "The context shaping this interview.",
   missingSetupValue: "Not set",
 } as const;
 

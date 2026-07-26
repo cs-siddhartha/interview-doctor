@@ -3,61 +3,35 @@ import { useEffect, useRef, useState } from "react";
 import { SESSION_COPY } from "@/constants/session";
 import {
   playInterviewerQuestion,
-  playProviderAudio,
   stopInterviewerPlayback,
 } from "@/lib/media/interviewer-audio";
 
 type UseInterviewerPlaybackOptions = {
   initialAudioBase64: string;
   initialAudioError: string | null;
-  initialQuestion: string | undefined;
-  isEnded: boolean;
 };
 
-// Owns the external audio lifecycle so the session controller does not manage
-// provider playback and browser speech as separate competing resources.
 export function useInterviewerPlayback({
   initialAudioBase64,
   initialAudioError,
-  initialQuestion,
-  isEnded,
 }: UseInterviewerPlaybackOptions) {
   const [audioBase64, setAudioBase64] = useState(initialAudioBase64);
   const [audioError, setAudioError] = useState(initialAudioError);
-  const [playbackNotice, setPlaybackNotice] = useState<string | null>(
-    initialAudioBase64 ? null : SESSION_COPY.audioPlaybackErrorMessage,
-  );
+  const [hasStarted, setHasStarted] = useState(false);
+  const [playbackNotice, setPlaybackNotice] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Autoplay is a mount-side browser interaction; cleanup prevents that audio
-  // from surviving completion, navigation, or component replacement.
+  // The audio element and browser speech can outlive this component unless
+  // both playback paths are explicitly released during unmount.
   useEffect(() => {
-    let isCancelled = false;
-
-    if (isEnded || !initialQuestion || !initialAudioBase64) {
-      return;
-    }
-
-    void playProviderAudio(initialAudioBase64, audioRef).then((didPlay) => {
-      if (isCancelled) {
-        return;
-      }
-
-      if (didPlay && initialAudioError) {
-        setPlaybackNotice(SESSION_COPY.serverVoiceFallbackMessage);
-      } else if (!didPlay) {
-        setPlaybackNotice(SESSION_COPY.autoplayBlockedMessage);
-      }
-    });
-
     return () => {
-      isCancelled = true;
       stopInterviewerPlayback(audioRef);
     };
-  }, [initialAudioBase64, initialAudioError, initialQuestion, isEnded]);
+  }, []);
 
   async function playQuestion(question: string | undefined) {
     setPlaybackNotice(null);
+    setHasStarted(true);
 
     if (!question) {
       setPlaybackNotice(SESSION_COPY.audioPlaybackErrorMessage);
@@ -101,7 +75,7 @@ export function useInterviewerPlayback({
           ? SESSION_COPY.serverVoiceFallbackMessage
           : playbackSource
             ? null
-            : SESSION_COPY.audioPlaybackErrorMessage,
+            : SESSION_COPY.followUpReadyMessage,
     );
   }
 
@@ -110,6 +84,7 @@ export function useInterviewerPlayback({
   }
 
   return {
+    hasStarted,
     playbackNotice,
     playQuestion,
     playTurnResponse,

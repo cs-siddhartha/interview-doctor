@@ -30,6 +30,7 @@ export type InterviewMode = {
   mode: InterviewModeId;
   action: string;
   description: string;
+  highlights: readonly string[];
   icon: Icon;
   signal: string;
 };
@@ -50,6 +51,7 @@ export const interviewModes: InterviewMode[] = [
     mode: RESUME_MODE.id,
     action: RESUME_MODE.setupPath,
     description: RESUME_MODE.description,
+    highlights: ["Project claims", "Ownership depth", "Impact metrics"],
     icon: IconFileText,
     signal: RESUME_MODE.signal,
   },
@@ -58,6 +60,7 @@ export const interviewModes: InterviewMode[] = [
     mode: DOMAIN_MODE.id,
     action: DOMAIN_MODE.setupPath,
     description: DOMAIN_MODE.description,
+    highlights: ["Core concepts", "Trade-off analysis", "Role depth"],
     icon: IconBrain,
     signal: DOMAIN_MODE.signal,
   },
@@ -66,6 +69,7 @@ export const interviewModes: InterviewMode[] = [
     mode: DSA_MODE.id,
     action: DSA_MODE.setupPath,
     description: DSA_MODE.description,
+    highlights: ["Problem solving", "Complexity", "Clear explanation"],
     icon: IconCode,
     signal: DSA_MODE.signal,
   },

@@ -10,6 +10,7 @@ import {
   DOMAIN_SETUP_FIELDS,
   DSA_SETUP_FIELDS,
   RESUME_SETUP_FIELDS,
+  SETUP_COPY,
 } from "@/constants/setup";
 import { type InterviewMode } from "@/lib/interview-options";
 
@@ -20,15 +21,26 @@ type SetupFieldsProps = {
 };
 
 export function SetupFields({ mode }: SetupFieldsProps) {
-  if (mode === RESUME_MODE.id) {
-    return <ResumeSetupFields />;
-  }
-
-  if (mode === DSA_MODE.id) {
-    return <DsaSetupFields />;
-  }
-
-  return <DomainSetupFields />;
+  return (
+    <section className="grid gap-5">
+      <div className="grid gap-2 sm:grid-cols-[3rem_1fr]">
+        <span className="font-mono text-xs font-semibold text-black/40">02</span>
+        <div>
+          <h2 className="text-2xl font-semibold tracking-[-0.03em]">
+            {SETUP_COPY.focusTitle}
+          </h2>
+          <p className="mt-1 text-sm leading-6 text-black/50">
+            {SETUP_COPY.focusDescription}
+          </p>
+        </div>
+      </div>
+      {mode === RESUME_MODE.id ? <ResumeSetupFields /> : null}
+      {mode === DSA_MODE.id ? <DsaSetupFields /> : null}
+      {mode !== RESUME_MODE.id && mode !== DSA_MODE.id ? (
+        <DomainSetupFields />
+      ) : null}
+    </section>
+  );
 }
 
 function ResumeSetupFields() {
@@ -38,7 +50,7 @@ function ResumeSetupFields() {
         <Label htmlFor={RESUME_SETUP_FIELDS.file.name}>
           {RESUME_SETUP_FIELDS.file.label}
         </Label>
-        <span className="flex min-h-36 flex-col items-center justify-center gap-3 border border-dashed border-border bg-background px-4 py-6 text-center">
+        <span className="flex min-h-44 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-black/20 bg-[#f7f5ef] px-4 py-7 text-center">
           <IconFileUpload className="size-8 text-muted-foreground" />
           <span className="grid gap-1">
             <span className="text-sm font-medium">
@@ -53,7 +65,7 @@ function ResumeSetupFields() {
             type="file"
             name={RESUME_SETUP_FIELDS.file.name}
             accept={RESUME_SETUP_FIELDS.file.accept}
-            className="h-10 w-full max-w-sm rounded-none bg-background"
+            className="h-11 w-full max-w-sm rounded-xl bg-white"
           />
         </span>
       </div>
@@ -101,7 +113,7 @@ function DomainSetupFields() {
 function DsaSetupFields() {
   return (
     <div className="grid gap-4">
-      <div className="flex items-center gap-2 border border-border bg-background p-3 text-sm text-muted-foreground">
+      <div className="flex items-center gap-2 rounded-xl bg-[#171a1c] p-4 text-sm text-white/65">
         <IconCode className="size-4" aria-hidden="true" />
         {DSA_SETUP_FIELDS.editorNotice}
       </div>

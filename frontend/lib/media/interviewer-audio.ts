@@ -8,18 +8,11 @@ async function playAudioResponse(
     return false;
   }
 
-  stopInterviewerPlayback(audioRef);
+  pauseInterviewerPlayback(audioRef);
 
-  const audio = new Audio(
-    `data:application/octet-stream;base64,${audioBase64}`,
-  );
+  const audio = audioRef.current ?? new Audio();
+  audio.src = `data:application/octet-stream;base64,${audioBase64}`;
   audioRef.current = audio;
-
-  audio.onended = () => {
-    if (audioRef.current === audio) {
-      audioRef.current = null;
-    }
-  };
 
   try {
     await audio.play();
@@ -28,22 +21,16 @@ async function playAudioResponse(
   } catch {
     audio.pause();
 
-    if (audioRef.current === audio) {
-      audioRef.current = null;
-    }
-
     return false;
   }
 }
 
-// Prevents provider audio and browser speech from overlapping while retaining
-// browser speech as a fallback when provider audio cannot play.
 export async function playInterviewerQuestion(
   audioBase64: string,
   question: string,
   audioRef: RefObject<HTMLAudioElement | null>,
 ) {
-  stopInterviewerPlayback(audioRef);
+  pauseInterviewerPlayback(audioRef);
 
   if (audioBase64 && (await playAudioResponse(audioBase64, audioRef))) {
     return "provider" as const;
@@ -56,12 +43,24 @@ export async function playInterviewerQuestion(
   return null;
 }
 
-// Cancels both supported playback sources so navigation and replay cannot
-// leave a previous interviewer voice running.
-export function stopInterviewerPlayback(
+function pauseInterviewerPlayback(
   audioRef: RefObject<HTMLAudioElement | null>,
 ) {
   audioRef.current?.pause();
+  window.speechSynthesis?.cancel();
+}
+
+export function stopInterviewerPlayback(
+  audioRef: RefObject<HTMLAudioElement | null>,
+) {
+  const audio = audioRef.current;
+
+  if (audio) {
+    audio.pause();
+    audio.removeAttribute("src");
+    audio.load();
+  }
+
   audioRef.current = null;
   window.speechSynthesis?.cancel();
 }
@@ -75,11 +74,4 @@ function speakWithBrowser(text: string) {
   window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
 
   return true;
-}
-
-export async function playProviderAudio(
-  audioBase64: string,
-  audioRef: RefObject<HTMLAudioElement | null>,
-) {
-  return playAudioResponse(audioBase64, audioRef);
 }

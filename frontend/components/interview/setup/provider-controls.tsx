@@ -18,19 +18,22 @@ type ProviderControlsProps = {
   providers: ProviderSelection;
 };
 
-// Keeps provider and transport choices inside the setup form so each interview
-// submits exactly the stack selected for that session.
 export function ProviderControls({ providers }: ProviderControlsProps) {
   return (
-    <section className="grid gap-4 border-b border-border pb-5">
-      <div className="grid gap-1">
-        <h2 className="text-lg font-semibold">{SETUP_COPY.providersTitle}</h2>
-        <p className="text-sm leading-6 text-muted-foreground">
+    <section className="grid gap-5 border-b border-black/10 pb-8">
+      <div className="grid gap-2 sm:grid-cols-[3rem_1fr]">
+        <span className="font-mono text-xs font-semibold text-black/40">01</span>
+        <div>
+          <h2 className="text-2xl font-semibold tracking-[-0.03em]">
+            {SETUP_COPY.providersTitle}
+          </h2>
+          <p className="mt-1 text-sm leading-6 text-black/50">
           {SETUP_COPY.providersDescription}
-        </p>
+          </p>
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3">
         {providerFields.map((field) => {
           const provider = providers[field.id];
           const providerId = `setup-${field.id}`;
@@ -39,7 +42,7 @@ export function ProviderControls({ providers }: ProviderControlsProps) {
           return (
             <div
               key={field.id}
-              className="grid gap-3 border border-border bg-background p-4"
+              className="grid gap-4 rounded-2xl border border-black/10 bg-white p-5"
             >
               <div className="grid gap-2">
                 <Label htmlFor={providerId}>{field.label}</Label>
@@ -47,10 +50,7 @@ export function ProviderControls({ providers }: ProviderControlsProps) {
                   name={field.id}
                   defaultValue={provider.value}
                 >
-                  <SelectTrigger
-                    id={providerId}
-                    className="h-10 w-full rounded-none bg-background"
-                  >
+                  <SelectTrigger id={providerId} className="h-11 w-full rounded-xl bg-[#f7f5ef]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -71,10 +71,7 @@ export function ProviderControls({ providers }: ProviderControlsProps) {
                   name={`${field.id}Transport`}
                   defaultValue={provider.transport}
                 >
-                  <SelectTrigger
-                    id={transportId}
-                    className="h-10 w-full rounded-none bg-background"
-                  >
+                  <SelectTrigger id={transportId} className="h-11 w-full rounded-xl bg-[#f7f5ef]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

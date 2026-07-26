@@ -40,12 +40,9 @@ export function useInterviewSession({
   const [isEnding, setIsEnding] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const currentQuestion = findLatestQuestion(transcript);
-  const initialQuestion = findLatestQuestion(initialTranscript);
   const playback = useInterviewerPlayback({
     initialAudioBase64,
     initialAudioError,
-    initialQuestion,
-    isEnded,
   });
 
   async function handleTurnResult(result: TurnResult) {
@@ -99,6 +96,7 @@ export function useInterviewSession({
       recorder.isPending || recorder.recorderState === "processing",
     isEnding,
     isEnded,
+    hasStarted: playback.hasStarted,
     error,
     playbackNotice: playback.playbackNotice,
     playCurrentQuestion: () => playback.playQuestion(currentQuestion),

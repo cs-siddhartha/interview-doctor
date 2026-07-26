@@ -33,26 +33,26 @@ export function SetupForm({ modeId, providers }: SetupFormProps) {
 
   return (
     <form action={formAction}>
-      <Card className="rounded-none shadow-none">
+      <Card className="overflow-hidden rounded-[2rem] border-black/10 bg-white/75 py-0 shadow-xl shadow-black/5">
         <input type="hidden" name={FORM_FIELD_NAMES.mode} value={modeId} />
 
-        <CardContent className="grid gap-5">
+        <CardContent className="grid gap-8 p-6 sm:p-9">
           <ProviderControls providers={providers} />
           <SetupFields mode={modeId} />
           {state.error ? (
-            <p className="border border-destructive/40 bg-destructive/5 p-3 text-sm font-medium text-destructive">
+            <p className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm font-medium text-destructive">
               {state.error}
             </p>
           ) : null}
         </CardContent>
 
-        <CardFooter className="flex flex-col gap-3 border-t sm:flex-row sm:items-center sm:justify-between">
+        <CardFooter className="flex flex-col gap-5 border-t border-black/10 bg-[#171a1c] px-6 py-6 text-white sm:flex-row sm:items-center sm:justify-between sm:px-9">
           <p className="text-sm leading-6 text-muted-foreground">
             {SETUP_COPY.footerDescription}
           </p>
           <Button
             type="submit"
-            className="h-10 justify-between sm:w-48"
+            className="h-12 w-full justify-between rounded-full bg-[#d7ff66] px-6 text-[#171a1c] hover:bg-[#c9f052] sm:w-56"
             disabled={isPending}
           >
             {isPending ? SETUP_COPY.submittingLabel : SETUP_COPY.continueLabel}
