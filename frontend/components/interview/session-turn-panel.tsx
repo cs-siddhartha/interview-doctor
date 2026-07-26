@@ -48,7 +48,9 @@ export function SessionTurnPanel({
     useState(initialAudioBase64);
   const [interviewerAudioError, setInterviewerAudioError] =
     useState(initialAudioError);
-  const [playbackNotice, setPlaybackNotice] = useState<string | null>(null);
+  const [playbackNotice, setPlaybackNotice] = useState<string | null>(
+    initialAudioBase64 ? null : SESSION_COPY.audioPlaybackErrorMessage,
+  );
   const [turnState, setTurnState] = useState<string>(
     SESSION_COPY.metrics.state.value,
   );
@@ -71,36 +73,32 @@ export function SessionTurnPanel({
       const stream = streamRef.current;
 
       stopMediaStream(stream);
+      stopInterviewerPlayback(audioRef);
     };
   }, []);
 
   useEffect(() => {
     let isCancelled = false;
 
-    if (!initialQuestion) {
+    if (!initialQuestion || !initialAudioBase64) {
       return;
     }
 
-    void playInterviewerQuestion(
-      initialAudioBase64,
-      initialQuestion,
-      audioRef,
-    ).then((playbackSource) => {
+    void playAudioResponse(initialAudioBase64, audioRef).then((didPlay) => {
       if (isCancelled) {
         return;
       }
 
-      if (playbackSource === "browser") {
-        setPlaybackNotice(SESSION_COPY.browserVoiceFallbackMessage);
-      } else if (playbackSource === "provider" && initialAudioError) {
+      if (didPlay && initialAudioError) {
         setPlaybackNotice(SESSION_COPY.serverVoiceFallbackMessage);
-      } else if (!playbackSource) {
-        setPlaybackNotice(SESSION_COPY.audioPlaybackErrorMessage);
+      } else if (!didPlay) {
+        setPlaybackNotice(SESSION_COPY.autoplayBlockedMessage);
       }
     });
 
     return () => {
       isCancelled = true;
+      stopInterviewerPlayback(audioRef);
     };
   }, [initialAudioBase64, initialAudioError, initialQuestion]);
 
@@ -430,32 +428,43 @@ async function playAudioResponse(
     return false;
   }
 
-  const response = await fetch(`data:application/octet-stream;base64,${audioBase64}`);
-  const blob = await response.blob();
-  const objectUrl = URL.createObjectURL(blob);
-  const audio = new Audio(objectUrl);
+  stopInterviewerPlayback(audioRef);
 
-  audioRef.current?.pause();
+  const audio = new Audio(
+    `data:application/octet-stream;base64,${audioBase64}`,
+  );
   audioRef.current = audio;
 
-  audio.onended = () => URL.revokeObjectURL(objectUrl);
+  audio.onended = () => {
+    if (audioRef.current === audio) {
+      audioRef.current = null;
+    }
+  };
 
   try {
     await audio.play();
 
     return true;
   } catch {
-    URL.revokeObjectURL(objectUrl);
+    audio.pause();
+
+    if (audioRef.current === audio) {
+      audioRef.current = null;
+    }
 
     return false;
   }
 }
 
+// Starts exactly one interviewer voice at a time, preferring provider audio and
+// using browser speech only when provider playback is unavailable.
 async function playInterviewerQuestion(
   audioBase64: string,
   question: string,
   audioRef: RefObject<HTMLAudioElement | null>,
 ) {
+  stopInterviewerPlayback(audioRef);
+
   if (audioBase64 && (await playAudioResponse(audioBase64, audioRef))) {
     return "provider" as const;
   }
@@ -465,6 +474,16 @@ async function playInterviewerQuestion(
   }
 
   return null;
+}
+
+// Cancels every supported interviewer audio source so remounts, navigation, and
+// replay actions cannot leave an earlier voice running underneath a new one.
+function stopInterviewerPlayback(
+  audioRef: RefObject<HTMLAudioElement | null>,
+) {
+  audioRef.current?.pause();
+  audioRef.current = null;
+  window.speechSynthesis?.cancel();
 }
 
 // Uses the browser's local speech engine as the last-resort audible interviewer
