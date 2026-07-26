@@ -37,7 +37,7 @@ export function SetupHeader({ mode }: SetupHeaderProps) {
       </nav>
 
       <div
-        className={`overflow-hidden rounded-[2rem] border border-black/10 ${presentation.surface}`}
+        className={`overflow-hidden rounded-sm border border-black/10 ${presentation.surface}`}
       >
         <div className="border-b border-black/10 px-6 py-4">
           <span className="font-mono text-sm font-semibold">

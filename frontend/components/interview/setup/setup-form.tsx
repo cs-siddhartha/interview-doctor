@@ -33,14 +33,14 @@ export function SetupForm({ modeId, providers }: SetupFormProps) {
 
   return (
     <form action={formAction}>
-      <Card className="overflow-hidden rounded-[2rem] border-black/10 bg-white/75 py-0 shadow-xl shadow-black/5">
+      <Card className="overflow-hidden rounded-sm border-black/10 bg-white/75 py-0 shadow-xl shadow-black/5">
         <input type="hidden" name={FORM_FIELD_NAMES.mode} value={modeId} />
 
         <CardContent className="grid gap-8 p-6 sm:p-9">
           <ProviderControls providers={providers} />
           <SetupFields mode={modeId} />
           {state.error ? (
-            <p className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 text-sm font-medium text-destructive">
+            <p className="rounded-sm border border-destructive/40 bg-destructive/5 p-4 text-sm font-medium text-destructive">
               {state.error}
             </p>
           ) : null}

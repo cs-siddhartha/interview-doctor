@@ -17,7 +17,7 @@ export function StatusMetric({
 
   return (
     <div
-      className={`grid gap-1 rounded-xl border p-3 sm:p-4 ${
+      className={`grid gap-1 rounded-sm border p-3 sm:p-4 ${
         isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-white/55"
       }`}
     >

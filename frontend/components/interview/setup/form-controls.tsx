@@ -29,7 +29,7 @@ export function TextInput({ label, name, placeholder }: TextInputProps) {
         type="text"
         name={name}
         placeholder={placeholder}
-        className="h-12 rounded-xl border-black/10 bg-[#f7f5ef] px-4 text-sm"
+        className="h-12 rounded-sm border-black/10 bg-[#f7f5ef] px-4 text-sm"
       />
     </div>
   );
@@ -42,7 +42,7 @@ export function SelectInput({ label, name, options }: SelectInputProps) {
       <Select name={name} defaultValue={options[0]}>
         <SelectTrigger
           id={name}
-          className="h-12 w-full rounded-xl border-black/10 bg-[#f7f5ef] px-4 text-sm"
+          className="h-12 w-full rounded-sm border-black/10 bg-[#f7f5ef] px-4 text-sm"
         >
           <SelectValue />
         </SelectTrigger>

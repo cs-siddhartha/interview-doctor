@@ -56,8 +56,8 @@ export function LandingHeader() {
         </div>
 
         <div className="relative mx-auto w-full max-w-xl lg:mx-0">
-          <div className="absolute -inset-5 rotate-2 rounded-[2rem] bg-[#d7ff66]" />
-          <div className="relative overflow-hidden rounded-[1.65rem] border border-white/10 bg-[#171a1c] text-white shadow-2xl shadow-black/20">
+          <div className="absolute -inset-5 rotate-2 rounded-sm bg-[#d7ff66]" />
+          <div className="relative overflow-hidden rounded-sm border border-white/10 bg-[#171a1c] text-white shadow-2xl shadow-black/20">
             <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
               <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/60">
                 <span className="size-2 rounded-full bg-[#ef5b3f]" />

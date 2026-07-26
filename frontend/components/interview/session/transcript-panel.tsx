@@ -16,7 +16,7 @@ type TranscriptPanelProps = {
 
 export function TranscriptPanel({ transcript }: TranscriptPanelProps) {
   return (
-    <Card className="overflow-hidden rounded-[2rem] border-black/10 bg-white/75 py-0 shadow-none">
+    <Card className="overflow-hidden rounded-sm border-black/10 bg-white/75 py-0 shadow-none">
       <CardHeader className="border-b border-black/10 px-6 py-5 sm:px-8">
         <CardTitle className="flex items-center gap-3 text-2xl tracking-[-0.03em]">
           <span className="grid size-9 place-items-center rounded-full bg-[#171a1c] text-white">
@@ -64,7 +64,7 @@ export function TranscriptPanel({ transcript }: TranscriptPanelProps) {
               );
             })
           ) : (
-            <div className="rounded-2xl bg-white p-5 shadow-sm">
+            <div className="rounded-sm bg-white p-5 shadow-sm">
               <p className="mb-2 text-sm font-semibold">
                 {SESSION_COPY.transcriptEmptyTitle}
               </p>

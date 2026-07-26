@@ -34,7 +34,7 @@ export function CompletedInterviewSummary({
 
   return (
     <div className="space-y-6">
-      <Card className={`overflow-hidden rounded-[2rem] border-black/10 py-0 shadow-none ${modeSurface}`}>
+      <Card className={`overflow-hidden rounded-sm border-black/10 py-0 shadow-none ${modeSurface}`}>
         <CardHeader className="border-b border-black/10 px-6 py-7 sm:px-8">
           <span className="mb-4 grid size-12 place-items-center rounded-full bg-[#171a1c] text-white">
             <IconCircleCheck className="size-6" aria-hidden="true" />

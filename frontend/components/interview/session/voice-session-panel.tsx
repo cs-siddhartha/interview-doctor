@@ -56,7 +56,7 @@ export function VoiceSessionPanel({
   const audioPresentation = AUDIO_PRESENTATION[audioState];
 
   return (
-    <Card className="overflow-hidden rounded-[2rem] border-black/10 bg-[#171a1c] py-0 text-white shadow-2xl shadow-black/10">
+    <Card className="overflow-hidden rounded-sm border-black/10 bg-[#171a1c] py-0 text-white shadow-2xl shadow-black/10">
       <CardHeader className="border-b border-white/10 px-6 py-5 sm:px-8">
         <CardTitle className="text-xl">{SESSION_COPY.liveInterviewTitle}</CardTitle>
         <CardDescription className="text-white/45">
@@ -82,7 +82,7 @@ export function VoiceSessionPanel({
           />
         </div>
 
-        <div className="flex min-h-80 flex-col items-center justify-center gap-7 rounded-[1.5rem] border border-white/10 bg-white/[0.035] p-6 text-center sm:p-10">
+        <div className="flex min-h-80 flex-col items-center justify-center gap-7 rounded-sm border border-white/10 bg-white/[0.035] p-6 text-center sm:p-10">
           <div className={`grid size-20 place-items-center rounded-full text-[#171a1c] ${modeSurface}`}>
             <IconMicrophone className="size-8" aria-hidden="true" />
           </div>

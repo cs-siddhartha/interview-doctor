@@ -42,7 +42,7 @@ export function ProviderControls({ providers }: ProviderControlsProps) {
           return (
             <div
               key={field.id}
-              className="grid gap-4 rounded-2xl border border-black/10 bg-white p-5"
+              className="grid gap-4 rounded-sm border border-black/10 bg-white p-5"
             >
               <div className="grid gap-2">
                 <Label htmlFor={providerId}>{field.label}</Label>
@@ -50,7 +50,7 @@ export function ProviderControls({ providers }: ProviderControlsProps) {
                   name={field.id}
                   defaultValue={provider.value}
                 >
-                  <SelectTrigger id={providerId} className="h-11 w-full rounded-xl bg-[#f7f5ef]">
+                  <SelectTrigger id={providerId} className="h-11 w-full rounded-sm bg-[#f7f5ef]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -71,7 +71,7 @@ export function ProviderControls({ providers }: ProviderControlsProps) {
                   name={`${field.id}Transport`}
                   defaultValue={provider.transport}
                 >
-                  <SelectTrigger id={transportId} className="h-11 w-full rounded-xl bg-[#f7f5ef]">
+                  <SelectTrigger id={transportId} className="h-11 w-full rounded-sm bg-[#f7f5ef]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

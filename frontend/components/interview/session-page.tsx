@@ -6,6 +6,7 @@ import {
 } from "@tabler/icons-react";
 
 import { SessionTurnPanel } from "@/components/interview/session-turn-panel";
+import { SidebarDetailsCard } from "@/components/interview/sidebar-details-card";
 import { ProviderStack } from "@/components/interview/setup/provider-stack";
 import {
   Card,
@@ -108,7 +109,7 @@ function SessionHeader({
         </Link>
       </nav>
 
-      <div className={`overflow-hidden rounded-[2rem] border border-black/10 ${presentation.softSurface}`}>
+      <div className={`overflow-hidden rounded-sm border border-black/10 ${presentation.softSurface}`}>
         <div className="flex items-center justify-between border-b border-black/10 px-6 py-4">
           <span className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-black/50">
             {SESSION_COPY.badge}
@@ -137,7 +138,7 @@ function SessionHeader({
 
 function CodeWorkspace() {
   return (
-    <Card className="overflow-hidden rounded-[2rem] border-black/10 bg-[#171a1c] py-0 text-white shadow-none">
+    <Card className="overflow-hidden rounded-sm border-black/10 bg-[#171a1c] py-0 text-white shadow-none">
       <CardHeader className="border-b border-white/10 px-6 py-5">
         <CardTitle className="flex items-center gap-2">
           <IconCode className="size-5 text-[#ffb5a5]" aria-hidden="true" />
@@ -148,7 +149,7 @@ function CodeWorkspace() {
         </CardDescription>
       </CardHeader>
       <CardContent className="p-5">
-        <pre className="min-h-80 overflow-auto rounded-2xl border border-white/10 bg-black/20 p-5 text-sm leading-7 text-white/60">
+        <pre className="min-h-80 overflow-auto rounded-sm border border-white/10 bg-black/20 p-5 text-sm leading-7 text-white/60">
           <code>{SESSION_COPY.codeWorkspacePlaceholder}</code>
         </pre>
       </CardContent>
@@ -158,25 +159,25 @@ function CodeWorkspace() {
 
 function SetupSummary({ setup }: { setup: SessionSetupItem[] }) {
   return (
-    <Card className="rounded-[1.5rem] border-black/10 bg-white/70 shadow-none">
-      <CardHeader className="border-b border-black/10 px-5 pb-4">
-        <CardTitle className="text-lg">{SESSION_COPY.setupSummaryTitle}</CardTitle>
-        <CardDescription className="text-black/45">
-          {SESSION_COPY.setupSummaryDescription}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="px-5">
-        <dl className="grid gap-3">
-          {setup.map((item) => (
-            <div key={item.label} className="grid gap-1 rounded-xl bg-black/[0.035] p-4">
-              <dt className="text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-black/40">
-                {item.label}
-              </dt>
-              <dd className="text-sm font-semibold">{item.value}</dd>
-            </div>
-          ))}
-        </dl>
-      </CardContent>
-    </Card>
+    <SidebarDetailsCard
+      title={SESSION_COPY.setupSummaryTitle}
+      description={SESSION_COPY.setupSummaryDescription}
+    >
+      <dl className="divide-y divide-black/10">
+        {setup.map((item) => (
+          <div
+            key={item.label}
+            className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4 py-3"
+          >
+            <dt className="text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-black/40">
+              {item.label}
+            </dt>
+            <dd className="max-w-40 text-right text-sm font-semibold">
+              {item.value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </SidebarDetailsCard>
   );
 }

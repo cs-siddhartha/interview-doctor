@@ -17,7 +17,7 @@ export function ModeCard({ mode }: ModeCardProps) {
 
   return (
     <article
-      className={`group flex min-h-[420px] flex-col overflow-hidden rounded-[1.5rem] border border-black/10 ${presentation.surface}`}
+      className={`group flex min-h-[420px] flex-col overflow-hidden rounded-sm border border-black/10 ${presentation.surface}`}
     >
       <div className="border-b border-black/10 px-6 py-4">
         <span className="font-mono text-sm font-semibold">
