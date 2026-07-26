@@ -32,7 +32,6 @@ export type InterviewMode = {
   description: string;
   highlights: readonly string[];
   icon: Icon;
-  signal: string;
 };
 
 export const providerOptions: Record<ProviderFieldId, ProviderOption[]> = {
@@ -53,7 +52,6 @@ export const interviewModes: InterviewMode[] = [
     description: RESUME_MODE.description,
     highlights: ["Project claims", "Ownership depth", "Impact metrics"],
     icon: IconFileText,
-    signal: RESUME_MODE.signal,
   },
   {
     title: DOMAIN_MODE.title,
@@ -62,7 +60,6 @@ export const interviewModes: InterviewMode[] = [
     description: DOMAIN_MODE.description,
     highlights: ["Core concepts", "Trade-off analysis", "Role depth"],
     icon: IconBrain,
-    signal: DOMAIN_MODE.signal,
   },
   {
     title: DSA_MODE.title,
@@ -71,7 +68,6 @@ export const interviewModes: InterviewMode[] = [
     description: DSA_MODE.description,
     highlights: ["Problem solving", "Complexity", "Clear explanation"],
     icon: IconCode,
-    signal: DSA_MODE.signal,
   },
 ];
 

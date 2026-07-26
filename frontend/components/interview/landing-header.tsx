@@ -22,7 +22,7 @@ export function LandingHeader() {
         </Link>
         <span className="hidden items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] text-black/55 sm:flex">
           <span className="size-2 rounded-full bg-[#ef5b3f]" />
-          Practice room open
+          Self hosted app
         </span>
       </nav>
 

@@ -19,7 +19,7 @@ import { StatusMetric } from "./status-metric";
 
 type VoiceSessionPanelProps = {
   modeId: InterviewModeId;
-  modeSignal: string;
+  modeTitle: string;
   question: string;
   turnState: string;
   recorderState: RecorderState;
@@ -36,7 +36,7 @@ type VoiceSessionPanelProps = {
 
 export function VoiceSessionPanel({
   modeId,
-  modeSignal,
+  modeTitle,
   question,
   turnState,
   recorderState,
@@ -72,7 +72,7 @@ export function VoiceSessionPanel({
           />
           <StatusMetric
             label={SESSION_COPY.metrics.mode.label}
-            value={modeSignal}
+            value={modeTitle}
             tone="dark"
           />
           <StatusMetric

@@ -19,12 +19,9 @@ export function ModeCard({ mode }: ModeCardProps) {
     <article
       className={`group flex min-h-[420px] flex-col overflow-hidden rounded-[1.5rem] border border-black/10 ${presentation.surface}`}
     >
-      <div className="flex items-center justify-between border-b border-black/10 px-6 py-4">
+      <div className="border-b border-black/10 px-6 py-4">
         <span className="font-mono text-sm font-semibold">
           {presentation.number}
-        </span>
-        <span className="text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-black/55">
-          {mode.signal}
         </span>
       </div>
 

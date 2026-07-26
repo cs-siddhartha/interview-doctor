@@ -57,7 +57,7 @@ export function SessionPage({
             <div className={isDsa ? "grid gap-6 2xl:grid-cols-[1fr_400px]" : ""}>
               <SessionTurnPanel
                 modeId={mode.mode}
-                modeSignal={mode.signal}
+                modeTitle={mode.title}
                 sessionId={sessionId}
                 initialState={sessionState}
                 initialTranscript={transcript}
@@ -122,9 +122,6 @@ function SessionHeader({
             <ModeIcon className="size-6" aria-hidden="true" />
           </span>
           <div>
-            <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-black/45">
-              {mode.signal}
-            </p>
             <h1 className="text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">
               {mode.title}
             </h1>

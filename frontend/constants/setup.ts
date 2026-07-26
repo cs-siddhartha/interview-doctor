@@ -9,7 +9,6 @@ export const RESUME_SETUP_FIELDS = {
     name: FORM_FIELD_NAMES.resume,
     accept: ".pdf,.doc,.docx",
     uploadTitle: "Upload placeholder",
-    uploadDescription: "PDF or DOCX parsing will be added in a later chunk.",
   },
   targetRole: {
     label: "Target role",

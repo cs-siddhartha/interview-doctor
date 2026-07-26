@@ -52,13 +52,8 @@ function ResumeSetupFields() {
         </Label>
         <span className="flex min-h-44 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-black/20 bg-[#f7f5ef] px-4 py-7 text-center">
           <IconFileUpload className="size-8 text-muted-foreground" />
-          <span className="grid gap-1">
-            <span className="text-sm font-medium">
-              {RESUME_SETUP_FIELDS.file.uploadTitle}
-            </span>
-            <span className="text-sm text-muted-foreground">
-              {RESUME_SETUP_FIELDS.file.uploadDescription}
-            </span>
+          <span className="text-sm font-medium">
+            {RESUME_SETUP_FIELDS.file.uploadTitle}
           </span>
           <Input
             id={RESUME_SETUP_FIELDS.file.name}

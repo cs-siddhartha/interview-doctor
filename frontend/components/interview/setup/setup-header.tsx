@@ -39,12 +39,9 @@ export function SetupHeader({ mode }: SetupHeaderProps) {
       <div
         className={`overflow-hidden rounded-[2rem] border border-black/10 ${presentation.surface}`}
       >
-        <div className="flex items-center justify-between border-b border-black/10 px-6 py-4">
+        <div className="border-b border-black/10 px-6 py-4">
           <span className="font-mono text-sm font-semibold">
             {presentation.number}
-          </span>
-          <span className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-black/55">
-            {mode.signal}
           </span>
         </div>
         <div className="grid gap-8 px-6 py-8 sm:px-9 sm:py-10 lg:grid-cols-[auto_1fr_320px] lg:items-end">

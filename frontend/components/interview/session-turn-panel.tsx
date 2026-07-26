@@ -9,7 +9,7 @@ import { type InterviewModeId } from "@/lib/interview-options";
 import { type TranscriptTurn } from "@/lib/schemas/session";
 
 type SessionTurnPanelProps = {
-  modeSignal: string;
+  modeTitle: string;
   modeId: InterviewModeId;
   sessionId: string;
   initialState: string;
@@ -19,7 +19,7 @@ type SessionTurnPanelProps = {
 };
 
 export function SessionTurnPanel({
-  modeSignal,
+  modeTitle,
   modeId,
   sessionId,
   initialState,
@@ -48,7 +48,7 @@ export function SessionTurnPanel({
     <div className="space-y-6">
       <VoiceSessionPanel
         modeId={modeId}
-        modeSignal={modeSignal}
+        modeTitle={modeTitle}
         question={
           session.hasStarted
             ? session.currentQuestion ?? SESSION_COPY.waitingForQuestionMessage
