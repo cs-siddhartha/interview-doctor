@@ -26,6 +26,7 @@ from app.schemas.session import (
     TranscriptSpeaker,
     TranscriptTurn,
     TurnResult,
+    UpdateSessionRequest,
 )
 from app.stores.sessions import SessionStore
 
@@ -138,6 +139,32 @@ async def get_session(
     return ApiResponse(data=session, meta=ApiMeta(timestamp=now))
 
 
+@router.patch(
+    "/{session_id}",
+    response_model=ApiResponse[Session],
+)
+
+async def update_session(
+    session_id: str,
+    request: UpdateSessionRequest,
+    session_store: SessionStoreDep,
+) -> ApiResponse[Session]:
+    now = datetime.now(UTC)
+    session = await session_store.get(session_id)
+
+    if session is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Session not found",
+        )
+
+    session.state = request.state
+    session.updated_at = now
+    await session_store.save(session)
+
+    return ApiResponse(data=session, meta=ApiMeta(timestamp=now))
+
+
 @router.post(
     "/{session_id}/turns",
     response_model=ApiResponse[TurnResult],
@@ -154,6 +181,12 @@ async def create_turn(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Session not found",
+        )
+
+    if session.state == SessionState.SESSION_END:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Session has ended",
         )
 
     try:

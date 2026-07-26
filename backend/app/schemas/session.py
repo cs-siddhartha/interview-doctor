@@ -94,6 +94,12 @@ class CreateTurnRequest(BaseModel):
     mime_type: str = Field(default="application/octet-stream", min_length=1)
 
 
+# Restricts session updates to the supported terminal transition so clients
+# cannot write arbitrary interview state values.
+class UpdateSessionRequest(BaseModel):
+    state: Literal[SessionState.SESSION_END]
+
+
 class TurnResult(BaseModel):
     session_id: str
     candidate_turn: TranscriptTurn

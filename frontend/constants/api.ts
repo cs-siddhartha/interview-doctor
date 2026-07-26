@@ -4,9 +4,11 @@ export const SESSION_API = {
   defaultBaseUrl: "http://localhost:8000",
   sessionsPath: "/api/v1/sessions",
   method: "POST",
+  updateMethod: "PATCH",
   contentTypeHeader: "Content-Type",
   jsonContentType: "application/json",
   fetchCache: "no-store",
   createErrorPrefix: "Failed to create session:",
   getErrorPrefix: "Failed to load session:",
+  endErrorPrefix: "Failed to end session:",
 } as const;

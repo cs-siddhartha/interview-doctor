@@ -41,6 +41,7 @@ export default async function DsaSessionPage({
       setup={resolveSessionSetupFromValues(DSA_MODE.id, session.setup)}
       backHref={`${DSA_MODE.setupPath}${buildProviderQueryFromSelection(providers)}`}
       sessionId={session.id}
+      sessionState={session.state}
       transcript={session.transcript}
       openingAudioBase64={session.opening_audio_base64}
       openingAudioError={session.opening_audio_error}

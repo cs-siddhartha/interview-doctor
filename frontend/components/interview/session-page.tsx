@@ -28,6 +28,7 @@ type SessionPageProps = {
   setup: SessionSetupItem[];
   backHref: string;
   sessionId: string;
+  sessionState: string;
   transcript: TranscriptTurn[];
   openingAudioBase64: string;
   openingAudioError: string | null;
@@ -39,6 +40,7 @@ export function SessionPage({
   setup,
   backHref,
   sessionId,
+  sessionState,
   transcript,
   openingAudioBase64,
   openingAudioError,
@@ -54,6 +56,7 @@ export function SessionPage({
             <SessionTurnPanel
               modeSignal={mode.signal}
               sessionId={sessionId}
+              initialState={sessionState}
               initialTranscript={transcript}
               initialAudioBase64={openingAudioBase64}
               initialAudioError={openingAudioError}

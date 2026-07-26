@@ -66,6 +66,13 @@ export const SESSION_COPY = {
   stopRecordingLabel: "Stop recording",
   turnInProgressLabel: "Processing turn",
   endSessionLabel: "End session",
+  endingSessionLabel: "Ending session",
+  endSessionError: "Could not end the interview session.",
+  completedTitle: "Interview complete",
+  completedDescription:
+    "The session has ended. Review the completed transcript below.",
+  completedAnswersLabel: "Candidate answers",
+  completedQuestionsLabel: "Interviewer questions",
   microphoneUnavailableMessage: "Microphone recording is not available in this browser.",
   microphonePermissionMessage: "Could not access the microphone.",
   emptyRecordingMessage: "No audio was captured.",
@@ -97,6 +104,10 @@ export const SESSION_COPY = {
   setupSummaryTitle: "Setup",
   setupSummaryDescription: "Inputs carried from the setup page.",
   missingSetupValue: "Not set",
+} as const;
+
+export const SESSION_STATES = {
+  ended: "session_end",
 } as const;
 
 export const SESSION_AUDIO = {

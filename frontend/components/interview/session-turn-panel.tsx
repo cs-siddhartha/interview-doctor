@@ -13,6 +13,7 @@ import {
   IconPlayerStop,
 } from "@tabler/icons-react";
 
+import { endInterviewSession } from "@/app/actions/end-session";
 import { createAudioTurn } from "@/app/actions/turns";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,7 +24,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { SESSION_AUDIO, SESSION_COPY } from "@/constants/session";
+import {
+  SESSION_AUDIO,
+  SESSION_COPY,
+  SESSION_STATES,
+} from "@/constants/session";
 import { type TranscriptTurn } from "@/lib/schemas/session";
 
 type RecorderState = "idle" | "recording" | "processing";
@@ -31,6 +36,7 @@ type RecorderState = "idle" | "recording" | "processing";
 type SessionTurnPanelProps = {
   modeSignal: string;
   sessionId: string;
+  initialState: string;
   initialTranscript: TranscriptTurn[];
   initialAudioBase64: string;
   initialAudioError: string | null;
@@ -39,6 +45,7 @@ type SessionTurnPanelProps = {
 export function SessionTurnPanel({
   modeSignal,
   sessionId,
+  initialState,
   initialTranscript,
   initialAudioBase64,
   initialAudioError,
@@ -55,6 +62,10 @@ export function SessionTurnPanel({
     SESSION_COPY.metrics.state.value,
   );
   const [recorderState, setRecorderState] = useState<RecorderState>("idle");
+  const [isEnded, setIsEnded] = useState(
+    initialState === SESSION_STATES.ended,
+  );
+  const [isEnding, setIsEnding] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const recorderRef = useRef<MediaRecorder | null>(null);
@@ -80,7 +91,7 @@ export function SessionTurnPanel({
   useEffect(() => {
     let isCancelled = false;
 
-    if (!initialQuestion || !initialAudioBase64) {
+    if (isEnded || !initialQuestion || !initialAudioBase64) {
       return;
     }
 
@@ -100,7 +111,7 @@ export function SessionTurnPanel({
       isCancelled = true;
       stopInterviewerPlayback(audioRef);
     };
-  }, [initialAudioBase64, initialAudioError, initialQuestion]);
+  }, [initialAudioBase64, initialAudioError, initialQuestion, isEnded]);
 
 
   async function handleRecordButton() {
@@ -250,6 +261,44 @@ export function SessionTurnPanel({
     }
   }
 
+  async function handleEndSession() {
+    setError(null);
+    setIsEnding(true);
+    stopInterviewerPlayback(audioRef);
+
+    const recorder = recorderRef.current;
+
+    if (recorder && recorder.state !== "inactive") {
+      recorder.ondataavailable = null;
+      recorder.onstop = null;
+      recorder.stop();
+    }
+
+    recorderRef.current = null;
+    chunksRef.current = [];
+    stopMediaStream(streamRef.current);
+    streamRef.current = null;
+
+    const result = await endInterviewSession(sessionId);
+
+    if (!result.data) {
+      setError(result.error);
+      setIsEnding(false);
+
+      return;
+    }
+
+    setTranscript(result.data.transcript);
+    setTurnState(result.data.state);
+    setRecorderState("idle");
+    setIsEnding(false);
+    setIsEnded(true);
+  }
+
+  if (isEnded) {
+    return <CompletedInterviewSummary transcript={transcript} />;
+  }
+
   return (
     <div className="space-y-6">
       <VoiceSessionPanel
@@ -258,11 +307,13 @@ export function SessionTurnPanel({
         turnState={turnState}
         recorderState={recorderState}
         isBusy={isPending || recorderState === "processing"}
+        isEnding={isEnding}
         error={error}
         playbackNotice={playbackNotice}
         canPlayQuestion={Boolean(currentQuestion)}
         onPlayQuestion={playCurrentQuestion}
         onRecordButton={handleRecordButton}
+        onEndSession={handleEndSession}
       />
       <TranscriptPanel transcript={transcript} />
     </div>
@@ -275,11 +326,13 @@ type VoiceSessionPanelProps = {
   turnState: string;
   recorderState: RecorderState;
   isBusy: boolean;
+  isEnding: boolean;
   error: string | null;
   playbackNotice: string | null;
   canPlayQuestion: boolean;
   onPlayQuestion: () => void;
   onRecordButton: () => void;
+  onEndSession: () => void;
 };
 
 function VoiceSessionPanel({
@@ -288,11 +341,13 @@ function VoiceSessionPanel({
   turnState,
   recorderState,
   isBusy,
+  isEnding,
   error,
   playbackNotice,
   canPlayQuestion,
   onPlayQuestion,
   onRecordButton,
+  onEndSession,
 }: VoiceSessionPanelProps) {
   const isRecording = recorderState === "recording";
   const audioTitle =
@@ -378,13 +433,21 @@ function VoiceSessionPanel({
           />
           {isRecording ? SESSION_COPY.stopRecordingLabel : SESSION_COPY.startTurnLabel}
         </Button>
-        <Button type="button" variant="outline" className="h-10 w-full sm:w-auto">
+        <Button
+          type="button"
+          variant="outline"
+          className="h-10 w-full sm:w-auto"
+          disabled={isBusy || isEnding}
+          onClick={onEndSession}
+        >
           <IconPlayerStop
             className="size-4"
             aria-hidden="true"
             data-icon="inline-start"
           />
-          {SESSION_COPY.endSessionLabel}
+          {isEnding
+            ? SESSION_COPY.endingSessionLabel
+            : SESSION_COPY.endSessionLabel}
         </Button>
       </CardFooter>
     </Card>
@@ -511,6 +574,43 @@ function StatusMetric({ label, value }: { label: string; value: string }) {
         ) : null}
         {value}
       </span>
+    </div>
+  );
+}
+
+function CompletedInterviewSummary({
+  transcript,
+}: {
+  transcript: TranscriptTurn[];
+}) {
+  const candidateAnswers = transcript.filter(
+    (turn) => turn.speaker === "candidate",
+  ).length;
+  const interviewerQuestions = transcript.filter(
+    (turn) => turn.speaker === "ai_interviewer",
+  ).length;
+
+  return (
+    <div className="space-y-6">
+      <Card className="rounded-none shadow-none">
+        <CardHeader>
+          <CardTitle>{SESSION_COPY.completedTitle}</CardTitle>
+          <CardDescription>
+            {SESSION_COPY.completedDescription}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-3 sm:grid-cols-2">
+          <StatusMetric
+            label={SESSION_COPY.completedAnswersLabel}
+            value={String(candidateAnswers)}
+          />
+          <StatusMetric
+            label={SESSION_COPY.completedQuestionsLabel}
+            value={String(interviewerQuestions)}
+          />
+        </CardContent>
+      </Card>
+      <TranscriptPanel transcript={transcript} />
     </div>
   );
 }

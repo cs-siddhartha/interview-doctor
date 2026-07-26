@@ -41,6 +41,7 @@ export default async function DomainSessionPage({
       setup={resolveSessionSetupFromValues(DOMAIN_MODE.id, session.setup)}
       backHref={`${DOMAIN_MODE.setupPath}${buildProviderQueryFromSelection(providers)}`}
       sessionId={session.id}
+      sessionState={session.state}
       transcript={session.transcript}
       openingAudioBase64={session.opening_audio_base64}
       openingAudioError={session.opening_audio_error}

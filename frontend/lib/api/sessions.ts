@@ -60,6 +60,32 @@ export async function getSession(sessionId: string) {
   return payload.data;
 }
 
+// Persists the terminal session state and returns the complete stored session
+// so the client can render its final transcript without another request.
+export async function endSession(sessionId: string) {
+  const response = await fetch(
+    `${getApiBaseUrl()}${SESSION_API.sessionsPath}/${sessionId}`,
+    {
+      method: SESSION_API.updateMethod,
+      headers: {
+        [SESSION_API.contentTypeHeader]: SESSION_API.jsonContentType,
+      },
+      body: JSON.stringify({ state: "session_end" }),
+      cache: SESSION_API.fetchCache,
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      await readApiErrorMessage(response, SESSION_API.endErrorPrefix),
+    );
+  }
+
+  const payload = createSessionResponseSchema.parse(await response.json());
+
+  return payload.data;
+}
+
 export async function createTurn(
   sessionId: string,
   request: CreateTurnRequest,
