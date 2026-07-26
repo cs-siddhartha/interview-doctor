@@ -10,12 +10,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { FORM_FIELD_NAMES, SETUP_COPY } from "@/constants/setup";
-import {
-  type InterviewModeId,
-  providerFields,
-} from "@/lib/interview-options";
+import { type InterviewModeId } from "@/lib/interview-options";
 import { type ProviderSelection } from "@/lib/provider-selection";
 
+import { ProviderControls } from "./provider-controls";
 import { SetupFields } from "./setup-fields";
 
 type SetupFormProps = {
@@ -36,25 +34,10 @@ export function SetupForm({ modeId, providers }: SetupFormProps) {
   return (
     <form action={formAction}>
       <Card className="rounded-none shadow-none">
-        {providerFields.map((field) => (
-          <input
-            key={field.id}
-            type="hidden"
-            name={field.id}
-            value={providers[field.id].value}
-          />
-        ))}
-        {providerFields.map((field) => (
-          <input
-            key={`${field.id}-transport`}
-            type="hidden"
-            name={`${field.id}Transport`}
-            value={providers[field.id].transport}
-          />
-        ))}
         <input type="hidden" name={FORM_FIELD_NAMES.mode} value={modeId} />
 
         <CardContent className="grid gap-5">
+          <ProviderControls providers={providers} />
           <SetupFields mode={modeId} />
           {state.error ? (
             <p className="border border-destructive/40 bg-destructive/5 p-3 text-sm font-medium text-destructive">

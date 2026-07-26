@@ -65,6 +65,9 @@ export const SETUP_COPY = {
   titleSuffix: "setup",
   description:
     "Confirm the basic interview inputs before moving into the live session. This step keeps provider choices scoped to this interview.",
+  providersTitle: "Provider configuration",
+  providersDescription:
+    "Choose the speech, interviewer, voice, and transport providers for this interview.",
   footerDescription: "Continue into a live session for this interview.",
   continueLabel: "Continue",
   submittingLabel: "Creating",
