@@ -15,7 +15,7 @@ export function SetupPage({ mode, providers }: SetupPageProps) {
       <section className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[1fr_320px]">
         <div className="space-y-6">
           <SetupHeader mode={mode} />
-          <SetupForm mode={mode} providers={providers} />
+          <SetupForm modeId={mode.mode} providers={providers} />
         </div>
 
         <ProviderStack providers={providers} />

@@ -91,6 +91,8 @@ export const createSessionResponseSchema = z.object({
         }),
       )
       .default([]),
+    opening_audio_base64: z.string().default(""),
+    opening_audio_error: z.string().nullable().default(null),
     created_at: z.string(),
     updated_at: z.string(),
   }),
@@ -114,6 +116,7 @@ export const turnResultSchema = z.object({
     created_at: z.string(),
   }),
   audio_base64: z.string(),
+  audio_error: z.string().nullable().default(null),
   state: z.string(),
 });
 

@@ -39,7 +39,7 @@ export function SelectInput({ label, name, options }: SelectInputProps) {
   return (
     <div className="grid gap-2">
       <Label htmlFor={name}>{label}</Label>
-      <Select name={name} defaultValue={toOptionValue(options[0])}>
+      <Select name={name} defaultValue={options[0]}>
         <SelectTrigger
           id={name}
           className="h-10 w-full rounded-none bg-background"
@@ -48,7 +48,7 @@ export function SelectInput({ label, name, options }: SelectInputProps) {
         </SelectTrigger>
         <SelectContent>
           {options.map((option) => (
-            <SelectItem key={option} value={toOptionValue(option)}>
+            <SelectItem key={option} value={option}>
               {option}
             </SelectItem>
           ))}
@@ -56,8 +56,4 @@ export function SelectInput({ label, name, options }: SelectInputProps) {
       </Select>
     </div>
   );
-}
-
-function toOptionValue(option: string) {
-  return option.toLowerCase().replaceAll(" ", "-");
 }

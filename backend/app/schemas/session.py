@@ -99,6 +99,7 @@ class TurnResult(BaseModel):
     candidate_turn: TranscriptTurn
     ai_turn: TranscriptTurn
     audio_base64: str
+    audio_error: str | None = None
     state: SessionState
 
 
@@ -135,5 +136,7 @@ class Session(BaseModel):
     setup: SessionSetup
     state: SessionState
     transcript: list[TranscriptTurn] = Field(default_factory=list)
+    opening_audio_base64: str = ""
+    opening_audio_error: str | None = None
     created_at: datetime
     updated_at: datetime

@@ -25,10 +25,6 @@ export type CreateSessionActionState = {
   error: string | null;
 };
 
-export const initialCreateSessionActionState: CreateSessionActionState = {
-  error: null,
-};
-
 const ignoredSetupKeys = new Set<string>([
   FORM_FIELD_NAMES.mode,
   ...PROVIDER_FIELD_IDS,

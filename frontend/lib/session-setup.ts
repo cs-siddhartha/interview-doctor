@@ -68,7 +68,7 @@ export function buildProviderQueryFromSelection(providers: ProviderSelection) {
 // Reads the optional backend-created session id from route query params so
 // pages do not need inline type narrowing for repeated Next search param shapes.
 export function resolveSessionId(searchParams: SearchParamsRecord) {
-  const query = searchParamsSchema.parse(searchParams);
+  const query = searchParamsSchema.parse({ ...searchParams });
   const sessionId = readSearchValue(query, QUERY_PARAM_NAMES.sessionId);
 
   return sessionId || undefined;

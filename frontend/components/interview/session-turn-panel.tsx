@@ -24,23 +24,31 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { SESSION_AUDIO, SESSION_COPY } from "@/constants/session";
-import { type InterviewMode } from "@/lib/interview-options";
 import { type TranscriptTurn } from "@/lib/schemas/session";
 
 type RecorderState = "idle" | "recording" | "processing";
 
 type SessionTurnPanelProps = {
-  mode: InterviewMode;
+  modeSignal: string;
   sessionId: string;
   initialTranscript: TranscriptTurn[];
+  initialAudioBase64: string;
+  initialAudioError: string | null;
 };
 
 export function SessionTurnPanel({
-  mode,
+  modeSignal,
   sessionId,
   initialTranscript,
+  initialAudioBase64,
+  initialAudioError,
 }: SessionTurnPanelProps) {
   const [transcript, setTranscript] = useState(initialTranscript);
+  const [interviewerAudioBase64, setInterviewerAudioBase64] =
+    useState(initialAudioBase64);
+  const [interviewerAudioError, setInterviewerAudioError] =
+    useState(initialAudioError);
+  const [playbackNotice, setPlaybackNotice] = useState<string | null>(null);
   const [turnState, setTurnState] = useState<string>(
     SESSION_COPY.metrics.state.value,
   );
@@ -51,6 +59,12 @@ export function SessionTurnPanel({
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const currentQuestion = [...transcript]
+    .reverse()
+    .find((turn) => turn.speaker === "ai_interviewer")?.text;
+  const initialQuestion = [...initialTranscript]
+    .reverse()
+    .find((turn) => turn.speaker === "ai_interviewer")?.text;
 
   useEffect(() => {
     return () => {
@@ -59,6 +73,36 @@ export function SessionTurnPanel({
       stopMediaStream(stream);
     };
   }, []);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    if (!initialQuestion) {
+      return;
+    }
+
+    void playInterviewerQuestion(
+      initialAudioBase64,
+      initialQuestion,
+      audioRef,
+    ).then((playbackSource) => {
+      if (isCancelled) {
+        return;
+      }
+
+      if (playbackSource === "browser") {
+        setPlaybackNotice(SESSION_COPY.browserVoiceFallbackMessage);
+      } else if (playbackSource === "provider" && initialAudioError) {
+        setPlaybackNotice(SESSION_COPY.serverVoiceFallbackMessage);
+      } else if (!playbackSource) {
+        setPlaybackNotice(SESSION_COPY.audioPlaybackErrorMessage);
+      }
+    });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [initialAudioBase64, initialAudioError, initialQuestion]);
 
 
   async function handleRecordButton() {
@@ -136,20 +180,46 @@ export function SessionTurnPanel({
     startTransition(async () => {
       try {
         const audioBase64 = await blobToBase64(audioBlob);
-        const result = await createAudioTurn(
+        const turnResult = await createAudioTurn(
           sessionId,
           audioBase64,
           audioBlob.type || SESSION_AUDIO.fallbackMimeType,
         );
+
+        if (!turnResult.data) {
+          setError(turnResult.error);
+          setRecorderState("idle");
+          setTurnState(SESSION_COPY.metrics.state.value);
+
+          return;
+        }
+
+        const result = turnResult.data;
 
         setTranscript((currentTranscript) => [
           ...currentTranscript,
           result.candidate_turn,
           result.ai_turn,
         ]);
+        setInterviewerAudioBase64(result.audio_base64);
+        setInterviewerAudioError(result.audio_error);
         setTurnState(result.state);
         setRecorderState("idle");
-        await playAudioResponse(result.audio_base64, audioRef);
+        const playbackSource = await playInterviewerQuestion(
+          result.audio_base64,
+          result.ai_turn.text,
+          audioRef,
+        );
+
+        setPlaybackNotice(
+          playbackSource === "browser"
+            ? SESSION_COPY.browserVoiceFallbackMessage
+            : playbackSource === "provider" && result.audio_error
+              ? SESSION_COPY.serverVoiceFallbackMessage
+              : playbackSource
+                ? null
+              : SESSION_COPY.audioPlaybackErrorMessage,
+        );
       } catch {
         setError(SESSION_COPY.turnErrorMessage);
         setRecorderState("idle");
@@ -158,14 +228,42 @@ export function SessionTurnPanel({
     });
   }
 
+  async function playCurrentQuestion() {
+    setPlaybackNotice(null);
+
+    if (!currentQuestion) {
+      setPlaybackNotice(SESSION_COPY.audioPlaybackErrorMessage);
+
+      return;
+    }
+
+    const playbackSource = await playInterviewerQuestion(
+      interviewerAudioBase64,
+      currentQuestion,
+      audioRef,
+    );
+
+    if (!playbackSource) {
+      setPlaybackNotice(SESSION_COPY.audioPlaybackErrorMessage);
+    } else if (playbackSource === "browser") {
+      setPlaybackNotice(SESSION_COPY.browserVoiceFallbackMessage);
+    } else if (interviewerAudioError) {
+      setPlaybackNotice(SESSION_COPY.serverVoiceFallbackMessage);
+    }
+  }
+
   return (
     <div className="space-y-6">
       <VoiceSessionPanel
-        mode={mode}
+        modeSignal={modeSignal}
+        question={currentQuestion ?? SESSION_COPY.waitingForQuestionMessage}
         turnState={turnState}
         recorderState={recorderState}
         isBusy={isPending || recorderState === "processing"}
         error={error}
+        playbackNotice={playbackNotice}
+        canPlayQuestion={Boolean(currentQuestion)}
+        onPlayQuestion={playCurrentQuestion}
         onRecordButton={handleRecordButton}
       />
       <TranscriptPanel transcript={transcript} />
@@ -174,20 +272,28 @@ export function SessionTurnPanel({
 }
 
 type VoiceSessionPanelProps = {
-  mode: InterviewMode;
+  modeSignal: string;
+  question: string;
   turnState: string;
   recorderState: RecorderState;
   isBusy: boolean;
   error: string | null;
+  playbackNotice: string | null;
+  canPlayQuestion: boolean;
+  onPlayQuestion: () => void;
   onRecordButton: () => void;
 };
 
 function VoiceSessionPanel({
-  mode,
+  modeSignal,
+  question,
   turnState,
   recorderState,
   isBusy,
   error,
+  playbackNotice,
+  canPlayQuestion,
+  onPlayQuestion,
   onRecordButton,
 }: VoiceSessionPanelProps) {
   const isRecording = recorderState === "recording";
@@ -218,7 +324,10 @@ function VoiceSessionPanel({
             label={SESSION_COPY.metrics.state.label}
             value={turnState}
           />
-          <StatusMetric label={SESSION_COPY.metrics.mode.label} value={mode.signal} />
+          <StatusMetric
+            label={SESSION_COPY.metrics.mode.label}
+            value={modeSignal}
+          />
           <StatusMetric
             label={SESSION_COPY.metrics.elapsed.label}
             value={SESSION_COPY.metrics.elapsed.value}
@@ -230,10 +339,18 @@ function VoiceSessionPanel({
             <IconMicrophone className="size-8" aria-hidden="true" />
           </div>
           <div className="space-y-2">
-            <p className="text-lg font-medium">{audioTitle}</p>
+            <p className="text-sm font-medium uppercase text-muted-foreground">
+              {audioTitle}
+            </p>
+            <p className="max-w-2xl text-lg font-medium">{question}</p>
             <p className="max-w-md text-sm leading-6 text-muted-foreground">
               {audioDescription}
             </p>
+            {playbackNotice ? (
+              <p className="text-sm font-medium text-muted-foreground">
+                {playbackNotice}
+              </p>
+            ) : null}
             {error ? (
               <p className="text-sm font-medium text-destructive">{error}</p>
             ) : null}
@@ -241,6 +358,15 @@ function VoiceSessionPanel({
         </div>
       </CardContent>
       <CardFooter className="flex flex-col gap-3 border-t sm:flex-row">
+        <Button
+          type="button"
+          variant="outline"
+          className="h-10 w-full sm:w-auto"
+          disabled={!canPlayQuestion || isBusy}
+          onClick={onPlayQuestion}
+        >
+          {SESSION_COPY.playQuestionLabel}
+        </Button>
         <Button
           type="button"
           className="h-10 w-full sm:w-auto"
@@ -301,7 +427,7 @@ async function playAudioResponse(
   audioRef: RefObject<HTMLAudioElement | null>,
 ) {
   if (!audioBase64) {
-    return;
+    return false;
   }
 
   const response = await fetch(`data:application/octet-stream;base64,${audioBase64}`);
@@ -316,9 +442,42 @@ async function playAudioResponse(
 
   try {
     await audio.play();
+
+    return true;
   } catch {
     URL.revokeObjectURL(objectUrl);
+
+    return false;
   }
+}
+
+async function playInterviewerQuestion(
+  audioBase64: string,
+  question: string,
+  audioRef: RefObject<HTMLAudioElement | null>,
+) {
+  if (audioBase64 && (await playAudioResponse(audioBase64, audioRef))) {
+    return "provider" as const;
+  }
+
+  if (speakWithBrowser(question)) {
+    return "browser" as const;
+  }
+
+  return null;
+}
+
+// Uses the browser's local speech engine as the last-resort audible interviewer
+// when the selected TTS provider cannot return playable audio.
+function speakWithBrowser(text: string) {
+  if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) {
+    return false;
+  }
+
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+
+  return true;
 }
 
 function StatusMetric({ label, value }: { label: string; value: string }) {

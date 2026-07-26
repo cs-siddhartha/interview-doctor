@@ -62,7 +62,7 @@ function resolveTransportLabel(transport: ProviderTransportValue) {
 // Converts route search params into the stable provider contract that setup
 // forms and later backend session creation can share.
 export function resolveProviderSelection(searchParams: SearchParamsRecord) {
-  const query = searchParamsSchema.parse(searchParams);
+  const query = searchParamsSchema.parse({ ...searchParams });
 
   return providerFields.reduce<ProviderSelection>((selection, field) => {
     const provider = resolveProviderValue(

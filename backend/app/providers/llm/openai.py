@@ -1,11 +1,14 @@
 import asyncio
-import json
 import os
 from typing import Any
 
 from app.providers.base import ProviderKind, ProviderMetadata, ProviderTransport
 from app.providers.http import post_json
 from app.providers.llm.base import LLMProviderBase
+from app.providers.llm.prompts import (
+    INTERVIEWER_SYSTEM_PROMPT,
+    build_interviewer_context,
+)
 
 OPENAI_API_URL = "https://api.openai.com/v1/responses"
 OPENAI_API_KEY_ENV = "OPENAI_API_KEY"
@@ -25,18 +28,30 @@ class OpenAILLMProvider(LLMProviderBase):
     def is_configured(self) -> bool:
         return bool(os.getenv(OPENAI_API_KEY_ENV))
 
-    async def generate_response(self, prompt: str, context: dict) -> str:
+    async def generate_response(
+        self,
+        candidate_answer: str | None,
+        context: dict,
+    ) -> str:
         if not self.is_configured():
             raise RuntimeError("OPENAI_API_KEY is required for OpenAI provider")
 
-        return await asyncio.to_thread(self._generate_response_sync, prompt, context)
+        return await asyncio.to_thread(
+            self._generate_response_sync,
+            candidate_answer,
+            context,
+        )
 
-    def _generate_response_sync(self, prompt: str, context: dict) -> str:
+    def _generate_response_sync(
+        self,
+        candidate_answer: str | None,
+        context: dict,
+    ) -> str:
         payload = post_json(
             OPENAI_API_URL,
             {
                 "model": os.getenv(OPENAI_MODEL_ENV, DEFAULT_OPENAI_MODEL),
-                "input": build_interviewer_input(prompt, context),
+                "input": build_interviewer_input(candidate_answer, context),
             },
             headers={
                 "Authorization": f"Bearer {os.environ[OPENAI_API_KEY_ENV]}",
@@ -46,27 +61,18 @@ class OpenAILLMProvider(LLMProviderBase):
         return extract_output_text(payload)
 
 
-def build_interviewer_input(prompt: str, context: dict) -> list[dict[str, Any]]:
+def build_interviewer_input(
+    candidate_answer: str | None,
+    context: dict,
+) -> list[dict[str, Any]]:
     return [
         {
             "role": "system",
-            "content": (
-                "You are Interview Doctor, a direct AI interviewer. Ask one "
-                "focused follow-up question. Keep it concise."
-            ),
+            "content": INTERVIEWER_SYSTEM_PROMPT,
         },
         {
             "role": "user",
-            "content": json.dumps(
-                {
-                    "candidate_answer": prompt,
-                    "session": {
-                        "mode": context.get("mode"),
-                        "setup": context.get("setup"),
-                        "transcript": context.get("transcript", []),
-                    },
-                }
-            ),
+            "content": build_interviewer_context(candidate_answer, context),
         },
     ]
 

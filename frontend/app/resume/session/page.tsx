@@ -42,6 +42,8 @@ export default async function ResumeSessionPage({
       backHref={`${RESUME_MODE.setupPath}${buildProviderQueryFromSelection(providers)}`}
       sessionId={session.id}
       transcript={session.transcript}
+      openingAudioBase64={session.opening_audio_base64}
+      openingAudioError={session.opening_audio_error}
     />
   );
 }

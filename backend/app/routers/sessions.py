@@ -14,6 +14,8 @@ from app.providers.registry import (
     UnsupportedProviderTransportError,
     build_provider_stack,
 )
+from app.providers.tts.base import TTSProviderBase
+from app.providers.tts.openai import OpenAITTSProvider
 from app.schemas.common import ApiMeta, ApiResponse
 from app.schemas.session import (
     CreateSessionRequest,
@@ -51,7 +53,7 @@ async def create_session(
     now = datetime.now(UTC)
 
     try:
-        build_provider_stack(request.providers)
+        provider_stack = build_provider_stack(request.providers)
     except UnsupportedProviderTransportError as error:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -68,6 +70,32 @@ async def create_session(
             detail=str(error),
         ) from error
 
+    try:
+        interviewer_text = await provider_stack.llm.generate_response(
+            candidate_answer=None,
+            context={
+                "mode": request.mode,
+                "setup": request.setup.model_dump(mode="json"),
+                "transcript": [],
+            },
+        )
+    except RuntimeError as error:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=str(error),
+        ) from error
+
+    opening_audio, opening_audio_error = await synthesize_interviewer_audio(
+        provider_stack.tts,
+        interviewer_text,
+    )
+
+    interviewer_turn = TranscriptTurn(
+        speaker=TranscriptSpeaker.AI_INTERVIEWER,
+        text=interviewer_text,
+        created_at=now,
+    )
+
     session = Session(
         id=str(uuid4()),
         mode=request.mode,
@@ -77,7 +105,10 @@ async def create_session(
             tts=request.providers.tts,
         ),
         setup=request.setup,
-        state=SessionState.SETUP_COMPLETE,
+        state=SessionState.LISTENING,
+        transcript=[interviewer_turn],
+        opening_audio_base64=base64.b64encode(opening_audio).decode("ascii"),
+        opening_audio_error=opening_audio_error,
         created_at=now,
         updated_at=now,
     )
@@ -147,15 +178,19 @@ async def create_turn(
         audio = decode_turn_audio(request.audio_base64)
         transcript = await provider_stack.stt.transcribe(audio, request.mime_type)
         ai_text = await provider_stack.llm.generate_response(
-            prompt=transcript,
+            candidate_answer=transcript,
             context=session.model_dump(mode="json"),
         )
-        ai_audio = await provider_stack.tts.synthesize(ai_text)
     except RuntimeError as error:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=str(error),
         ) from error
+
+    ai_audio, audio_error = await synthesize_interviewer_audio(
+        provider_stack.tts,
+        ai_text,
+    )
     candidate_turn = TranscriptTurn(
         speaker=TranscriptSpeaker.CANDIDATE,
         text=transcript,
@@ -178,6 +213,7 @@ async def create_turn(
             candidate_turn=candidate_turn,
             ai_turn=ai_turn,
             audio_base64=base64.b64encode(ai_audio).decode("ascii"),
+            audio_error=audio_error,
             state=session.state,
         ),
         meta=ApiMeta(timestamp=datetime.now(UTC)),
@@ -195,3 +231,20 @@ def decode_turn_audio(audio_base64: str) -> bytes:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid audio payload",
         ) from error
+
+
+# Falls back to OpenAI speech when the selected provider fails so interview
+# questions remain audible while preserving the primary failure for the UI.
+async def synthesize_interviewer_audio(
+    selected_provider: TTSProviderBase,
+    text: str,
+) -> tuple[bytes, str | None]:
+    try:
+        return await selected_provider.synthesize(text), None
+    except RuntimeError as primary_error:
+        fallback_provider = OpenAITTSProvider()
+
+        try:
+            return await fallback_provider.synthesize(text), str(primary_error)
+        except RuntimeError:
+            return b"", str(primary_error)

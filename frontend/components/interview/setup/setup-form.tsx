@@ -5,22 +5,29 @@ import { IconChevronRight } from "@tabler/icons-react";
 
 import {
   createSessionFromSetup,
-  initialCreateSessionActionState,
+  type CreateSessionActionState,
 } from "@/app/actions/sessions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { FORM_FIELD_NAMES, SETUP_COPY } from "@/constants/setup";
-import { type InterviewMode, providerFields } from "@/lib/interview-options";
+import {
+  type InterviewModeId,
+  providerFields,
+} from "@/lib/interview-options";
 import { type ProviderSelection } from "@/lib/provider-selection";
 
 import { SetupFields } from "./setup-fields";
 
 type SetupFormProps = {
-  mode: InterviewMode;
+  modeId: InterviewModeId;
   providers: ProviderSelection;
 };
 
-export function SetupForm({ mode, providers }: SetupFormProps) {
+const initialCreateSessionActionState: CreateSessionActionState = {
+  error: null,
+};
+
+export function SetupForm({ modeId, providers }: SetupFormProps) {
   const [state, formAction, isPending] = useActionState(
     createSessionFromSetup,
     initialCreateSessionActionState,
@@ -45,10 +52,10 @@ export function SetupForm({ mode, providers }: SetupFormProps) {
             value={providers[field.id].transport}
           />
         ))}
-        <input type="hidden" name={FORM_FIELD_NAMES.mode} value={mode.mode} />
+        <input type="hidden" name={FORM_FIELD_NAMES.mode} value={modeId} />
 
         <CardContent className="grid gap-5">
-          <SetupFields mode={mode.mode} />
+          <SetupFields mode={modeId} />
           {state.error ? (
             <p className="border border-destructive/40 bg-destructive/5 p-3 text-sm font-medium text-destructive">
               {state.error}

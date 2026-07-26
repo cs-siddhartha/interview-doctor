@@ -29,6 +29,8 @@ type SessionPageProps = {
   backHref: string;
   sessionId: string;
   transcript: TranscriptTurn[];
+  openingAudioBase64: string;
+  openingAudioError: string | null;
 };
 
 export function SessionPage({
@@ -38,6 +40,8 @@ export function SessionPage({
   backHref,
   sessionId,
   transcript,
+  openingAudioBase64,
+  openingAudioError,
 }: SessionPageProps) {
   const isDsa = mode.mode === DSA_MODE.id;
 
@@ -48,9 +52,11 @@ export function SessionPage({
           <SessionHeader mode={mode} backHref={backHref} sessionId={sessionId} />
           <div className={isDsa ? "grid gap-6 lg:grid-cols-[1fr_420px]" : ""}>
             <SessionTurnPanel
-              mode={mode}
+              modeSignal={mode.signal}
               sessionId={sessionId}
               initialTranscript={transcript}
+              initialAudioBase64={openingAudioBase64}
+              initialAudioError={openingAudioError}
             />
             {isDsa ? <CodeWorkspace /> : null}
           </div>
