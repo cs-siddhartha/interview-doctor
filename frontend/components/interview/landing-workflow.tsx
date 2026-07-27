@@ -21,13 +21,15 @@ export function LandingWorkflow() {
             {LANDING_WORKFLOW.map((item) => (
               <li
                 key={item.step}
-                className="grid gap-3 border-b border-white/15 py-6 sm:grid-cols-[4rem_1fr_1.2fr] sm:items-baseline"
+                className="grid gap-x-6 gap-y-2 border-b border-white/15 py-7 sm:grid-cols-[3rem_17rem_minmax(0,1fr)] sm:items-start"
               >
-                <span className="font-mono text-xs text-[#d7ff66]">
+                <span className="pt-1 font-mono text-xs text-[#d7ff66]">
                   {item.step}
                 </span>
-                <h3 className="text-lg font-semibold">{item.title}</h3>
-                <p className="text-sm leading-6 text-white/50">
+                <h3 className="text-lg font-semibold leading-7">
+                  {item.title}
+                </h3>
+                <p className="max-w-xl text-sm leading-7 text-white/50">
                   {item.description}
                 </p>
               </li>

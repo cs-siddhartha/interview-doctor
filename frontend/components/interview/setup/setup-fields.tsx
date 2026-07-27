@@ -51,10 +51,10 @@ function ResumeSetupFields({
   onStateChange: SetupFieldsProps["onResumeStateChange"];
 }) {
   return (
-    <>
+    <div className="mx-auto grid w-full max-w-6xl gap-5">
       <ResumeUploadField onStateChange={onStateChange} />
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-5 sm:grid-cols-[minmax(0,1.35fr)_minmax(16rem,0.65fr)]">
         <TextInput
           label={RESUME_SETUP_FIELDS.targetRole.label}
           name={RESUME_SETUP_FIELDS.targetRole.name}
@@ -66,7 +66,7 @@ function ResumeSetupFields({
           options={[...RESUME_SETUP_FIELDS.intensity.options]}
         />
       </div>
-    </>
+    </div>
   );
 }
 

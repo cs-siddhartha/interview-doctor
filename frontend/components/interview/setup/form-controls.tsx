@@ -42,7 +42,8 @@ export function SelectInput({ label, name, options }: SelectInputProps) {
       <Select name={name} defaultValue={options[0]}>
         <SelectTrigger
           id={name}
-          className="h-12 w-full rounded-sm border-black/10 bg-[#f7f5ef] px-4 text-sm"
+          size="lg"
+          className="w-full rounded-sm border-black/10 bg-[#f7f5ef] px-4 text-sm"
         >
           <SelectValue />
         </SelectTrigger>
