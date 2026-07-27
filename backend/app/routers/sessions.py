@@ -16,6 +16,12 @@ from app.providers.registry import (
 )
 from app.providers.tts.base import TTSProviderBase
 from app.providers.tts.openai import OpenAITTSProvider
+from app.resumes.context import (
+    ResumeDocumentNotFoundError,
+    get_current_question,
+    get_resume_evidence,
+)
+from app.resumes.dependencies import ResumeStoreDep
 from app.schemas.common import ApiMeta, ApiResponse
 from app.schemas.session import (
     CreateSessionRequest,
@@ -50,6 +56,7 @@ SessionStoreDep = Annotated[SessionStore, Depends(get_session_store)]
 async def create_session(
     request: CreateSessionRequest,
     session_store: SessionStoreDep,
+    resume_store: ResumeStoreDep,
 ) -> ApiResponse[Session]:
     now = datetime.now(UTC)
 
@@ -72,14 +79,25 @@ async def create_session(
         ) from error
 
     try:
+        resume_evidence = await get_resume_evidence(
+            request.mode,
+            request.setup,
+            resume_store,
+        )
         interviewer_text = await provider_stack.llm.generate_response(
             candidate_answer=None,
             context={
                 "mode": request.mode,
                 "setup": request.setup.model_dump(mode="json"),
                 "transcript": [],
+                "resume_evidence": resume_evidence,
             },
         )
+    except ResumeDocumentNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=str(error),
+        ) from error
     except RuntimeError as error:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
@@ -173,6 +191,7 @@ async def create_turn(
     session_id: str,
     request: CreateTurnRequest,
     session_store: SessionStoreDep,
+    resume_store: ResumeStoreDep,
 ) -> ApiResponse[TurnResult]:
     now = datetime.now(UTC)
     session = await session_store.get(session_id)
@@ -210,10 +229,24 @@ async def create_turn(
     try:
         audio = decode_turn_audio(request.audio_base64)
         transcript = await provider_stack.stt.transcribe(audio, request.mime_type)
+        resume_evidence = await get_resume_evidence(
+            session.mode,
+            session.setup,
+            resume_store,
+            candidate_answer=transcript,
+            current_question=get_current_question(session),
+        )
+        context = session.model_dump(mode="json")
+        context["resume_evidence"] = resume_evidence
         ai_text = await provider_stack.llm.generate_response(
             candidate_answer=transcript,
-            context=session.model_dump(mode="json"),
+            context=context,
         )
+    except ResumeDocumentNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=str(error),
+        ) from error
     except RuntimeError as error:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,

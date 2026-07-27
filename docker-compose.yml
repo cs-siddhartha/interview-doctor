@@ -44,14 +44,15 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   redis:
-    image: redis:7-alpine
+    image: redis/redis-stack-server:7.4.0-v8
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
-      - redis_data:/data
+      - redis_stack_data:/data
 
 volumes:
   frontend_node_modules:
   backend_uv_cache:
   postgres_data:
   redis_data:
+  redis_stack_data:

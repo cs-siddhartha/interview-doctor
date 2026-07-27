@@ -1,7 +1,5 @@
-import { IconCode, IconFileUpload } from "@tabler/icons-react";
+import { IconCode } from "@tabler/icons-react";
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   DSA_MODE,
   RESUME_MODE,
@@ -15,12 +13,14 @@ import {
 import { type InterviewMode } from "@/lib/interview-options";
 
 import { SelectInput, TextInput } from "./form-controls";
+import { ResumeUploadField } from "./resume-upload-field";
 
 type SetupFieldsProps = {
   mode: InterviewMode["mode"];
+  onResumeStateChange: (documentId: string, isUploading: boolean) => void;
 };
 
-export function SetupFields({ mode }: SetupFieldsProps) {
+export function SetupFields({ mode, onResumeStateChange }: SetupFieldsProps) {
   return (
     <section className="grid gap-5">
       <div className="grid gap-2 sm:grid-cols-[3rem_1fr]">
@@ -34,7 +34,9 @@ export function SetupFields({ mode }: SetupFieldsProps) {
           </p>
         </div>
       </div>
-      {mode === RESUME_MODE.id ? <ResumeSetupFields /> : null}
+      {mode === RESUME_MODE.id ? (
+        <ResumeSetupFields onStateChange={onResumeStateChange} />
+      ) : null}
       {mode === DSA_MODE.id ? <DsaSetupFields /> : null}
       {mode !== RESUME_MODE.id && mode !== DSA_MODE.id ? (
         <DomainSetupFields />
@@ -43,27 +45,14 @@ export function SetupFields({ mode }: SetupFieldsProps) {
   );
 }
 
-function ResumeSetupFields() {
+function ResumeSetupFields({
+  onStateChange,
+}: {
+  onStateChange: SetupFieldsProps["onResumeStateChange"];
+}) {
   return (
     <>
-      <div className="grid gap-2">
-        <Label htmlFor={RESUME_SETUP_FIELDS.file.name}>
-          {RESUME_SETUP_FIELDS.file.label}
-        </Label>
-        <span className="flex min-h-44 flex-col items-center justify-center gap-3 rounded-sm border border-dashed border-black/20 bg-[#f7f5ef] px-4 py-7 text-center">
-          <IconFileUpload className="size-8 text-muted-foreground" />
-          <span className="text-sm font-medium">
-            {RESUME_SETUP_FIELDS.file.uploadTitle}
-          </span>
-          <Input
-            id={RESUME_SETUP_FIELDS.file.name}
-            type="file"
-            name={RESUME_SETUP_FIELDS.file.name}
-            accept={RESUME_SETUP_FIELDS.file.accept}
-            className="h-11 w-full max-w-sm rounded-sm bg-white"
-          />
-        </span>
-      </div>
+      <ResumeUploadField onStateChange={onStateChange} />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <TextInput

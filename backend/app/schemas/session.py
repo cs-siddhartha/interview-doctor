@@ -55,6 +55,7 @@ class ProviderSelection(BaseModel):
 class ResumeSetup(BaseModel):
     targetRole: str = Field(min_length=1)
     intensity: Literal["Balanced", "Strict", "Very strict"]
+    resumeDocumentId: str = Field(min_length=1)
 
 
 class DomainSetup(BaseModel):

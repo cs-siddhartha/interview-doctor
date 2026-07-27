@@ -8,6 +8,7 @@ import {
 import {
   DOMAIN_SETUP_FIELDS,
   DSA_SETUP_FIELDS,
+  FORM_FIELD_NAMES,
   RESUME_SETUP_FIELDS,
 } from "@/constants/setup";
 import {
@@ -41,6 +42,7 @@ const requiredSetupValueSchema = z.string().trim().min(1);
 export const resumeSetupSchema = z.object({
   [RESUME_SETUP_FIELDS.targetRole.name]: requiredSetupValueSchema,
   [RESUME_SETUP_FIELDS.intensity.name]: z.enum(RESUME_SETUP_FIELDS.intensity.options),
+  [FORM_FIELD_NAMES.resumeDocumentId]: requiredSetupValueSchema,
 });
 
 export const domainSetupSchema = z.object({
@@ -98,6 +100,16 @@ export const createSessionResponseSchema = z.object({
   }),
 });
 
+export const resumeDocumentResponseSchema = z.object({
+  data: z.object({
+    id: z.string().min(1),
+    filename: z.string().min(1),
+    page_count: z.number().int().positive(),
+    chunk_count: z.number().int().positive(),
+    created_at: z.string(),
+  }),
+});
+
 export const createTurnRequestSchema = z.object({
   audio_base64: z.string(),
   mime_type: z.string().min(1),
@@ -131,6 +143,9 @@ export const apiErrorResponseSchema = z.object({
 export type SearchParamsRecord = z.input<typeof searchParamsSchema>;
 export type CreateSessionRequest = z.infer<typeof createSessionRequestSchema>;
 export type CreateTurnRequest = z.infer<typeof createTurnRequestSchema>;
+export type ResumeDocument = z.infer<
+  typeof resumeDocumentResponseSchema
+>["data"];
 export type TurnResult = z.infer<typeof turnResultSchema>;
 export type TranscriptTurn = z.infer<
   typeof createSessionResponseSchema

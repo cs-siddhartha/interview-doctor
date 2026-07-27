@@ -5,9 +5,30 @@ import {
   createSessionResponseSchema,
   createTurnRequestSchema,
   createTurnResponseSchema,
+  resumeDocumentResponseSchema,
   type CreateSessionRequest,
   type CreateTurnRequest,
 } from "@/lib/schemas/session";
+
+export async function uploadResume(resume: File) {
+  const body = new FormData();
+  body.set("resume", resume);
+  const response = await fetch(`${getApiBaseUrl()}${SESSION_API.resumesPath}`, {
+    method: SESSION_API.method,
+    body,
+    cache: SESSION_API.fetchCache,
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      await readApiErrorMessage(response, SESSION_API.resumeErrorPrefix),
+    );
+  }
+
+  const payload = resumeDocumentResponseSchema.parse(await response.json());
+
+  return payload.data;
+}
 
 function getApiBaseUrl() {
   return (

@@ -1,14 +1,16 @@
 export const FORM_FIELD_NAMES = {
   mode: "mode",
   resume: "resume",
+  resumeDocumentId: "resumeDocumentId",
 } as const;
 
 export const RESUME_SETUP_FIELDS = {
   file: {
     label: "Resume file",
     name: FORM_FIELD_NAMES.resume,
-    accept: ".pdf,.doc,.docx",
-    uploadTitle: "Upload placeholder",
+    accept: ".pdf,application/pdf",
+    uploadTitle: "Choose a PDF resume",
+    uploadDescription: "PDF only · 10 MB maximum · 20 pages maximum",
   },
   targetRole: {
     label: "Target role",
@@ -75,4 +77,7 @@ export const SETUP_COPY = {
   submittingLabel: "Creating",
   invalidSetupMessage: "Check the setup fields and try again.",
   createSessionErrorMessage: "Could not create the interview session.",
+  resumeUploadingLabel: "Reading resume",
+  resumeReadyLabel: "Resume ready",
+  resumeUploadError: "Could not process the resume.",
 } as const;

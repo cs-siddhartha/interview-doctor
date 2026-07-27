@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { createSession } from "@/lib/api/sessions";
+import { createSession, uploadResume } from "@/lib/api/sessions";
 import { QUERY_PARAM_NAMES } from "@/constants/routes";
 import { FORM_FIELD_NAMES, SETUP_COPY } from "@/constants/setup";
 import {
@@ -19,7 +19,10 @@ import {
   type ProviderFieldId,
   type ProviderSelectionValue,
 } from "@/lib/schemas/interview";
-import { setupFormSchema } from "@/lib/schemas/session";
+import {
+  setupFormSchema,
+  type ResumeDocument,
+} from "@/lib/schemas/session";
 
 export type CreateSessionActionState = {
   error: string | null;
@@ -38,8 +41,30 @@ const defaultProviders = {
   tts: DEFAULT_TTS_PROVIDER_VALUE,
 } as const;
 
-// Validates setup form data, creates the short-lived backend session, and
-// returns backend configuration errors for inline setup-page rendering.
+export type UploadResumeActionResult = {
+  document: ResumeDocument | null;
+  error: string | null;
+};
+
+export async function uploadResumeFromSetup(
+  formData: FormData,
+): Promise<UploadResumeActionResult> {
+  const resume = formData.get(FORM_FIELD_NAMES.resume);
+
+  if (!(resume instanceof File) || resume.size === 0) {
+    return { document: null, error: SETUP_COPY.resumeUploadError };
+  }
+
+  try {
+    return { document: await uploadResume(resume), error: null };
+  } catch (error) {
+    return {
+      document: null,
+      error: getSessionCreationErrorMessage(error),
+    };
+  }
+}
+
 export async function createSessionFromSetup(
   _state: CreateSessionActionState,
   formData: FormData,
