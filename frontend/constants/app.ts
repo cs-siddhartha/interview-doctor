@@ -23,6 +23,7 @@ export const APP_COPY = {
 
 export const MODE_CARD_COPY = {
   startSetupLabel: "Configure interview",
+  comingSoonLabel: "Coming soon",
 } as const;
 
 export const LANDING_METRICS = [

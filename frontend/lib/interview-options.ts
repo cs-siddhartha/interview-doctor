@@ -27,6 +27,7 @@ export type InterviewMode = {
   title: string;
   mode: InterviewModeId;
   action: string;
+  isAvailable: boolean;
   description: string;
   highlights: readonly string[];
   icon: Icon;
@@ -47,6 +48,7 @@ export const interviewModes: InterviewMode[] = [
     title: RESUME_MODE.title,
     mode: RESUME_MODE.id,
     action: RESUME_MODE.setupPath,
+    isAvailable: true,
     description: RESUME_MODE.description,
     highlights: ["Project claims", "Ownership depth", "Impact metrics"],
     icon: IconFileText,
@@ -55,6 +57,7 @@ export const interviewModes: InterviewMode[] = [
     title: DOMAIN_MODE.title,
     mode: DOMAIN_MODE.id,
     action: DOMAIN_MODE.setupPath,
+    isAvailable: true,
     description: DOMAIN_MODE.description,
     highlights: ["Core concepts", "Trade-off analysis", "Role depth"],
     icon: IconBrain,
@@ -63,6 +66,7 @@ export const interviewModes: InterviewMode[] = [
     title: ALGORITHMS_MODE.title,
     mode: ALGORITHMS_MODE.id,
     action: ALGORITHMS_MODE.setupPath,
+    isAvailable: false,
     description: ALGORITHMS_MODE.description,
     highlights: ["Problem solving", "Complexity", "Clear explanation"],
     icon: IconCode,

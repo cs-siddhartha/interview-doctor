@@ -20,9 +20,16 @@ export function ModeCard({ mode }: ModeCardProps) {
       className={`group flex min-h-[420px] flex-col overflow-hidden rounded-sm border border-black/10 ${presentation.surface}`}
     >
       <div className="border-b border-black/10 px-6 py-4">
-        <span className="font-mono text-sm font-semibold">
-          {presentation.number}
-        </span>
+        <div className="flex items-center justify-between gap-4">
+          <span className="font-mono text-sm font-semibold">
+            {presentation.number}
+          </span>
+          {!mode.isAvailable ? (
+            <span className="rounded-sm border border-black/15 bg-white/40 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.12em]">
+              {MODE_CARD_COPY.comingSoonLabel}
+            </span>
+          ) : null}
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col p-6">
@@ -45,16 +52,22 @@ export function ModeCard({ mode }: ModeCardProps) {
         </ul>
       </div>
 
-      <Link
-        href={mode.action}
-        className="flex items-center justify-between border-t border-black/10 bg-white/30 px-6 py-5 text-sm font-semibold transition-colors hover:bg-white/55"
-      >
-        {MODE_CARD_COPY.startSetupLabel}
-        <IconArrowUpRight
-          className="size-5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-          aria-hidden="true"
-        />
-      </Link>
+      {mode.isAvailable ? (
+        <Link
+          href={mode.action}
+          className="flex items-center justify-between border-t border-black/10 bg-white/30 px-6 py-5 text-sm font-semibold transition-colors hover:bg-white/55"
+        >
+          {MODE_CARD_COPY.startSetupLabel}
+          <IconArrowUpRight
+            className="size-5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+            aria-hidden="true"
+          />
+        </Link>
+      ) : (
+        <div className="flex items-center border-t border-black/10 bg-black/5 px-6 py-5 text-sm font-semibold text-black/45">
+          {MODE_CARD_COPY.comingSoonLabel}
+        </div>
+      )}
     </article>
   );
 }
