@@ -16,7 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { APP_COPY } from "@/constants/app";
-import { DSA_MODE } from "@/constants/interview-modes";
+import { ALGORITHMS_MODE } from "@/constants/interview-modes";
 import { SESSION_COPY } from "@/constants/session";
 import { type InterviewMode } from "@/lib/interview-options";
 import { MODE_PRESENTATION } from "@/lib/mode-presentation";
@@ -47,7 +47,7 @@ export function SessionPage({
   openingAudioBase64,
   openingAudioError,
 }: SessionPageProps) {
-  const isDsa = mode.mode === DSA_MODE.id;
+  const isAlgorithms = mode.mode === ALGORITHMS_MODE.id;
 
   return (
     <main className="min-h-screen bg-[#f3f0e8] px-5 py-5 text-[#171a1c] sm:px-8 lg:px-10">
@@ -55,7 +55,11 @@ export function SessionPage({
         <SessionHeader mode={mode} backHref={backHref} sessionId={sessionId} />
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
           <div className="space-y-6">
-            <div className={isDsa ? "grid gap-6 2xl:grid-cols-[1fr_400px]" : ""}>
+            <div
+              className={
+                isAlgorithms ? "grid gap-6 2xl:grid-cols-[1fr_400px]" : ""
+              }
+            >
               <SessionTurnPanel
                 modeId={mode.mode}
                 modeTitle={mode.title}
@@ -65,7 +69,7 @@ export function SessionPage({
                 initialAudioBase64={openingAudioBase64}
                 initialAudioError={openingAudioError}
               />
-              {isDsa ? <CodeWorkspace /> : null}
+              {isAlgorithms ? <CodeWorkspace /> : null}
             </div>
           </div>
 

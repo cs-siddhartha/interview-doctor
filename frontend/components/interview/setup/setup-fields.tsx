@@ -1,12 +1,12 @@
 import { IconCode } from "@tabler/icons-react";
 
 import {
-  DSA_MODE,
+  ALGORITHMS_MODE,
   RESUME_MODE,
 } from "@/constants/interview-modes";
 import {
   DOMAIN_SETUP_FIELDS,
-  DSA_SETUP_FIELDS,
+  ALGORITHMS_SETUP_FIELDS,
   RESUME_SETUP_FIELDS,
   SETUP_COPY,
 } from "@/constants/setup";
@@ -37,8 +37,8 @@ export function SetupFields({ mode, onResumeStateChange }: SetupFieldsProps) {
       {mode === RESUME_MODE.id ? (
         <ResumeSetupFields onStateChange={onResumeStateChange} />
       ) : null}
-      {mode === DSA_MODE.id ? <DsaSetupFields /> : null}
-      {mode !== RESUME_MODE.id && mode !== DSA_MODE.id ? (
+      {mode === ALGORITHMS_MODE.id ? <AlgorithmsSetupFields /> : null}
+      {mode !== RESUME_MODE.id && mode !== ALGORITHMS_MODE.id ? (
         <DomainSetupFields />
       ) : null}
     </section>
@@ -94,29 +94,29 @@ function DomainSetupFields() {
   );
 }
 
-function DsaSetupFields() {
+function AlgorithmsSetupFields() {
   return (
     <div className="grid gap-4">
       <div className="flex items-center gap-2 rounded-sm bg-[#171a1c] p-4 text-sm text-white/65">
         <IconCode className="size-4" aria-hidden="true" />
-        {DSA_SETUP_FIELDS.editorNotice}
+        {ALGORITHMS_SETUP_FIELDS.editorNotice}
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <SelectInput
-          label={DSA_SETUP_FIELDS.topic.label}
-          name={DSA_SETUP_FIELDS.topic.name}
-          options={[...DSA_SETUP_FIELDS.topic.options]}
+          label={ALGORITHMS_SETUP_FIELDS.topic.label}
+          name={ALGORITHMS_SETUP_FIELDS.topic.name}
+          options={[...ALGORITHMS_SETUP_FIELDS.topic.options]}
         />
         <SelectInput
-          label={DSA_SETUP_FIELDS.difficulty.label}
-          name={DSA_SETUP_FIELDS.difficulty.name}
-          options={[...DSA_SETUP_FIELDS.difficulty.options]}
+          label={ALGORITHMS_SETUP_FIELDS.difficulty.label}
+          name={ALGORITHMS_SETUP_FIELDS.difficulty.name}
+          options={[...ALGORITHMS_SETUP_FIELDS.difficulty.options]}
         />
       </div>
       <TextInput
-        label={DSA_SETUP_FIELDS.language.label}
-        name={DSA_SETUP_FIELDS.language.name}
-        placeholder={DSA_SETUP_FIELDS.language.placeholder}
+        label={ALGORITHMS_SETUP_FIELDS.language.label}
+        name={ALGORITHMS_SETUP_FIELDS.language.name}
+        placeholder={ALGORITHMS_SETUP_FIELDS.language.placeholder}
       />
     </div>
   );

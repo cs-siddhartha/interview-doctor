@@ -1,4 +1,4 @@
-export const INTERVIEW_MODE_IDS = ["resume", "domain", "dsa"] as const;
+export const INTERVIEW_MODE_IDS = ["resume", "domain", "algorithms"] as const;
 
 export const RESUME_MODE = {
   id: INTERVIEW_MODE_IDS[0],
@@ -16,10 +16,10 @@ export const DOMAIN_MODE = {
     "Choose a role, skill, or topic and run a focused conversational interview.",
 } as const;
 
-export const DSA_MODE = {
+export const ALGORITHMS_MODE = {
   id: INTERVIEW_MODE_IDS[2],
-  title: "DSA Interview",
-  setupPath: "/dsa/setup",
+  title: "Algorithms Interview",
+  setupPath: "/algorithms/setup",
   description:
     "Pick a data structures topic and practice explaining a solution while coding.",
 } as const;

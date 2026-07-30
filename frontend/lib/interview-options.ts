@@ -7,7 +7,7 @@ import {
 
 import {
   DOMAIN_MODE,
-  DSA_MODE,
+  ALGORITHMS_MODE,
   RESUME_MODE,
 } from "@/constants/interview-modes";
 import { PROVIDER_FIELDS, PROVIDER_OPTIONS } from "@/constants/providers";
@@ -60,10 +60,10 @@ export const interviewModes: InterviewMode[] = [
     icon: IconBrain,
   },
   {
-    title: DSA_MODE.title,
-    mode: DSA_MODE.id,
-    action: DSA_MODE.setupPath,
-    description: DSA_MODE.description,
+    title: ALGORITHMS_MODE.title,
+    mode: ALGORITHMS_MODE.id,
+    action: ALGORITHMS_MODE.setupPath,
+    description: ALGORITHMS_MODE.description,
     highlights: ["Problem solving", "Complexity", "Clear explanation"],
     icon: IconCode,
   },

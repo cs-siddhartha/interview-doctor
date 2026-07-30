@@ -1,17 +1,19 @@
 import { SetupPage } from "@/components/interview/setup-page";
-import { DSA_MODE } from "@/constants/interview-modes";
+import { ALGORITHMS_MODE } from "@/constants/interview-modes";
 import { interviewModeById } from "@/lib/interview-options";
 import { resolveProviderSelection } from "@/lib/provider-selection";
 import { type SearchParamsRecord } from "@/lib/schemas/session";
 
-type DsaSetupPageProps = {
+type AlgorithmsSetupPageProps = {
   searchParams: Promise<SearchParamsRecord>;
 };
 
-export default async function DsaSetupPage({ searchParams }: DsaSetupPageProps) {
+export default async function AlgorithmsSetupPage({
+  searchParams,
+}: AlgorithmsSetupPageProps) {
   return (
     <SetupPage
-      mode={interviewModeById.get(DSA_MODE.id)!}
+      mode={interviewModeById.get(ALGORITHMS_MODE.id)!}
       providers={resolveProviderSelection(await searchParams)}
     />
   );

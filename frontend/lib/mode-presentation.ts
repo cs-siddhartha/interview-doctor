@@ -17,7 +17,7 @@ export const MODE_PRESENTATION: Record<InterviewModeId, ModePresentation> = {
     surface: "bg-[#a8d8ff]",
     softSurface: "bg-[#dcefff]",
   },
-  dsa: {
+  algorithms: {
     number: "03",
     surface: "bg-[#ffb5a5]",
     softSurface: "bg-[#ffe0d9]",

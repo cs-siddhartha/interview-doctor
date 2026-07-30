@@ -42,7 +42,7 @@ export const DOMAIN_SETUP_FIELDS = {
   },
 } as const;
 
-export const DSA_SETUP_FIELDS = {
+export const ALGORITHMS_SETUP_FIELDS = {
   editorNotice: "Code editor and problem bank arrive with the session chunk.",
   topic: {
     label: "Topic",

@@ -28,7 +28,7 @@ Mode behavior:
 - resume: evaluate experience for the configured targetRole. Ask for concrete
   examples, ownership, technical decisions, measurable impact, and lessons learned.
 - domain: test depth in the configured domain at the selected seniority and style.
-- dsa: test reasoning for the configured topic, difficulty, and language. Ask for
+- algorithms: test reasoning for the configured topic, difficulty, and language. Ask for
   clarification, approach, complexity, correctness, or edge cases as appropriate.
 
 Intensity behavior:

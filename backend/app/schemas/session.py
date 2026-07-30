@@ -10,7 +10,7 @@ from app.providers.base import ProviderTransport
 class InterviewMode(StrEnum):
     RESUME = "resume"
     DOMAIN = "domain"
-    DSA = "dsa"
+    ALGORITHMS = "algorithms"
 
 
 class STTProvider(StrEnum):
@@ -64,7 +64,7 @@ class DomainSetup(BaseModel):
     style: Literal["Conversational", "Structured", "Rapid follow-up"]
 
 
-class DsaSetup(BaseModel):
+class AlgorithmsSetup(BaseModel):
     topic: Literal["Arrays", "Strings", "Graphs", "Dynamic programming"]
     difficulty: Literal["Easy", "Medium", "Hard"]
     language: str = Field(min_length=1)
@@ -122,18 +122,20 @@ class CreateDomainSessionRequest(BaseModel):
     setup: DomainSetup
 
 
-class CreateDsaSessionRequest(BaseModel):
-    mode: Literal[InterviewMode.DSA]
+class CreateAlgorithmsSessionRequest(BaseModel):
+    mode: Literal[InterviewMode.ALGORITHMS]
     providers: ProviderSelection = Field(default_factory=ProviderSelection)
-    setup: DsaSetup
+    setup: AlgorithmsSetup
 
 
 CreateSessionRequest = Annotated[
-    CreateResumeSessionRequest | CreateDomainSessionRequest | CreateDsaSessionRequest,
+    CreateResumeSessionRequest
+    | CreateDomainSessionRequest
+    | CreateAlgorithmsSessionRequest,
     Field(discriminator="mode"),
 ]
 
-SessionSetup = ResumeSetup | DomainSetup | DsaSetup
+SessionSetup = ResumeSetup | DomainSetup | AlgorithmsSetup
 
 
 class Session(BaseModel):

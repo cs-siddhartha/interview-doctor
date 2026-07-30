@@ -1,6 +1,6 @@
 import {
   DOMAIN_SETUP_FIELDS,
-  DSA_SETUP_FIELDS,
+  ALGORITHMS_SETUP_FIELDS,
   RESUME_SETUP_FIELDS,
 } from "@/constants/setup";
 
@@ -24,13 +24,16 @@ export const DOMAIN_SESSION_SETUP_FIELDS = [
   { key: DOMAIN_SETUP_FIELDS.style.name, label: "Style" },
 ] as const;
 
-export const DSA_SESSION_SETUP_FIELDS = [
-  { key: DSA_SETUP_FIELDS.topic.name, label: DSA_SETUP_FIELDS.topic.label },
+export const ALGORITHMS_SESSION_SETUP_FIELDS = [
   {
-    key: DSA_SETUP_FIELDS.difficulty.name,
-    label: DSA_SETUP_FIELDS.difficulty.label,
+    key: ALGORITHMS_SETUP_FIELDS.topic.name,
+    label: ALGORITHMS_SETUP_FIELDS.topic.label,
   },
-  { key: DSA_SETUP_FIELDS.language.name, label: "Language" },
+  {
+    key: ALGORITHMS_SETUP_FIELDS.difficulty.name,
+    label: ALGORITHMS_SETUP_FIELDS.difficulty.label,
+  },
+  { key: ALGORITHMS_SETUP_FIELDS.language.name, label: "Language" },
 ] as const;
 
 export const SESSION_COPY = {

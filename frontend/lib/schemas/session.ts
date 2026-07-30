@@ -2,12 +2,12 @@ import { z } from "zod";
 
 import {
   DOMAIN_MODE,
-  DSA_MODE,
+  ALGORITHMS_MODE,
   RESUME_MODE,
 } from "@/constants/interview-modes";
 import {
   DOMAIN_SETUP_FIELDS,
-  DSA_SETUP_FIELDS,
+  ALGORITHMS_SETUP_FIELDS,
   FORM_FIELD_NAMES,
   RESUME_SETUP_FIELDS,
 } from "@/constants/setup";
@@ -51,10 +51,14 @@ export const domainSetupSchema = z.object({
   [DOMAIN_SETUP_FIELDS.style.name]: z.enum(DOMAIN_SETUP_FIELDS.style.options),
 });
 
-export const dsaSetupSchema = z.object({
-  [DSA_SETUP_FIELDS.topic.name]: z.enum(DSA_SETUP_FIELDS.topic.options),
-  [DSA_SETUP_FIELDS.difficulty.name]: z.enum(DSA_SETUP_FIELDS.difficulty.options),
-  [DSA_SETUP_FIELDS.language.name]: requiredSetupValueSchema,
+export const algorithmsSetupSchema = z.object({
+  [ALGORITHMS_SETUP_FIELDS.topic.name]: z.enum(
+    ALGORITHMS_SETUP_FIELDS.topic.options,
+  ),
+  [ALGORITHMS_SETUP_FIELDS.difficulty.name]: z.enum(
+    ALGORITHMS_SETUP_FIELDS.difficulty.options,
+  ),
+  [ALGORITHMS_SETUP_FIELDS.language.name]: requiredSetupValueSchema,
 });
 
 export const setupFormSchema = z.discriminatedUnion("mode", [
@@ -69,9 +73,9 @@ export const setupFormSchema = z.discriminatedUnion("mode", [
     setup: domainSetupSchema,
   }),
   z.object({
-    mode: z.literal(DSA_MODE.id),
+    mode: z.literal(ALGORITHMS_MODE.id),
     providers: providerSelectionSchema,
-    setup: dsaSetupSchema,
+    setup: algorithmsSetupSchema,
   }),
 ]);
 

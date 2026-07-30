@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { SessionPage } from "@/components/interview/session-page";
-import { DSA_MODE } from "@/constants/interview-modes";
+import { ALGORITHMS_MODE } from "@/constants/interview-modes";
 import { getSession } from "@/lib/api/sessions";
 import { interviewModeById } from "@/lib/interview-options";
 import { resolveProviderSelectionFromValues } from "@/lib/provider-selection";
@@ -12,13 +12,13 @@ import {
   resolveSessionSetupFromValues,
 } from "@/lib/session-setup";
 
-type DsaSessionPageProps = {
+type AlgorithmsSessionPageProps = {
   searchParams: Promise<SearchParamsRecord>;
 };
 
-export default async function DsaSessionPage({
+export default async function AlgorithmsSessionPage({
   searchParams,
-}: DsaSessionPageProps) {
+}: AlgorithmsSessionPageProps) {
   const query = await searchParams;
   const sessionId = resolveSessionId(query);
 
@@ -28,7 +28,7 @@ export default async function DsaSessionPage({
 
   const session = await getSession(sessionId);
 
-  if (!session || session.mode !== DSA_MODE.id) {
+  if (!session || session.mode !== ALGORITHMS_MODE.id) {
     notFound();
   }
 
@@ -36,10 +36,10 @@ export default async function DsaSessionPage({
 
   return (
     <SessionPage
-      mode={interviewModeById.get(DSA_MODE.id)!}
+      mode={interviewModeById.get(ALGORITHMS_MODE.id)!}
       providers={providers}
-      setup={resolveSessionSetupFromValues(DSA_MODE.id, session.setup)}
-      backHref={`${DSA_MODE.setupPath}${buildProviderQueryFromSelection(providers)}`}
+      setup={resolveSessionSetupFromValues(ALGORITHMS_MODE.id, session.setup)}
+      backHref={`${ALGORITHMS_MODE.setupPath}${buildProviderQueryFromSelection(providers)}`}
       sessionId={session.id}
       sessionState={session.state}
       transcript={session.transcript}

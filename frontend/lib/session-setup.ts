@@ -1,13 +1,13 @@
 import {
   DOMAIN_MODE,
-  DSA_MODE,
+  ALGORITHMS_MODE,
   RESUME_MODE,
 } from "@/constants/interview-modes";
 import { PROVIDER_FIELD_IDS } from "@/constants/providers";
 import { QUERY_PARAM_NAMES } from "@/constants/routes";
 import {
   DOMAIN_SESSION_SETUP_FIELDS,
-  DSA_SESSION_SETUP_FIELDS,
+  ALGORITHMS_SESSION_SETUP_FIELDS,
   RESUME_SESSION_SETUP_FIELDS,
   SESSION_COPY,
 } from "@/constants/session";
@@ -33,7 +33,7 @@ const setupFieldsByMode: Record<
 > = {
   [RESUME_MODE.id]: [...RESUME_SESSION_SETUP_FIELDS],
   [DOMAIN_MODE.id]: [...DOMAIN_SESSION_SETUP_FIELDS],
-  [DSA_MODE.id]: [...DSA_SESSION_SETUP_FIELDS],
+  [ALGORITHMS_MODE.id]: [...ALGORITHMS_SESSION_SETUP_FIELDS],
 };
 
 const providerKeys = new Set<ProviderFieldId>(PROVIDER_FIELD_IDS);
