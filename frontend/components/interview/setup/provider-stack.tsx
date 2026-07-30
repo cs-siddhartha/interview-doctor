@@ -34,9 +34,6 @@ export function ProviderStack({ providers }: ProviderStackProps) {
             </dt>
             <dd className="min-w-0 text-right text-sm font-semibold">
               {providers[field.id].label}
-              <span className="ml-1.5 font-normal text-black/40">
-                · {providers[field.id].transportLabel}
-              </span>
             </dd>
           </div>
         ))}

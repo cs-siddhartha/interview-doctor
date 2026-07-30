@@ -1,6 +1,4 @@
-import {
-  PROVIDER_TRANSPORT_OPTIONS,
-} from "@/constants/providers";
+import { DEFAULT_PROVIDER_TRANSPORT } from "@/constants/providers";
 import {
   type ProviderFieldId,
   type ProviderOption,
@@ -8,7 +6,6 @@ import {
   providerOptions,
 } from "@/lib/interview-options";
 import {
-  providerTransportSchema,
   type ProviderSelectionValue,
   type ProviderTransportValue,
 } from "@/lib/schemas/interview";
@@ -20,7 +17,6 @@ import {
 
 export type ProviderSelectionItem = ProviderOption & {
   transport: ProviderTransportValue;
-  transportLabel: string;
 };
 
 export type ProviderSelection = Record<ProviderFieldId, ProviderSelectionItem>;
@@ -41,24 +37,6 @@ function resolveProviderValue(fieldId: ProviderFieldId, value?: string) {
   );
 }
 
-function readTransportValue(
-  searchParams: SearchParamsRecord,
-  key: `${ProviderFieldId}Transport`,
-) {
-  const value = searchParamValueSchema.parse(searchParams[key]);
-
-  return value ? providerTransportSchema.parse(value) : undefined;
-}
-
-// Converts transport ids into display labels so provider panels can show the
-// selected API path without duplicating label lookup logic.
-function resolveTransportLabel(transport: ProviderTransportValue) {
-  return (
-    PROVIDER_TRANSPORT_OPTIONS.find((option) => option.value === transport)
-      ?.label ?? transport
-  );
-}
-
 // Converts route search params into the stable provider contract that setup
 // forms and later backend session creation can share.
 export function resolveProviderSelection(searchParams: SearchParamsRecord) {
@@ -69,14 +47,10 @@ export function resolveProviderSelection(searchParams: SearchParamsRecord) {
       field.id,
       readSearchValue(query, field.id),
     );
-    const transport =
-      readTransportValue(query, `${field.id}Transport`) ??
-      provider.defaultTransport;
 
     selection[field.id] = {
       ...provider,
-      transport,
-      transportLabel: resolveTransportLabel(transport),
+      transport: DEFAULT_PROVIDER_TRANSPORT,
     };
 
     return selection;
@@ -94,7 +68,6 @@ export function resolveProviderSelectionFromValues(
     selection[field.id] = {
       ...provider,
       transport: values[field.id].transport,
-      transportLabel: resolveTransportLabel(values[field.id].transport),
     };
 
     return selection;

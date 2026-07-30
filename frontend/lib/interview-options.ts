@@ -14,7 +14,6 @@ import { PROVIDER_FIELDS, PROVIDER_OPTIONS } from "@/constants/providers";
 import {
   type InterviewModeId,
   type ProviderFieldId,
-  type ProviderTransportValue,
 } from "@/lib/schemas/interview";
 
 export type { InterviewModeId, ProviderFieldId };
@@ -22,7 +21,6 @@ export type { InterviewModeId, ProviderFieldId };
 export type ProviderOption = {
   label: string;
   value: string;
-  defaultTransport: ProviderTransportValue;
 };
 
 export type InterviewMode = {

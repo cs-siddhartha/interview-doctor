@@ -9,12 +9,6 @@ export const PROVIDER_TRANSPORT_VALUES = [
   "webrtc",
 ] as const;
 export const DEFAULT_PROVIDER_TRANSPORT = PROVIDER_TRANSPORT_VALUES[0];
-export const PROVIDER_TRANSPORT_FIELD_IDS = [
-  "sttTransport",
-  "llmTransport",
-  "ttsTransport",
-] as const;
-export const PROVIDER_TRANSPORT_LABEL = "Transport";
 
 export const STT_PROVIDER_VALUES = [
   DEFAULT_STT_PROVIDER_VALUE,
@@ -38,56 +32,41 @@ export const PROVIDER_OPTIONS = {
     {
       label: "Whisper",
       value: STT_PROVIDER_VALUES[0],
-      defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
     {
       label: "Deepgram",
       value: STT_PROVIDER_VALUES[1],
-      defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
     {
       label: "Smallest AI",
       value: STT_PROVIDER_VALUES[2],
-      defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
   ],
   llm: [
     {
       label: "OpenAI",
       value: LLM_PROVIDER_VALUES[0],
-      defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
     {
       label: "Anthropic",
       value: LLM_PROVIDER_VALUES[1],
-      defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
   ],
   tts: [
     {
       label: "ElevenLabs",
       value: TTS_PROVIDER_VALUES[0],
-      defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
     {
       label: "Cartesia",
       value: TTS_PROVIDER_VALUES[1],
-      defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
     {
       label: "Smallest AI",
       value: TTS_PROVIDER_VALUES[2],
-      defaultTransport: DEFAULT_PROVIDER_TRANSPORT,
     },
   ],
 } as const;
-
-export const PROVIDER_TRANSPORT_OPTIONS = [
-  { label: "REST", value: PROVIDER_TRANSPORT_VALUES[0] },
-  { label: "Streaming HTTP", value: PROVIDER_TRANSPORT_VALUES[1] },
-  { label: "WebSocket", value: PROVIDER_TRANSPORT_VALUES[2] },
-  { label: "WebRTC", value: PROVIDER_TRANSPORT_VALUES[3] },
-] as const;
 
 export const PROVIDER_FIELDS = [
   { id: "stt", label: "Speech to text", shortLabel: "STT" },

@@ -12,13 +12,9 @@ import {
   DEFAULT_STT_PROVIDER_VALUE,
   DEFAULT_TTS_PROVIDER_VALUE,
   PROVIDER_FIELD_IDS,
-  PROVIDER_TRANSPORT_FIELD_IDS,
 } from "@/constants/providers";
 import { providerFields } from "@/lib/interview-options";
-import {
-  type ProviderFieldId,
-  type ProviderSelectionValue,
-} from "@/lib/schemas/interview";
+import { type ProviderFieldId } from "@/lib/schemas/interview";
 import {
   setupFormSchema,
   type ResumeDocument,
@@ -31,7 +27,6 @@ export type CreateSessionActionState = {
 const ignoredSetupKeys = new Set<string>([
   FORM_FIELD_NAMES.mode,
   ...PROVIDER_FIELD_IDS,
-  ...PROVIDER_TRANSPORT_FIELD_IDS,
   FORM_FIELD_NAMES.resume,
 ]);
 
@@ -83,11 +78,7 @@ export async function createSessionFromSetup(
     return { error: getSessionCreationErrorMessage(error) };
   }
 
-  const params = buildSessionParams(
-    session.id,
-    parsedForm.data.providers,
-    parsedForm.data.setup,
-  );
+  const params = buildSessionParams(session.id);
 
   redirect(`/${parsedForm.data.mode}/session?${params.toString()}`);
 }
@@ -105,9 +96,7 @@ function readProviders(formData: FormData) {
     (providers, field) => {
       providers[field.id] = {
         provider: readString(formData, field.id) || defaultProviders[field.id],
-        transport:
-          readString(formData, `${field.id}Transport`) ||
-          DEFAULT_PROVIDER_TRANSPORT,
+        transport: DEFAULT_PROVIDER_TRANSPORT,
       };
       return providers;
     },
@@ -131,25 +120,10 @@ function readSetup(formData: FormData) {
   return setup;
 }
 
-function buildSessionParams(
-  sessionId: string,
-  providers: ProviderSelectionValue,
-  setup: Record<string, string>,
-) {
-  const params = new URLSearchParams({
+function buildSessionParams(sessionId: string) {
+  return new URLSearchParams({
     [QUERY_PARAM_NAMES.sessionId]: sessionId,
   });
-
-  for (const field of providerFields) {
-    params.set(field.id, providers[field.id].provider);
-    params.set(`${field.id}Transport`, providers[field.id].transport);
-  }
-
-  for (const [key, value] of Object.entries(setup)) {
-    params.set(key, value);
-  }
-
-  return params;
 }
 
 function readString(formData: FormData, key: string) {

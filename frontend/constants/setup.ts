@@ -68,7 +68,7 @@ export const SETUP_COPY = {
     "Confirm the basic interview inputs before moving into the live session. This step keeps provider choices scoped to this interview.",
   providersTitle: "Provider configuration",
   providersDescription:
-    "Choose the speech, interviewer, voice, and transport providers for this interview.",
+    "Choose the speech recognition, interviewer, and voice for this interview.",
   focusTitle: "Shape the pressure test",
   focusDescription:
     "Give the interviewer enough context to make every follow-up specific.",
