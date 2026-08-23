@@ -16,6 +16,7 @@ import {
   type ProviderFieldId,
 } from "@/lib/interview-options";
 import { type ProviderSelection } from "@/lib/provider-selection";
+import { type SessionTransportValue } from "@/lib/schemas/interview";
 import {
   searchParamsSchema,
   searchParamValueSchema,
@@ -52,8 +53,13 @@ export function resolveSessionSetupFromValues(
 
 // Preserves provider selections when linking back to setup while still deriving
 // those values from the fetched session rather than the original route query.
-export function buildProviderQueryFromSelection(providers: ProviderSelection) {
+export function buildProviderQueryFromSelection(
+  providers: ProviderSelection,
+  transport: SessionTransportValue,
+) {
   const params = new URLSearchParams();
+
+  params.set(QUERY_PARAM_NAMES.transport, transport);
 
   for (const key of providerKeys) {
     params.set(key, providers[key].value);

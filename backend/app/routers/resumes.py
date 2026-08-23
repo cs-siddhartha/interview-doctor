@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from datetime import UTC, datetime
 from typing import Annotated
 from uuid import uuid4
@@ -19,6 +20,8 @@ from app.schemas.resume import ResumeDocument
 from app.stores.resumes import build_resume_document
 
 router = APIRouter(prefix="/resumes", tags=["resumes"])
+logger = logging.getLogger("interview_doctor.resumes")
+
 
 @router.post(
     "",
@@ -33,6 +36,12 @@ async def upload_resume(
     filename = resume.filename or ""
     content_type = resume.content_type or ""
     document_id = str(uuid4())
+    logger.info(
+        "[backend.resume] upload received document_id=%s content_type=%s bytes=%d",
+        document_id,
+        content_type,
+        len(data),
+    )
 
     try:
         parsed_document = await asyncio.to_thread(
@@ -47,6 +56,11 @@ async def upload_resume(
             parsed_document,
         )
     except (ResumeValidationError, ValueError) as error:
+        logger.warning(
+            "[backend.resume] validation failed document_id=%s error=%s",
+            document_id,
+            error,
+        )
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=str(error),
@@ -62,15 +76,25 @@ async def upload_resume(
         )
         await resume_store.save(document, chunks, embeddings)
     except RuntimeError as error:
+        logger.exception(
+            "[backend.resume] processing failed document_id=%s", document_id
+        )
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=str(error),
         ) from error
     except RedisError as error:
+        logger.exception("[backend.resume] storage failed document_id=%s", document_id)
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Resume storage is unavailable.",
         ) from error
 
     now = datetime.now(UTC)
+    logger.info(
+        "[backend.resume] upload completed document_id=%s pages=%d chunks=%d",
+        document_id,
+        document.page_count,
+        document.chunk_count,
+    )
     return ApiResponse(data=document, meta=ApiMeta(timestamp=now))

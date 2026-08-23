@@ -8,6 +8,7 @@ import { QUERY_PARAM_NAMES } from "@/constants/routes";
 import { FORM_FIELD_NAMES, SETUP_COPY } from "@/constants/setup";
 import {
   DEFAULT_PROVIDER_TRANSPORT,
+  DEFAULT_SESSION_TRANSPORT,
   DEFAULT_LLM_PROVIDER_VALUE,
   DEFAULT_STT_PROVIDER_VALUE,
   DEFAULT_TTS_PROVIDER_VALUE,
@@ -26,6 +27,7 @@ export type CreateSessionActionState = {
 
 const ignoredSetupKeys = new Set<string>([
   FORM_FIELD_NAMES.mode,
+  FORM_FIELD_NAMES.transport,
   ...PROVIDER_FIELD_IDS,
   FORM_FIELD_NAMES.resume,
 ]);
@@ -47,12 +49,14 @@ export async function uploadResumeFromSetup(
   const resume = formData.get(FORM_FIELD_NAMES.resume);
 
   if (!(resume instanceof File) || resume.size === 0) {
+    console.warn("[frontend.action] resume upload rejected: empty file");
     return { document: null, error: SETUP_COPY.resumeUploadError };
   }
 
   try {
     return { document: await uploadResume(resume), error: null };
   } catch (error) {
+    console.error("[frontend.action] resume upload failed", error);
     return {
       document: null,
       error: getSessionCreationErrorMessage(error),
@@ -67,6 +71,9 @@ export async function createSessionFromSetup(
   const parsedForm = parseSetupForm(formData);
 
   if (!parsedForm.success) {
+    console.warn("[frontend.action] session setup validation failed", {
+      issues: parsedForm.error.issues.map((issue) => issue.path.join(".")),
+    });
     return { error: SETUP_COPY.invalidSetupMessage };
   }
 
@@ -75,10 +82,15 @@ export async function createSessionFromSetup(
   try {
     session = await createSession(parsedForm.data);
   } catch (error) {
+    console.error("[frontend.action] session creation failed", error);
     return { error: getSessionCreationErrorMessage(error) };
   }
 
   const params = buildSessionParams(session.id);
+  console.info("[frontend.action] redirecting to session", {
+    sessionId: session.id,
+    mode: parsedForm.data.mode,
+  });
 
   redirect(`/${parsedForm.data.mode}/session?${params.toString()}`);
 }
@@ -86,6 +98,9 @@ export async function createSessionFromSetup(
 function parseSetupForm(formData: FormData) {
   return setupFormSchema.safeParse({
     mode: readString(formData, FORM_FIELD_NAMES.mode),
+    transport:
+      readString(formData, FORM_FIELD_NAMES.transport) ||
+      DEFAULT_SESSION_TRANSPORT,
     providers: readProviders(formData),
     setup: readSetup(formData),
   });

@@ -11,6 +11,7 @@ from app.providers.stt.whisper import WhisperSTTProvider
 from app.providers.tts.base import TTSProviderBase
 from app.providers.tts.cartesia import CartesiaTTSProvider
 from app.providers.tts.elevenlabs import ElevenLabsTTSProvider
+from app.providers.tts.openai import OpenAITTSProvider
 from app.providers.tts.smallest_ai import SmallestAITTSProvider
 from app.schemas.session import ProviderSelection
 
@@ -119,6 +120,7 @@ tts_provider_catalog: dict[str, ProviderMetadata] = {
         ),
         default_transport=ProviderTransport.BATCH_HTTP,
     ),
+    "openai": OpenAITTSProvider.metadata,
     "smallest-ai": ProviderMetadata(
         key="smallest-ai",
         kind=ProviderKind.TTS,
@@ -148,6 +150,7 @@ llm_providers: dict[str, type[LLMProviderBase]] = {
 tts_providers: dict[str, type[TTSProviderBase]] = {
     CartesiaTTSProvider.metadata.key: CartesiaTTSProvider,
     ElevenLabsTTSProvider.metadata.key: ElevenLabsTTSProvider,
+    OpenAITTSProvider.metadata.key: OpenAITTSProvider,
     SmallestAITTSProvider.metadata.key: SmallestAITTSProvider,
 }
 

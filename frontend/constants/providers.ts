@@ -9,6 +9,27 @@ export const PROVIDER_TRANSPORT_VALUES = [
   "webrtc",
 ] as const;
 export const DEFAULT_PROVIDER_TRANSPORT = PROVIDER_TRANSPORT_VALUES[0];
+export const SESSION_TRANSPORT_VALUES = ["batch_http", "websocket"] as const;
+export const DEFAULT_SESSION_TRANSPORT = SESSION_TRANSPORT_VALUES[0];
+
+export const SESSION_TRANSPORT_OPTIONS = [
+  {
+    label: "Turn-based",
+    value: SESSION_TRANSPORT_VALUES[0],
+    description: "Record and submit one complete answer at a time.",
+  },
+  {
+    label: "Realtime",
+    value: SESSION_TRANSPORT_VALUES[1],
+    description: "Stream speech and hear responses with lower latency.",
+  },
+] as const;
+
+export const REALTIME_PROVIDER_VALUES = {
+  stt: ["deepgram"],
+  llm: ["openai"],
+  tts: ["elevenlabs", "openai"],
+} as const;
 
 export const STT_PROVIDER_VALUES = [
   DEFAULT_STT_PROVIDER_VALUE,
@@ -23,6 +44,7 @@ export const LLM_PROVIDER_VALUES = [
 
 export const TTS_PROVIDER_VALUES = [
   DEFAULT_TTS_PROVIDER_VALUE,
+  "openai",
   "cartesia",
   "smallest-ai",
 ] as const;
@@ -58,12 +80,16 @@ export const PROVIDER_OPTIONS = {
       value: TTS_PROVIDER_VALUES[0],
     },
     {
-      label: "Cartesia",
+      label: "OpenAI",
       value: TTS_PROVIDER_VALUES[1],
     },
     {
-      label: "Smallest AI",
+      label: "Cartesia",
       value: TTS_PROVIDER_VALUES[2],
+    },
+    {
+      label: "Smallest AI",
+      value: TTS_PROVIDER_VALUES[3],
     },
   ],
 } as const;

@@ -3,6 +3,7 @@ export const SESSION_API = {
   publicApiBaseUrlEnv: "NEXT_PUBLIC_API_BASE_URL",
   defaultBaseUrl: "http://localhost:8000",
   sessionsPath: "/api/v1/sessions",
+  realtimeSuffix: "/stream",
   resumesPath: "/api/v1/resumes",
   method: "POST",
   updateMethod: "PATCH",

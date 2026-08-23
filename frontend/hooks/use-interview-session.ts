@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { endInterviewSession } from "@/app/actions/end-session";
 import { SESSION_COPY, SESSION_STATES } from "@/constants/session";
@@ -39,6 +39,7 @@ export function useInterviewSession({
   );
   const [isEnding, setIsEnding] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const audioLevelRef = useRef<HTMLDivElement | null>(null);
   const currentQuestion = findLatestQuestion(transcript);
   const playback = useInterviewerPlayback({
     initialAudioBase64,
@@ -46,6 +47,10 @@ export function useInterviewSession({
   });
 
   async function handleTurnResult(result: TurnResult) {
+    console.info("[frontend.session] applying turn result", {
+      sessionId,
+      state: result.state,
+    });
     setTranscript((currentTranscript) => [
       ...currentTranscript,
       result.candidate_turn,
@@ -62,11 +67,18 @@ export function useInterviewSession({
   const recorder = useAudioRecorder({
     sessionId,
     onError: setError,
+    onAudioLevel: (level) => {
+      audioLevelRef.current?.style.setProperty(
+        "--voice-level",
+        level.toFixed(3),
+      );
+    },
     onStateChange: setTurnState,
     onTurnResult: handleTurnResult,
   });
 
   async function endSession() {
+    console.info("[frontend.session] end requested", { sessionId });
     setError(null);
     setIsEnding(true);
     playback.stopPlayback();
@@ -75,6 +87,10 @@ export function useInterviewSession({
     const result = await endInterviewSession(sessionId);
 
     if (!result.data) {
+      console.error("[frontend.session] end failed", {
+        sessionId,
+        error: result.error,
+      });
       setError(result.error);
       setIsEnding(false);
 
@@ -85,6 +101,10 @@ export function useInterviewSession({
     setTurnState(result.data.state);
     setIsEnding(false);
     setIsEnded(true);
+    console.info("[frontend.session] ended", {
+      sessionId,
+      transcriptTurns: result.data.transcript.length,
+    });
   }
 
   return {
@@ -99,6 +119,7 @@ export function useInterviewSession({
     hasStarted: playback.hasStarted,
     error,
     playbackNotice: playback.playbackNotice,
+    audioLevelRef,
     playCurrentQuestion: () => playback.playQuestion(currentQuestion),
     toggleRecording: recorder.toggleRecording,
     endSession,

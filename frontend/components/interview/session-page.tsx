@@ -5,7 +5,7 @@ import {
   IconStethoscope,
 } from "@tabler/icons-react";
 
-import { SessionTurnPanel } from "@/components/interview/session-turn-panel";
+import { SessionExperience } from "@/components/interview/session-experience";
 import { SidebarDetailsCard } from "@/components/interview/sidebar-details-card";
 import { ProviderStack } from "@/components/interview/setup/provider-stack";
 import {
@@ -21,12 +21,14 @@ import { SESSION_COPY } from "@/constants/session";
 import { type InterviewMode } from "@/lib/interview-options";
 import { MODE_PRESENTATION } from "@/lib/mode-presentation";
 import { type ProviderSelection } from "@/lib/provider-selection";
+import { type SessionTransportValue } from "@/lib/schemas/interview";
 import { type TranscriptTurn } from "@/lib/schemas/session";
 import { type SessionSetupItem } from "@/lib/session-setup";
 
 type SessionPageProps = {
   mode: InterviewMode;
   providers: ProviderSelection;
+  transport: SessionTransportValue;
   setup: SessionSetupItem[];
   backHref: string;
   sessionId: string;
@@ -39,6 +41,7 @@ type SessionPageProps = {
 export function SessionPage({
   mode,
   providers,
+  transport,
   setup,
   backHref,
   sessionId,
@@ -60,7 +63,8 @@ export function SessionPage({
                 isAlgorithms ? "grid gap-6 2xl:grid-cols-[1fr_400px]" : ""
               }
             >
-              <SessionTurnPanel
+              <SessionExperience
+                transport={transport}
                 modeId={mode.mode}
                 modeTitle={mode.title}
                 sessionId={sessionId}

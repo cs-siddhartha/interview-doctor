@@ -12,8 +12,12 @@ import {
   RESUME_SETUP_FIELDS,
 } from "@/constants/setup";
 import {
+  DEFAULT_SESSION_TRANSPORT,
+} from "@/constants/providers";
+import {
   interviewModeSchema,
   providerSelectionSchema,
+  sessionTransportSchema,
 } from "@/lib/schemas/interview";
 
 export const searchParamValueSchema = z
@@ -64,16 +68,19 @@ export const algorithmsSetupSchema = z.object({
 export const setupFormSchema = z.discriminatedUnion("mode", [
   z.object({
     mode: z.literal(RESUME_MODE.id),
+    transport: sessionTransportSchema,
     providers: providerSelectionSchema,
     setup: resumeSetupSchema,
   }),
   z.object({
     mode: z.literal(DOMAIN_MODE.id),
+    transport: sessionTransportSchema,
     providers: providerSelectionSchema,
     setup: domainSetupSchema,
   }),
   z.object({
     mode: z.literal(ALGORITHMS_MODE.id),
+    transport: sessionTransportSchema,
     providers: providerSelectionSchema,
     setup: algorithmsSetupSchema,
   }),
@@ -81,22 +88,21 @@ export const setupFormSchema = z.discriminatedUnion("mode", [
 
 export const createSessionRequestSchema = setupFormSchema;
 
+export const transcriptTurnSchema = z.object({
+  speaker: z.string().min(1),
+  text: z.string().min(1),
+  created_at: z.string(),
+});
+
 export const createSessionResponseSchema = z.object({
   data: z.object({
     id: z.string().min(1),
     mode: interviewModeSchema,
+    transport: sessionTransportSchema.catch(DEFAULT_SESSION_TRANSPORT),
     providers: providerSelectionSchema,
     setup: z.record(z.string(), z.string()),
     state: z.string(),
-    transcript: z
-      .array(
-        z.object({
-          speaker: z.string().min(1),
-          text: z.string().min(1),
-          created_at: z.string(),
-        }),
-      )
-      .default([]),
+    transcript: z.array(transcriptTurnSchema).default([]),
     opening_audio_base64: z.string().default(""),
     opening_audio_error: z.string().nullable().default(null),
     created_at: z.string(),

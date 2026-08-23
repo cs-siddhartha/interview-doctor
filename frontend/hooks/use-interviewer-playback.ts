@@ -34,6 +34,7 @@ export function useInterviewerPlayback({
     setHasStarted(true);
 
     if (!question) {
+      console.warn("[frontend.playback] question unavailable");
       setPlaybackNotice(SESSION_COPY.audioPlaybackErrorMessage);
 
       return;
@@ -44,6 +45,10 @@ export function useInterviewerPlayback({
       question,
       audioRef,
     );
+    console.info("[frontend.playback] question playback resolved", {
+      source: playbackSource ?? "unavailable",
+      serverFallback: Boolean(audioError),
+    });
 
     if (!playbackSource) {
       setPlaybackNotice(SESSION_COPY.audioPlaybackErrorMessage);
@@ -67,6 +72,10 @@ export function useInterviewerPlayback({
       question,
       audioRef,
     );
+    console.info("[frontend.playback] response playback resolved", {
+      source: playbackSource ?? "unavailable",
+      serverFallback: Boolean(nextAudioError),
+    });
 
     setPlaybackNotice(
       playbackSource === "browser"
@@ -80,6 +89,7 @@ export function useInterviewerPlayback({
   }
 
   function stopPlayback() {
+    console.info("[frontend.playback] playback stopped");
     stopInterviewerPlayback(audioRef);
   }
 

@@ -12,6 +12,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { FORM_FIELD_NAMES, SETUP_COPY } from "@/constants/setup";
 import { type InterviewModeId } from "@/lib/interview-options";
 import { type ProviderSelection } from "@/lib/provider-selection";
+import { type SessionTransportValue } from "@/lib/schemas/interview";
 import { RESUME_MODE } from "@/constants/interview-modes";
 
 import { ProviderControls } from "./provider-controls";
@@ -20,15 +21,21 @@ import { SetupFields } from "./setup-fields";
 type SetupFormProps = {
   modeId: InterviewModeId;
   providers: ProviderSelection;
+  initialTransport: SessionTransportValue;
 };
 
 const initialCreateSessionActionState: CreateSessionActionState = {
   error: null,
 };
 
-export function SetupForm({ modeId, providers }: SetupFormProps) {
+export function SetupForm({
+  modeId,
+  providers,
+  initialTransport,
+}: SetupFormProps) {
   const [resumeDocumentId, setResumeDocumentId] = useState("");
   const [isResumeUploading, setIsResumeUploading] = useState(false);
+  const [transport, setTransport] = useState(initialTransport);
   const [state, formAction, isPending] = useActionState(
     createSessionFromSetup,
     initialCreateSessionActionState,
@@ -53,7 +60,11 @@ export function SetupForm({ modeId, providers }: SetupFormProps) {
         ) : null}
 
         <CardContent className="grid gap-8 p-6 sm:p-9">
-          <ProviderControls providers={providers} />
+          <ProviderControls
+            providers={providers}
+            transport={transport}
+            onTransportChange={setTransport}
+          />
           <SetupFields
             mode={modeId}
             onResumeStateChange={handleResumeStateChange}

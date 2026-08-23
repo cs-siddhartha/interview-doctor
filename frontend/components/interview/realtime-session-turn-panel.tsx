@@ -1,27 +1,23 @@
 "use client";
 
 import { CompletedInterviewSummary } from "@/components/interview/session/completed-interview-summary";
+import { type SessionExperienceProps } from "@/components/interview/session/session-types";
 import { TranscriptPanel } from "@/components/interview/session/transcript-panel";
 import { VoiceSessionPanel } from "@/components/interview/session/voice-session-panel";
-import { type SessionExperienceProps } from "@/components/interview/session/session-types";
 import { SESSION_COPY } from "@/constants/session";
-import { useInterviewSession } from "@/hooks/use-interview-session";
+import { useRealtimeInterviewSession } from "@/hooks/use-realtime-interview-session";
 
-export function SessionTurnPanel({
+export function RealtimeSessionTurnPanel({
   modeTitle,
   modeId,
   sessionId,
   initialState,
   initialTranscript,
-  initialAudioBase64,
-  initialAudioError,
 }: SessionExperienceProps) {
-  const session = useInterviewSession({
+  const session = useRealtimeInterviewSession({
     sessionId,
     initialState,
     initialTranscript,
-    initialAudioBase64,
-    initialAudioError,
   });
 
   if (session.isEnded) {
@@ -47,6 +43,7 @@ export function SessionTurnPanel({
         recorderState={session.recorderState}
         hasStarted={session.hasStarted}
         isBusy={session.isBusy}
+        isAnswerActive={session.isAnswerActive}
         isEnding={session.isEnding}
         error={session.error}
         playbackNotice={session.playbackNotice}
@@ -56,7 +53,8 @@ export function SessionTurnPanel({
           session.recorderState !== "recording"
         }
         onPlayQuestion={session.playCurrentQuestion}
-        onRecordButton={session.toggleRecording}
+        showRecordingControl={false}
+        onFinishAnswer={session.finishAnswer}
         onEndSession={session.endSession}
       />
       {session.hasStarted ? (

@@ -1,4 +1,8 @@
-import { DEFAULT_PROVIDER_TRANSPORT } from "@/constants/providers";
+import {
+  DEFAULT_PROVIDER_TRANSPORT,
+  DEFAULT_SESSION_TRANSPORT,
+} from "@/constants/providers";
+import { QUERY_PARAM_NAMES } from "@/constants/routes";
 import {
   type ProviderFieldId,
   type ProviderOption,
@@ -8,6 +12,8 @@ import {
 import {
   type ProviderSelectionValue,
   type ProviderTransportValue,
+  sessionTransportSchema,
+  type SessionTransportValue,
 } from "@/lib/schemas/interview";
 import {
   searchParamsSchema,
@@ -23,9 +29,21 @@ export type ProviderSelection = Record<ProviderFieldId, ProviderSelectionItem>;
 
 function readSearchValue(
   searchParams: SearchParamsRecord,
-  key: ProviderFieldId,
+  key: string,
 ) {
   return searchParamValueSchema.parse(searchParams[key]);
+}
+
+// Resolves the shareable setup query into the supported session-level
+// transport while keeping turn-based behavior as the compatibility default.
+export function resolveSessionTransport(
+  searchParams: SearchParamsRecord,
+): SessionTransportValue {
+  const query = searchParamsSchema.parse({ ...searchParams });
+
+  return sessionTransportSchema.catch(DEFAULT_SESSION_TRANSPORT).parse(
+    readSearchValue(query, QUERY_PARAM_NAMES.transport),
+  );
 }
 
 function resolveProviderValue(fieldId: ProviderFieldId, value?: string) {

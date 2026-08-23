@@ -1,5 +1,28 @@
 # Interview Doctor
 
+## Environment configuration
+
+The application reads provider configuration from environment files; no URL
+exports are required in the terminal. Docker Compose defines its internal
+service URLs directly.
+
+For the complete Docker setup, add the provider credentials you plan to use to
+`backend/.env`, then start the application:
+
+```bash
+docker compose up --build
+```
+
+For host-run development, create the service-specific environment files:
+
+```bash
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env.local
+```
+
+FastAPI loads `backend/.env` through `python-dotenv`, and Next.js loads
+`frontend/.env.local` automatically.
+
 ## Local Infrastructure
 
 Use Docker Compose only for local Postgres and Redis:
@@ -23,8 +46,8 @@ Redis:
 
 ```text
 Host: localhost
-Port: 6379
-URL: redis://localhost:6379/0
+Port: 6380
+URL: redis://localhost:6380/0
 ```
 
 Stop the services:

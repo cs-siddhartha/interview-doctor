@@ -38,8 +38,9 @@ export default async function DomainSessionPage({
     <SessionPage
       mode={interviewModeById.get(DOMAIN_MODE.id)!}
       providers={providers}
+      transport={session.transport}
       setup={resolveSessionSetupFromValues(DOMAIN_MODE.id, session.setup)}
-      backHref={`${DOMAIN_MODE.setupPath}${buildProviderQueryFromSelection(providers)}`}
+      backHref={`${DOMAIN_MODE.setupPath}${buildProviderQueryFromSelection(providers, session.transport)}`}
       sessionId={session.id}
       sessionState={session.state}
       transcript={session.transcript}

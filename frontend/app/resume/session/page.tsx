@@ -38,8 +38,9 @@ export default async function ResumeSessionPage({
     <SessionPage
       mode={interviewModeById.get(RESUME_MODE.id)!}
       providers={providers}
+      transport={session.transport}
       setup={resolveSessionSetupFromValues(RESUME_MODE.id, session.setup)}
-      backHref={`${RESUME_MODE.setupPath}${buildProviderQueryFromSelection(providers)}`}
+      backHref={`${RESUME_MODE.setupPath}${buildProviderQueryFromSelection(providers, session.transport)}`}
       sessionId={session.id}
       sessionState={session.state}
       transcript={session.transcript}

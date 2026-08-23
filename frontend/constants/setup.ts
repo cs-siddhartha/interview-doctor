@@ -1,5 +1,6 @@
 export const FORM_FIELD_NAMES = {
   mode: "mode",
+  transport: "transport",
   resume: "resume",
   resumeDocumentId: "resumeDocumentId",
 } as const;
@@ -69,6 +70,7 @@ export const SETUP_COPY = {
   providersTitle: "Provider configuration",
   providersDescription:
     "Choose the speech recognition, interviewer, and voice for this interview.",
+  transportLabel: "Conversation mode",
   focusTitle: "Shape the pressure test",
   focusDescription:
     "Give the interviewer enough context to make every follow-up specific.",

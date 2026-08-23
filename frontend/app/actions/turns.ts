@@ -9,15 +9,20 @@ export async function createAudioTurn(
   audioBase64: string,
   mimeType: string,
 ) {
+  console.info("[frontend.action] audio turn received", {
+    sessionId,
+    mimeType,
+    encodedAudioChars: audioBase64.length,
+  });
   try {
-    return {
-      data: await createTurn(sessionId, {
+    const data = await createTurn(sessionId, {
         audio_base64: audioBase64,
         mime_type: mimeType,
-      }),
-      error: null,
-    };
+      });
+    console.info("[frontend.action] audio turn completed", { sessionId });
+    return { data, error: null };
   } catch (error) {
+    console.error("[frontend.action] audio turn failed", { sessionId, error });
     return {
       data: null,
       error:

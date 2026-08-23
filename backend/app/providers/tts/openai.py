@@ -15,9 +15,9 @@ DEFAULT_OPENAI_TTS_VOICE = "alloy"
 
 class OpenAITTSProvider(TTSProviderBase):
     metadata = ProviderMetadata(
-        key="openai-fallback",
+        key="openai",
         kind=ProviderKind.TTS,
-        display_name="OpenAI fallback",
+        display_name="OpenAI",
         transports=frozenset({ProviderTransport.BATCH_HTTP}),
         default_transport=ProviderTransport.BATCH_HTTP,
     )
@@ -27,7 +27,7 @@ class OpenAITTSProvider(TTSProviderBase):
 
     async def synthesize(self, text: str) -> bytes:
         if not self.is_configured():
-            raise RuntimeError("OPENAI_API_KEY is required for OpenAI TTS fallback")
+            raise RuntimeError("OPENAI_API_KEY is required for OpenAI TTS")
 
         return await asyncio.to_thread(self._synthesize_sync, text)
 

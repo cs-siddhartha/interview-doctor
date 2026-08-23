@@ -36,6 +36,8 @@ DEEPGRAM_MODEL
 OPENAI_MODEL
 OPENAI_EMBEDDING_MODEL
 OPENAI_TRANSCRIPTION_MODEL
+OPENAI_TTS_MODEL
+OPENAI_TTS_VOICE
 ANTHROPIC_MODEL
 CARTESIA_MODEL_ID
 ELEVENLABS_MODEL_ID
@@ -62,13 +64,21 @@ development exposes the vector-capable Redis Stack container on port `6380` to
 avoid colliding with a conventional Redis instance on `6379`. Docker services
 continue to connect internally through `redis:6379`.
 
-Current implemented provider path is REST/batch HTTP. Streaming HTTP, WebSocket,
-and WebRTC may be listed as provider capabilities, but they return `501` until
-streaming-specific adapters are added.
+Sessions support two additive browser transports:
+
+- `batch_http` keeps the existing complete-answer REST turn pipeline.
+- `websocket` streams browser audio to Deepgram STT and streams PCM audio back
+  after the OpenAI interviewer response. The realtime stack requires Deepgram
+  STT and OpenAI LLM, with either ElevenLabs or OpenAI TTS.
+
+Provider API keys stay on the backend in both modes. Set
+`NEXT_PUBLIC_API_BASE_URL` in the frontend when the browser cannot reach the
+backend through the default `http://localhost:8000` address.
 
 Current API surface:
 
 - `POST /api/v1/sessions`
 - `GET /api/v1/sessions/{session_id}`
 - `POST /api/v1/sessions/{session_id}/turns`
+- `WS /api/v1/sessions/{session_id}/stream`
 - `POST /api/v1/resumes`

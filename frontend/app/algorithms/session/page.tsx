@@ -38,8 +38,9 @@ export default async function AlgorithmsSessionPage({
     <SessionPage
       mode={interviewModeById.get(ALGORITHMS_MODE.id)!}
       providers={providers}
+      transport={session.transport}
       setup={resolveSessionSetupFromValues(ALGORITHMS_MODE.id, session.setup)}
-      backHref={`${ALGORITHMS_MODE.setupPath}${buildProviderQueryFromSelection(providers)}`}
+      backHref={`${ALGORITHMS_MODE.setupPath}${buildProviderQueryFromSelection(providers, session.transport)}`}
       sessionId={session.id}
       sessionState={session.state}
       transcript={session.transcript}

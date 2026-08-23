@@ -13,6 +13,11 @@ class InterviewMode(StrEnum):
     ALGORITHMS = "algorithms"
 
 
+class SessionTransport(StrEnum):
+    BATCH_HTTP = "batch_http"
+    WEBSOCKET = "websocket"
+
+
 class STTProvider(StrEnum):
     DEEPGRAM = "deepgram"
     SMALLEST_AI = "smallest-ai"
@@ -27,6 +32,7 @@ class LLMProvider(StrEnum):
 class TTSProvider(StrEnum):
     CARTESIA = "cartesia"
     ELEVENLABS = "elevenlabs"
+    OPENAI = "openai"
     SMALLEST_AI = "smallest-ai"
 
 
@@ -112,18 +118,21 @@ class TurnResult(BaseModel):
 
 class CreateResumeSessionRequest(BaseModel):
     mode: Literal[InterviewMode.RESUME]
+    transport: SessionTransport = SessionTransport.BATCH_HTTP
     providers: ProviderSelection = Field(default_factory=ProviderSelection)
     setup: ResumeSetup
 
 
 class CreateDomainSessionRequest(BaseModel):
     mode: Literal[InterviewMode.DOMAIN]
+    transport: SessionTransport = SessionTransport.BATCH_HTTP
     providers: ProviderSelection = Field(default_factory=ProviderSelection)
     setup: DomainSetup
 
 
 class CreateAlgorithmsSessionRequest(BaseModel):
     mode: Literal[InterviewMode.ALGORITHMS]
+    transport: SessionTransport = SessionTransport.BATCH_HTTP
     providers: ProviderSelection = Field(default_factory=ProviderSelection)
     setup: AlgorithmsSetup
 
@@ -141,6 +150,7 @@ SessionSetup = ResumeSetup | DomainSetup | AlgorithmsSetup
 class Session(BaseModel):
     id: str
     mode: InterviewMode
+    transport: SessionTransport = SessionTransport.BATCH_HTTP
     providers: ProviderSelection
     setup: SessionSetup
     state: SessionState

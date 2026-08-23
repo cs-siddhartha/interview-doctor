@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 
-from app.routers import resumes, sessions
+from app.routers import realtime_sessions, resumes, sessions
 
 router = APIRouter(prefix="/api/v1")
 router.include_router(resumes.router)
 router.include_router(sessions.router)
+router.include_router(realtime_sessions.router)
