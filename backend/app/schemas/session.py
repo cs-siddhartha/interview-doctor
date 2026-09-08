@@ -77,6 +77,11 @@ class AlgorithmsSetup(BaseModel):
     language: str = Field(min_length=1)
 
 
+class SystemDesignSetup(BaseModel):
+    problem: str = ""
+    seniority: Literal["Mid-level", "Senior", "Staff"]
+
+
 class SessionState(StrEnum):
     SETUP_COMPLETE = "setup_complete"
     LISTENING = "listening"
@@ -138,14 +143,22 @@ class CreateAlgorithmsSessionRequest(BaseModel):
     setup: AlgorithmsSetup
 
 
+class CreateSystemDesignSessionRequest(BaseModel):
+    mode: Literal[InterviewMode.SYSTEM_DESIGN]
+    transport: SessionTransport = SessionTransport.BATCH_HTTP
+    providers: ProviderSelection = Field(default_factory=ProviderSelection)
+    setup: SystemDesignSetup
+
+
 CreateSessionRequest = Annotated[
     CreateResumeSessionRequest
     | CreateDomainSessionRequest
-    | CreateAlgorithmsSessionRequest,
+    | CreateAlgorithmsSessionRequest
+    | CreateSystemDesignSessionRequest,
     Field(discriminator="mode"),
 ]
 
-SessionSetup = ResumeSetup | DomainSetup | AlgorithmsSetup
+SessionSetup = ResumeSetup | DomainSetup | AlgorithmsSetup | SystemDesignSetup
 
 
 class Session(BaseModel):

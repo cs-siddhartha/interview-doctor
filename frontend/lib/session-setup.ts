@@ -11,6 +11,7 @@ import {
   ALGORITHMS_SESSION_SETUP_FIELDS,
   RESUME_SESSION_SETUP_FIELDS,
   SESSION_COPY,
+  SYSTEM_DESIGN_SESSION_SETUP_FIELDS,
 } from "@/constants/session";
 import {
   type InterviewModeId,
@@ -36,7 +37,7 @@ const setupFieldsByMode: Record<
   [RESUME_MODE.id]: [...RESUME_SESSION_SETUP_FIELDS],
   [DOMAIN_MODE.id]: [...DOMAIN_SESSION_SETUP_FIELDS],
   [ALGORITHMS_MODE.id]: [...ALGORITHMS_SESSION_SETUP_FIELDS],
-  [SYSTEM_DESIGN_MODE.id]: [],
+  [SYSTEM_DESIGN_MODE.id]: [...SYSTEM_DESIGN_SESSION_SETUP_FIELDS],
 };
 
 const providerKeys = new Set<ProviderFieldId>(PROVIDER_FIELD_IDS);

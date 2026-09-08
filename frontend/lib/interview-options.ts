@@ -77,7 +77,7 @@ export const interviewModes: InterviewMode[] = [
     title: SYSTEM_DESIGN_MODE.title,
     mode: SYSTEM_DESIGN_MODE.id,
     action: SYSTEM_DESIGN_MODE.setupPath,
-    isAvailable: false,
+    isAvailable: true,
     description: SYSTEM_DESIGN_MODE.description,
     highlights: ["Architecture", "Scalability", "Trade-off analysis"],
     icon: IconTopologyComplex,

@@ -2,13 +2,16 @@ import { IconCode } from "@tabler/icons-react";
 
 import {
   ALGORITHMS_MODE,
+  DOMAIN_MODE,
   RESUME_MODE,
+  SYSTEM_DESIGN_MODE,
 } from "@/constants/interview-modes";
 import {
   DOMAIN_SETUP_FIELDS,
   ALGORITHMS_SETUP_FIELDS,
   RESUME_SETUP_FIELDS,
   SETUP_COPY,
+  SYSTEM_DESIGN_SETUP_FIELDS,
 } from "@/constants/setup";
 import { type InterviewMode } from "@/lib/interview-options";
 
@@ -38,9 +41,8 @@ export function SetupFields({ mode, onResumeStateChange }: SetupFieldsProps) {
         <ResumeSetupFields onStateChange={onResumeStateChange} />
       ) : null}
       {mode === ALGORITHMS_MODE.id ? <AlgorithmsSetupFields /> : null}
-      {mode !== RESUME_MODE.id && mode !== ALGORITHMS_MODE.id ? (
-        <DomainSetupFields />
-      ) : null}
+      {mode === DOMAIN_MODE.id ? <DomainSetupFields /> : null}
+      {mode === SYSTEM_DESIGN_MODE.id ? <SystemDesignSetupFields /> : null}
     </section>
   );
 }
@@ -117,6 +119,23 @@ function AlgorithmsSetupFields() {
         label={ALGORITHMS_SETUP_FIELDS.language.label}
         name={ALGORITHMS_SETUP_FIELDS.language.name}
         placeholder={ALGORITHMS_SETUP_FIELDS.language.placeholder}
+      />
+    </div>
+  );
+}
+
+function SystemDesignSetupFields() {
+  return (
+    <div className="grid gap-4 sm:grid-cols-[minmax(0,1.35fr)_minmax(16rem,0.65fr)]">
+      <TextInput
+        label={SYSTEM_DESIGN_SETUP_FIELDS.problem.label}
+        name={SYSTEM_DESIGN_SETUP_FIELDS.problem.name}
+        placeholder={SYSTEM_DESIGN_SETUP_FIELDS.problem.placeholder}
+      />
+      <SelectInput
+        label={SYSTEM_DESIGN_SETUP_FIELDS.seniority.label}
+        name={SYSTEM_DESIGN_SETUP_FIELDS.seniority.name}
+        options={[...SYSTEM_DESIGN_SETUP_FIELDS.seniority.options]}
       />
     </div>
   );

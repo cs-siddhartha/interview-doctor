@@ -2,6 +2,7 @@ import {
   DOMAIN_SETUP_FIELDS,
   ALGORITHMS_SETUP_FIELDS,
   RESUME_SETUP_FIELDS,
+  SYSTEM_DESIGN_SETUP_FIELDS,
 } from "@/constants/setup";
 
 export const RESUME_SESSION_SETUP_FIELDS = [
@@ -34,6 +35,17 @@ export const ALGORITHMS_SESSION_SETUP_FIELDS = [
     label: ALGORITHMS_SETUP_FIELDS.difficulty.label,
   },
   { key: ALGORITHMS_SETUP_FIELDS.language.name, label: "Language" },
+] as const;
+
+export const SYSTEM_DESIGN_SESSION_SETUP_FIELDS = [
+  {
+    key: SYSTEM_DESIGN_SETUP_FIELDS.problem.name,
+    label: "Design problem",
+  },
+  {
+    key: SYSTEM_DESIGN_SETUP_FIELDS.seniority.name,
+    label: SYSTEM_DESIGN_SETUP_FIELDS.seniority.label,
+  },
 ] as const;
 
 export const SESSION_COPY = {

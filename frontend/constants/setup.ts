@@ -62,6 +62,19 @@ export const ALGORITHMS_SETUP_FIELDS = {
   },
 } as const;
 
+export const SYSTEM_DESIGN_SETUP_FIELDS = {
+  problem: {
+    label: "Design problem (optional)",
+    name: "problem",
+    placeholder: "Leave blank for the interviewer to choose",
+  },
+  seniority: {
+    label: "Seniority",
+    name: "seniority",
+    options: ["Mid-level", "Senior", "Staff"],
+  },
+} as const;
+
 export const SETUP_COPY = {
   backLabel: "Back",
   titleSuffix: "setup",
