@@ -25,7 +25,7 @@ export default function Home() {
         <section
           id="interview-modes"
           aria-label={APP_COPY.interviewModesAriaLabel}
-          className="grid gap-4 lg:grid-cols-3"
+          className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4"
         >
           {interviewModes.map((mode) => (
             <ModeCard key={mode.mode} mode={mode} />

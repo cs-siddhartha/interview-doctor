@@ -29,7 +29,7 @@ export const DOMAIN_SETUP_FIELDS = {
   topic: {
     label: "Interview domain",
     name: "domain",
-    placeholder: "React performance, system design, behavioral...",
+    placeholder: "React performance, browser internals, behavioral...",
   },
   seniority: {
     label: "Seniority",
@@ -59,6 +59,19 @@ export const ALGORITHMS_SETUP_FIELDS = {
     label: "Preferred language",
     name: "language",
     placeholder: "TypeScript, Python, Java...",
+  },
+} as const;
+
+export const SYSTEM_DESIGN_SETUP_FIELDS = {
+  problem: {
+    label: "Design problem (optional)",
+    name: "problem",
+    placeholder: "Leave blank for the interviewer to choose",
+  },
+  seniority: {
+    label: "Seniority",
+    name: "seniority",
+    options: ["Mid-level", "Senior", "Staff"],
   },
 } as const;
 

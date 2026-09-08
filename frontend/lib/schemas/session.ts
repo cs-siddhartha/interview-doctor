@@ -4,12 +4,14 @@ import {
   DOMAIN_MODE,
   ALGORITHMS_MODE,
   RESUME_MODE,
+  SYSTEM_DESIGN_MODE,
 } from "@/constants/interview-modes";
 import {
   DOMAIN_SETUP_FIELDS,
   ALGORITHMS_SETUP_FIELDS,
   FORM_FIELD_NAMES,
   RESUME_SETUP_FIELDS,
+  SYSTEM_DESIGN_SETUP_FIELDS,
 } from "@/constants/setup";
 import {
   DEFAULT_SESSION_TRANSPORT,
@@ -65,6 +67,13 @@ export const algorithmsSetupSchema = z.object({
   [ALGORITHMS_SETUP_FIELDS.language.name]: requiredSetupValueSchema,
 });
 
+export const systemDesignSetupSchema = z.object({
+  [SYSTEM_DESIGN_SETUP_FIELDS.problem.name]: setupValueSchema,
+  [SYSTEM_DESIGN_SETUP_FIELDS.seniority.name]: z.enum(
+    SYSTEM_DESIGN_SETUP_FIELDS.seniority.options,
+  ),
+});
+
 export const setupFormSchema = z.discriminatedUnion("mode", [
   z.object({
     mode: z.literal(RESUME_MODE.id),
@@ -83,6 +92,12 @@ export const setupFormSchema = z.discriminatedUnion("mode", [
     transport: sessionTransportSchema,
     providers: providerSelectionSchema,
     setup: algorithmsSetupSchema,
+  }),
+  z.object({
+    mode: z.literal(SYSTEM_DESIGN_MODE.id),
+    transport: sessionTransportSchema,
+    providers: providerSelectionSchema,
+    setup: systemDesignSetupSchema,
   }),
 ]);
 
