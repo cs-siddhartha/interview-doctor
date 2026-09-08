@@ -22,4 +22,9 @@ export const MODE_PRESENTATION: Record<InterviewModeId, ModePresentation> = {
     surface: "bg-[#ffb5a5]",
     softSurface: "bg-[#ffe0d9]",
   },
+  "system-design": {
+    number: "04",
+    surface: "bg-[#c4b5fd]",
+    softSurface: "bg-[#ede9fe]",
+  },
 };

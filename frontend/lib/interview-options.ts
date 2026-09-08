@@ -2,6 +2,7 @@ import {
   IconBrain,
   IconCode,
   IconFileText,
+  IconTopologyComplex,
   type Icon,
 } from "@tabler/icons-react";
 
@@ -9,6 +10,7 @@ import {
   DOMAIN_MODE,
   ALGORITHMS_MODE,
   RESUME_MODE,
+  SYSTEM_DESIGN_MODE,
 } from "@/constants/interview-modes";
 import { PROVIDER_FIELDS, PROVIDER_OPTIONS } from "@/constants/providers";
 import {
@@ -70,6 +72,15 @@ export const interviewModes: InterviewMode[] = [
     description: ALGORITHMS_MODE.description,
     highlights: ["Problem solving", "Complexity", "Clear explanation"],
     icon: IconCode,
+  },
+  {
+    title: SYSTEM_DESIGN_MODE.title,
+    mode: SYSTEM_DESIGN_MODE.id,
+    action: SYSTEM_DESIGN_MODE.setupPath,
+    isAvailable: false,
+    description: SYSTEM_DESIGN_MODE.description,
+    highlights: ["Architecture", "Scalability", "Trade-off analysis"],
+    icon: IconTopologyComplex,
   },
 ];
 

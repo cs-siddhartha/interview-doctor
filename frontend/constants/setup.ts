@@ -29,7 +29,7 @@ export const DOMAIN_SETUP_FIELDS = {
   topic: {
     label: "Interview domain",
     name: "domain",
-    placeholder: "React performance, system design, behavioral...",
+    placeholder: "React performance, browser internals, behavioral...",
   },
   seniority: {
     label: "Seniority",

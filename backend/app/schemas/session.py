@@ -11,6 +11,7 @@ class InterviewMode(StrEnum):
     RESUME = "resume"
     DOMAIN = "domain"
     ALGORITHMS = "algorithms"
+    SYSTEM_DESIGN = "system-design"
 
 
 class SessionTransport(StrEnum):
