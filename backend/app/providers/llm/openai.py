@@ -6,7 +6,9 @@ from app.providers.base import ProviderKind, ProviderMetadata, ProviderTransport
 from app.providers.http import post_json
 from app.providers.llm.base import LLMProviderBase
 from app.providers.llm.prompts import (
+    EVALUATOR_SYSTEM_PROMPT,
     INTERVIEWER_SYSTEM_PROMPT,
+    build_evaluator_context,
     build_interviewer_context,
 )
 
@@ -42,6 +44,13 @@ class OpenAILLMProvider(LLMProviderBase):
             context,
         )
 
+    async def generate_evaluation(self, context: dict) -> str:
+        """Request the final evidence-referenced evaluation from OpenAI."""
+        if not self.is_configured():
+            raise RuntimeError("OPENAI_API_KEY is required for OpenAI provider")
+
+        return await asyncio.to_thread(self._generate_evaluation_sync, context)
+
     def _generate_response_sync(
         self,
         candidate_answer: str | None,
@@ -52,12 +61,30 @@ class OpenAILLMProvider(LLMProviderBase):
             {
                 "model": os.getenv(OPENAI_MODEL_ENV, DEFAULT_OPENAI_MODEL),
                 "input": build_interviewer_input(candidate_answer, context),
+                "max_output_tokens": 512,
             },
             headers={
                 "Authorization": f"Bearer {os.environ[OPENAI_API_KEY_ENV]}",
             },
         )
 
+        return extract_output_text(payload)
+
+    def _generate_evaluation_sync(self, context: dict) -> str:
+        payload = post_json(
+            OPENAI_API_URL,
+            {
+                "model": os.getenv(OPENAI_MODEL_ENV, DEFAULT_OPENAI_MODEL),
+                "input": [
+                    {"role": "system", "content": EVALUATOR_SYSTEM_PROMPT},
+                    {"role": "user", "content": build_evaluator_context(context)},
+                ],
+                "max_output_tokens": 1600,
+            },
+            headers={
+                "Authorization": f"Bearer {os.environ[OPENAI_API_KEY_ENV]}",
+            },
+        )
         return extract_output_text(payload)
 
 

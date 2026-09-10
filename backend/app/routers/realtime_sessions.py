@@ -1,5 +1,7 @@
+import asyncio
 import json
 import logging
+from time import monotonic
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
@@ -11,8 +13,26 @@ from app.realtime.deepgram import DeepgramTurnStream, EmptyTranscriptError
 from app.realtime.pipeline import RealtimeTurnPipeline
 from app.resumes.context import get_current_question
 from app.resumes.dependencies import ResumeStoreDep
-from app.schemas.session import SessionState, SessionTransport
+from app.schemas.session import (
+    SUPPORTED_AUDIO_MIME_TYPES,
+    SessionState,
+    SessionTransport,
+)
+from app.security import (
+    WebSocketToken,
+    is_websocket_origin_allowed,
+    validate_websocket_token,
+)
 from app.stores.dependencies import SessionStoreDep
+from app.stores.sessions import (
+    SessionStoreConflictError,
+    SessionStoreNotFoundError,
+)
+
+MAX_REALTIME_FRAME_BYTES = 256 * 1024
+MAX_REALTIME_TURN_BYTES = 8 * 1024 * 1024
+MAX_REALTIME_TURN_SECONDS = 120
+SOCKET_IDLE_TIMEOUT_SECONDS = 300
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 logger = logging.getLogger("interview_doctor.realtime")
@@ -24,9 +44,16 @@ async def stream_session(
     session_id: str,
     session_store: SessionStoreDep,
     resume_store: ResumeStoreDep,
+    token: WebSocketToken,
 ) -> None:
     """Coordinate one realtime browser connection without replacing REST turns."""
     await websocket.accept()
+    if not is_websocket_origin_allowed(websocket.headers.get("origin")):
+        await websocket.close(code=4403, reason="Realtime origin is not allowed")
+        return
+    if not validate_websocket_token(session_id, token):
+        await websocket.close(code=4401, reason="Invalid realtime access token")
+        return
     logger.info("[backend.realtime] socket accepted session_id=%s", session_id)
     session = await session_store.get(session_id)
 
@@ -67,6 +94,9 @@ async def stream_session(
         session.providers.tts.provider,
     )
     active_turn: DeepgramTurnStream | None = None
+    claimed_session = None
+    turn_bytes = 0
+    turn_started_at = 0.0
     has_started = False
 
     await websocket.send_json({"type": "session.ready"})
@@ -74,7 +104,13 @@ async def stream_session(
 
     try:
         while True:
-            message = await websocket.receive()
+            timeout = SOCKET_IDLE_TIMEOUT_SECONDS
+            if active_turn is not None:
+                timeout = max(
+                    0.1,
+                    MAX_REALTIME_TURN_SECONDS - (monotonic() - turn_started_at),
+                )
+            message = await asyncio.wait_for(websocket.receive(), timeout=timeout)
 
             if message["type"] == "websocket.disconnect":
                 logger.info(
@@ -85,6 +121,20 @@ async def stream_session(
             if audio := message.get("bytes"):
                 if active_turn is None:
                     await send_protocol_error(websocket, "No active recording")
+                    continue
+
+                if len(audio) > MAX_REALTIME_FRAME_BYTES:
+                    await send_protocol_error(websocket, "Audio frame is too large")
+                    continue
+
+                turn_bytes += len(audio)
+                if turn_bytes > MAX_REALTIME_TURN_BYTES:
+                    await active_turn.close()
+                    active_turn = None
+                    if claimed_session is not None:
+                        await pipeline.restore_listening(claimed_session)
+                        claimed_session = None
+                    await send_protocol_error(websocket, "Audio turn is too large")
                     continue
 
                 await active_turn.send_audio(audio)
@@ -101,6 +151,10 @@ async def stream_session(
                 logger.warning(
                     "[backend.realtime] invalid event session_id=%s", session_id
                 )
+                await send_protocol_error(websocket, "Invalid realtime event")
+                continue
+
+            if not isinstance(event, dict):
                 await send_protocol_error(websocket, "Invalid realtime event")
                 continue
 
@@ -142,15 +196,39 @@ async def stream_session(
                     )
                     continue
 
+                mime_type = str(event.get("mimeType") or "audio/webm;codecs=opus")
+                if mime_type not in SUPPORTED_AUDIO_MIME_TYPES:
+                    await send_protocol_error(websocket, "Unsupported audio type")
+                    continue
+
+                try:
+                    claimed_session = await session_store.claim_turn(
+                        session_id,
+                        SessionTransport.WEBSOCKET,
+                    )
+                except SessionStoreNotFoundError:
+                    await websocket.close(code=4404, reason="Session not found")
+                    return
+                except SessionStoreConflictError as error:
+                    await send_protocol_error(websocket, str(error))
+                    continue
+
                 active_turn = DeepgramTurnStream(
                     lambda text: websocket.send_json(
                         {"type": "stt.partial", "text": text}
                     ),
                     lambda: websocket.send_json({"type": "stt.speech_end"}),
                 )
-                await active_turn.open(
-                    str(event.get("mimeType") or "audio/webm;codecs=opus")
-                )
+                try:
+                    await active_turn.open(mime_type)
+                except RuntimeError:
+                    await active_turn.close()
+                    active_turn = None
+                    await pipeline.restore_listening(claimed_session)
+                    claimed_session = None
+                    raise
+                turn_bytes = 0
+                turn_started_at = monotonic()
                 await websocket.send_json({"type": "turn.started"})
                 logger.info(
                     "[backend.realtime] recording started session_id=%s", session_id
@@ -164,6 +242,13 @@ async def stream_session(
 
                 turn = active_turn
                 active_turn = None
+                processing_session = claimed_session
+                claimed_session = None
+
+                if processing_session is None:
+                    await turn.close()
+                    await send_protocol_error(websocket, "Turn was not reserved")
+                    continue
 
                 try:
                     try:
@@ -171,27 +256,30 @@ async def stream_session(
                     finally:
                         await turn.close()
 
-                    await pipeline.process_answer(session, transcript)
+                    session = await pipeline.process_answer(
+                        processing_session,
+                        transcript,
+                    )
                 except EmptyTranscriptError:
                     logger.info(
                         "[backend.realtime] empty turn session_id=%s", session_id
                     )
-                    session.state = SessionState.LISTENING
-                    await session_store.save(session)
+                    await pipeline.restore_listening(processing_session)
                     await websocket.send_json({"type": "turn.empty"})
-                except RuntimeError as error:
+                except (
+                    RuntimeError,
+                    SessionStoreConflictError,
+                    SessionStoreNotFoundError,
+                ) as error:
                     logger.exception(
                         "[backend.realtime] turn failed session_id=%s",
                         session_id,
                     )
-                    session.state = SessionState.LISTENING
-                    await session_store.save(session)
                     await send_protocol_error(websocket, str(error))
                 continue
 
             if event_type == "session.end":
-                session.state = SessionState.SESSION_END
-                await session_store.save(session)
+                session = await session_store.end(session_id)
                 await websocket.send_json({"type": "session.ended"})
                 logger.info(
                     "[backend.realtime] session ended session_id=%s", session_id
@@ -200,19 +288,26 @@ async def stream_session(
                 return
 
             await send_protocol_error(websocket, "Unsupported realtime event")
+    except TimeoutError:
+        logger.info("[backend.realtime] socket timed out session_id=%s", session_id)
+        await websocket.close(code=1008, reason="Realtime session timed out")
     except WebSocketDisconnect:
         logger.info("[backend.realtime] socket disconnected session_id=%s", session_id)
         return
-    except RuntimeError as error:
+    except (
+        RuntimeError,
+        SessionStoreConflictError,
+        SessionStoreNotFoundError,
+    ) as error:
         logger.exception(
             "[backend.realtime] socket pipeline failed session_id=%s", session_id
         )
-        session.state = SessionState.LISTENING
-        await session_store.save(session)
         await send_protocol_error(websocket, str(error))
     finally:
         if active_turn is not None:
             await active_turn.close()
+        if claimed_session is not None:
+            await pipeline.restore_listening(claimed_session)
         logger.info(
             "[backend.realtime] socket cleanup complete session_id=%s", session_id
         )

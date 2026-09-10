@@ -60,17 +60,20 @@ export function SetupForm({
         ) : null}
 
         <CardContent className="grid gap-8 p-6 sm:p-9">
+          <SetupFields
+            mode={modeId}
+            onResumeStateChange={handleResumeStateChange}
+          />
           <ProviderControls
             providers={providers}
             transport={transport}
             onTransportChange={setTransport}
           />
-          <SetupFields
-            mode={modeId}
-            onResumeStateChange={handleResumeStateChange}
-          />
           {state.error ? (
-            <p className="rounded-sm border border-destructive/40 bg-destructive/5 p-4 text-sm font-medium text-destructive">
+            <p
+              className="rounded-sm border border-destructive/40 bg-destructive/5 p-4 text-sm font-medium text-destructive"
+              role="alert"
+            >
               {state.error}
             </p>
           ) : null}

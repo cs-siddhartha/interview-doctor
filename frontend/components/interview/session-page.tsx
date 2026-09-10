@@ -22,7 +22,10 @@ import { type InterviewMode } from "@/lib/interview-options";
 import { MODE_PRESENTATION } from "@/lib/mode-presentation";
 import { type ProviderSelection } from "@/lib/provider-selection";
 import { type SessionTransportValue } from "@/lib/schemas/interview";
-import { type TranscriptTurn } from "@/lib/schemas/session";
+import {
+  type InterviewReport,
+  type TranscriptTurn,
+} from "@/lib/schemas/session";
 import { type SessionSetupItem } from "@/lib/session-setup";
 
 type SessionPageProps = {
@@ -36,6 +39,8 @@ type SessionPageProps = {
   transcript: TranscriptTurn[];
   openingAudioBase64: string;
   openingAudioError: string | null;
+  report: InterviewReport | null;
+  reportError: string | null;
 };
 
 export function SessionPage({
@@ -49,6 +54,8 @@ export function SessionPage({
   transcript,
   openingAudioBase64,
   openingAudioError,
+  report,
+  reportError,
 }: SessionPageProps) {
   const isAlgorithms = mode.mode === ALGORITHMS_MODE.id;
 
@@ -72,6 +79,8 @@ export function SessionPage({
                 initialTranscript={transcript}
                 initialAudioBase64={openingAudioBase64}
                 initialAudioError={openingAudioError}
+                initialReport={report}
+                initialReportError={reportError}
               />
               {isAlgorithms ? <CodeWorkspace /> : null}
             </div>

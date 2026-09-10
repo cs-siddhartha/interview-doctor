@@ -47,15 +47,13 @@ export function useInterviewerPlayback({
     );
     console.info("[frontend.playback] question playback resolved", {
       source: playbackSource ?? "unavailable",
-      serverFallback: Boolean(audioError),
+      providerError: Boolean(audioError),
     });
 
     if (!playbackSource) {
       setPlaybackNotice(SESSION_COPY.audioPlaybackErrorMessage);
     } else if (playbackSource === "browser") {
       setPlaybackNotice(SESSION_COPY.browserVoiceFallbackMessage);
-    } else if (audioError) {
-      setPlaybackNotice(SESSION_COPY.serverVoiceFallbackMessage);
     }
   }
 
@@ -74,17 +72,15 @@ export function useInterviewerPlayback({
     );
     console.info("[frontend.playback] response playback resolved", {
       source: playbackSource ?? "unavailable",
-      serverFallback: Boolean(nextAudioError),
+      providerError: Boolean(nextAudioError),
     });
 
     setPlaybackNotice(
       playbackSource === "browser"
         ? SESSION_COPY.browserVoiceFallbackMessage
-        : playbackSource === "provider" && nextAudioError
-          ? SESSION_COPY.serverVoiceFallbackMessage
-          : playbackSource
-            ? null
-            : SESSION_COPY.followUpReadyMessage,
+        : playbackSource
+          ? null
+          : SESSION_COPY.followUpReadyMessage,
     );
   }
 

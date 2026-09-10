@@ -2,8 +2,10 @@
 
 import { SESSION_COPY } from "@/constants/session";
 import { endSession } from "@/lib/api/sessions";
+import { requireAppSession } from "@/lib/auth";
 
 export async function endInterviewSession(sessionId: string) {
+  await requireAppSession();
   console.info("[frontend.action] ending interview", { sessionId });
   try {
     const data = await endSession(sessionId);

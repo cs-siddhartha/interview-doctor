@@ -13,11 +13,15 @@ export function RealtimeSessionTurnPanel({
   sessionId,
   initialState,
   initialTranscript,
+  initialReport,
+  initialReportError,
 }: SessionExperienceProps) {
   const session = useRealtimeInterviewSession({
     sessionId,
     initialState,
     initialTranscript,
+    initialReport,
+    initialReportError,
   });
 
   if (session.isEnded) {
@@ -25,6 +29,9 @@ export function RealtimeSessionTurnPanel({
       <CompletedInterviewSummary
         modeId={modeId}
         transcript={session.transcript}
+        report={session.report}
+        reportError={session.reportError}
+        sessionId={sessionId}
       />
     );
   }

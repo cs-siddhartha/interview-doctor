@@ -4,6 +4,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     command: pnpm dev --hostname 0.0.0.0
+    env_file:
+      - ./frontend/.env
     environment:
       API_BASE_URL: http://backend:8000
       NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
@@ -20,6 +22,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     command: uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    env_file:
+      - ./backend/.env
     environment:
       DATABASE_URL: postgresql://interview_doctor:interview_doctor@postgres:5432/interview_doctor
       REDIS_URL: redis://redis:6379/0

@@ -6,8 +6,9 @@ The application reads provider configuration from environment files; no URL
 exports are required in the terminal. Docker Compose defines its internal
 service URLs directly.
 
-For the complete Docker setup, add the provider credentials you plan to use to
-`backend/.env`, then start the application:
+For the complete Docker setup, add provider credentials and backend access
+settings to `backend/.env`, then add the app passphrase and matching backend
+token to `frontend/.env` before starting the application:
 
 ```bash
 docker compose up --build
@@ -22,6 +23,22 @@ cp frontend/.env.example frontend/.env.local
 
 FastAPI loads `backend/.env` through `python-dotenv`, and Next.js loads
 `frontend/.env.local` automatically.
+
+Set `APP_ACCESS_TOKEN` in the frontend environment to the private passphrase
+used to enter the application. Set `BACKEND_API_TOKEN` to a separate random
+value in both frontend and backend environments; it authenticates server-side
+API requests and signs short-lived realtime socket access. Set the backend
+`FRONTEND_ORIGINS` value to the comma-separated browser origins allowed to open
+realtime sockets.
+
+## Data handling
+
+Interview sessions, transcripts, and reports expire one hour after creation.
+Processed resume text and embeddings expire after 24 hours; the uploaded PDF
+bytes are not persisted. Resume embeddings and retrieval queries use OpenAI,
+and resume upload requires explicit consent in the setup screen. Completed
+interviews also provide a control that immediately deletes the session and its
+linked resume vectors.
 
 ## Local Infrastructure
 

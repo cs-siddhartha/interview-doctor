@@ -22,7 +22,6 @@ async def get_resume_evidence(
             "The processed resume is missing or expired. Upload it again."
         )
 
-    await resume_store.refresh(document)
     query = build_retrieval_query(
         setup.targetRole,
         candidate_answer,

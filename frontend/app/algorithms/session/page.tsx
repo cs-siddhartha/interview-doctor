@@ -46,6 +46,8 @@ export default async function AlgorithmsSessionPage({
       transcript={session.transcript}
       openingAudioBase64={session.opening_audio_base64}
       openingAudioError={session.opening_audio_error}
+      report={session.report}
+      reportError={session.report_error}
     />
   );
 }

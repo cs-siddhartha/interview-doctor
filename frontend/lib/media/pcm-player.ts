@@ -50,6 +50,13 @@ export class PcmStreamPlayer {
         this.resolveIdleWaiters();
       }
     };
+    if (
+      this.sources.size === 0 ||
+      this.nextStartTime < this.context.currentTime
+    ) {
+      this.nextStartTime = this.context.currentTime + 0.04;
+    }
+
     source.start(this.nextStartTime);
     this.nextStartTime += audioBuffer.duration;
     this.sources.add(source);
@@ -91,6 +98,11 @@ export class PcmStreamPlayer {
     }
 
     this.nextStartTime = 0;
+  }
+
+  // Interrupts queued audio while retaining the user-unlocked audio context.
+  stop() {
+    this.stopSources();
   }
 
   private stopSources() {

@@ -6,7 +6,9 @@ from app.providers.base import ProviderKind, ProviderMetadata, ProviderTransport
 from app.providers.http import post_json
 from app.providers.llm.base import LLMProviderBase
 from app.providers.llm.prompts import (
+    EVALUATOR_SYSTEM_PROMPT,
     INTERVIEWER_SYSTEM_PROMPT,
+    build_evaluator_context,
     build_interviewer_context,
 )
 
@@ -43,6 +45,13 @@ class AnthropicLLMProvider(LLMProviderBase):
             context,
         )
 
+    async def generate_evaluation(self, context: dict) -> str:
+        """Request the final evidence-referenced evaluation from Anthropic."""
+        if not self.is_configured():
+            raise RuntimeError("ANTHROPIC_API_KEY is required for Anthropic provider")
+
+        return await asyncio.to_thread(self._generate_evaluation_sync, context)
+
     def _generate_response_sync(
         self,
         candidate_answer: str | None,
@@ -70,6 +79,24 @@ class AnthropicLLMProvider(LLMProviderBase):
             },
         )
 
+        return extract_anthropic_text(payload)
+
+    def _generate_evaluation_sync(self, context: dict) -> str:
+        payload = post_json(
+            ANTHROPIC_API_URL,
+            {
+                "model": os.getenv(ANTHROPIC_MODEL_ENV, DEFAULT_ANTHROPIC_MODEL),
+                "max_tokens": 1600,
+                "system": EVALUATOR_SYSTEM_PROMPT,
+                "messages": [
+                    {"role": "user", "content": build_evaluator_context(context)}
+                ],
+            },
+            headers={
+                "x-api-key": os.environ[ANTHROPIC_API_KEY_ENV],
+                "anthropic-version": ANTHROPIC_VERSION,
+            },
+        )
         return extract_anthropic_text(payload)
 
 

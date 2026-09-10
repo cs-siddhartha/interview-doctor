@@ -68,6 +68,9 @@ export function VoiceSessionPanel({
 
   return (
     <Card className="overflow-hidden rounded-sm border-black/10 bg-[#171a1c] py-0 text-white shadow-2xl shadow-black/10">
+      <p className="sr-only" aria-live="polite">
+        {error ?? playbackNotice ?? turnState}
+      </p>
       <CardHeader className="border-b border-white/10 px-6 py-5 sm:px-8">
         <CardTitle className="text-xl">{SESSION_COPY.liveInterviewTitle}</CardTitle>
         <CardDescription className="text-white/45">

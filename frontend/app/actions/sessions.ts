@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { createSession, uploadResume } from "@/lib/api/sessions";
+import { requireAppSession } from "@/lib/auth";
 import { QUERY_PARAM_NAMES } from "@/constants/routes";
 import { FORM_FIELD_NAMES, SETUP_COPY } from "@/constants/setup";
 import {
@@ -46,15 +47,22 @@ export type UploadResumeActionResult = {
 export async function uploadResumeFromSetup(
   formData: FormData,
 ): Promise<UploadResumeActionResult> {
+  await requireAppSession();
   const resume = formData.get(FORM_FIELD_NAMES.resume);
+  const hasEmbeddingConsent =
+    formData.get("allowOpenAIEmbedding") === "true";
 
-  if (!(resume instanceof File) || resume.size === 0) {
+  if (
+    !(resume instanceof File) ||
+    resume.size === 0 ||
+    !hasEmbeddingConsent
+  ) {
     console.warn("[frontend.action] resume upload rejected: empty file");
     return { document: null, error: SETUP_COPY.resumeUploadError };
   }
 
   try {
-    return { document: await uploadResume(resume), error: null };
+    return { document: await uploadResume(resume, hasEmbeddingConsent), error: null };
   } catch (error) {
     console.error("[frontend.action] resume upload failed", error);
     return {
@@ -68,6 +76,7 @@ export async function createSessionFromSetup(
   _state: CreateSessionActionState,
   formData: FormData,
 ) {
+  await requireAppSession();
   const parsedForm = parseSetupForm(formData);
 
   if (!parsedForm.success) {

@@ -1,4 +1,5 @@
 import { Label } from "@/components/ui/label";
+import { IconAdjustments } from "@tabler/icons-react";
 import {
   Select,
   SelectContent,
@@ -31,20 +32,19 @@ export function ProviderControls({
   )?.description;
 
   return (
-    <section className="grid gap-5 border-b border-black/10 pb-8">
-      <div className="grid gap-2 sm:grid-cols-[3rem_1fr]">
-        <span className="font-mono text-xs font-semibold text-black/40">01</span>
-        <div>
-          <h2 className="text-2xl font-semibold tracking-[-0.03em]">
-            {SETUP_COPY.providersTitle}
-          </h2>
-          <p className="mt-1 text-sm leading-6 text-black/50">
-            {SETUP_COPY.providersDescription}
-          </p>
-        </div>
-      </div>
+    <details className="group border-t border-black/10 pt-6">
+      <summary className="flex cursor-pointer list-none items-center gap-3 font-semibold">
+        <IconAdjustments className="size-4" aria-hidden="true" />
+        {SETUP_COPY.providersTitle}
+        <span className="ml-auto text-xs font-normal text-black/45">
+          Advanced
+        </span>
+      </summary>
+      <p className="mt-2 text-sm leading-6 text-black/50">
+        {SETUP_COPY.providersDescription}
+      </p>
 
-      <div className="grid gap-2 rounded-sm border border-black/10 bg-white p-5">
+      <div className="mt-5 grid gap-2 rounded-sm border border-black/10 bg-white p-5">
         <Label htmlFor="setup-transport">{SETUP_COPY.transportLabel}</Label>
         <Select
           name={FORM_FIELD_NAMES.transport}
@@ -124,6 +124,6 @@ export function ProviderControls({
           );
         })}
       </div>
-    </section>
+    </details>
   );
 }

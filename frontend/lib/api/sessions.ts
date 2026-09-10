@@ -10,7 +10,10 @@ import {
   type CreateTurnRequest,
 } from "@/lib/schemas/session";
 
-export async function uploadResume(resume: File) {
+export async function uploadResume(
+  resume: File,
+  allowOpenAIEmbedding: boolean,
+) {
   const startedAt = Date.now();
   console.info("[frontend.api] resume upload started", {
     contentType: resume.type,
@@ -18,8 +21,10 @@ export async function uploadResume(resume: File) {
   });
   const body = new FormData();
   body.set("resume", resume);
+  body.set("allow_openai_embedding", String(allowOpenAIEmbedding));
   const response = await fetch(`${getApiBaseUrl()}${SESSION_API.resumesPath}`, {
     method: SESSION_API.method,
+    headers: getBackendHeaders(),
     body,
     cache: SESSION_API.fetchCache,
   });
@@ -52,6 +57,19 @@ function getApiBaseUrl() {
   );
 }
 
+function getBackendHeaders(json = false) {
+  const token = process.env.BACKEND_API_TOKEN;
+  if (!token) {
+    throw new Error("BACKEND_API_TOKEN is not configured.");
+  }
+  return {
+    [SESSION_API.backendTokenHeader]: token,
+    ...(json
+      ? { [SESSION_API.contentTypeHeader]: SESSION_API.jsonContentType }
+      : {}),
+  };
+}
+
 export async function createSession(request: CreateSessionRequest) {
   const startedAt = Date.now();
   const body = createSessionRequestSchema.parse(request);
@@ -66,9 +84,7 @@ export async function createSession(request: CreateSessionRequest) {
   });
   const response = await fetch(`${getApiBaseUrl()}${SESSION_API.sessionsPath}`, {
     method: SESSION_API.method,
-    headers: {
-      [SESSION_API.contentTypeHeader]: SESSION_API.jsonContentType,
-    },
+    headers: getBackendHeaders(true),
     body: JSON.stringify(body),
     cache: SESSION_API.fetchCache,
   });
@@ -100,6 +116,7 @@ export async function getSession(sessionId: string) {
     `${getApiBaseUrl()}${SESSION_API.sessionsPath}/${sessionId}`,
     {
       cache: SESSION_API.fetchCache,
+      headers: getBackendHeaders(),
     },
   );
 
@@ -140,9 +157,7 @@ export async function endSession(sessionId: string) {
     `${getApiBaseUrl()}${SESSION_API.sessionsPath}/${sessionId}`,
     {
       method: SESSION_API.updateMethod,
-      headers: {
-        [SESSION_API.contentTypeHeader]: SESSION_API.jsonContentType,
-      },
+      headers: getBackendHeaders(true),
       body: JSON.stringify({ state: "session_end" }),
       cache: SESSION_API.fetchCache,
     },
@@ -170,6 +185,20 @@ export async function endSession(sessionId: string) {
   return payload.data;
 }
 
+export async function deleteSession(sessionId: string) {
+  const response = await fetch(
+    `${getApiBaseUrl()}${SESSION_API.sessionsPath}/${sessionId}`,
+    {
+      method: "DELETE",
+      headers: getBackendHeaders(),
+      cache: SESSION_API.fetchCache,
+    },
+  );
+  if (!response.ok) {
+    throw new Error(await readApiErrorMessage(response, "Failed to delete data:"));
+  }
+}
+
 export async function createTurn(
   sessionId: string,
   request: CreateTurnRequest,
@@ -185,9 +214,7 @@ export async function createTurn(
     `${getApiBaseUrl()}${SESSION_API.sessionsPath}/${sessionId}/turns`,
     {
       method: SESSION_API.method,
-      headers: {
-        [SESSION_API.contentTypeHeader]: SESSION_API.jsonContentType,
-      },
+      headers: getBackendHeaders(true),
       body: JSON.stringify(body),
       cache: SESSION_API.fetchCache,
     },

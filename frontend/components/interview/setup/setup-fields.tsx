@@ -27,7 +27,7 @@ export function SetupFields({ mode, onResumeStateChange }: SetupFieldsProps) {
   return (
     <section className="grid gap-5">
       <div className="grid gap-2 sm:grid-cols-[3rem_1fr]">
-        <span className="font-mono text-xs font-semibold text-black/40">02</span>
+        <span className="font-mono text-xs font-semibold text-black/40">01</span>
         <div>
           <h2 className="text-2xl font-semibold tracking-[-0.03em]">
             {SETUP_COPY.focusTitle}

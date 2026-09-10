@@ -44,38 +44,18 @@ export function SetupHeader({ mode }: SetupHeaderProps) {
             {presentation.number}
           </span>
         </div>
-        <div className="grid gap-8 px-6 py-8 sm:px-9 sm:py-10 lg:grid-cols-[auto_1fr_320px] lg:items-end">
-          <span className="grid size-14 place-items-center rounded-full bg-[#171a1c] text-white">
-            <ModeIcon className="size-7" aria-hidden="true" />
+        <div className="grid gap-5 px-6 py-6 sm:grid-cols-[auto_1fr] sm:items-center sm:px-8">
+          <span className="grid size-11 place-items-center rounded-full bg-[#171a1c] text-white">
+            <ModeIcon className="size-5" aria-hidden="true" />
           </span>
           <div className="max-w-2xl">
-            <h1 className="text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
+            <h1 className="text-3xl font-semibold sm:text-4xl">
               {mode.title} {SETUP_COPY.titleSuffix}
             </h1>
-            <p className="mt-4 text-base leading-7 text-black/60">
+            <p className="mt-2 text-sm leading-6 text-black/60">
               {SETUP_COPY.description}
             </p>
           </div>
-          <ol className="grid grid-cols-3 gap-4">
-            <li className="border-t-2 border-black pt-3">
-              <span className="block font-mono text-xs font-semibold">01</span>
-              <span className="mt-1 block text-[0.65rem] font-semibold uppercase tracking-[0.12em]">
-                Configure
-              </span>
-            </li>
-            <li className="border-t border-black/20 pt-3 text-black/40">
-              <span className="block font-mono text-xs font-semibold">02</span>
-              <span className="mt-1 block text-[0.65rem] font-semibold uppercase tracking-[0.12em]">
-                Practice
-              </span>
-            </li>
-            <li className="border-t border-black/20 pt-3 text-black/40">
-              <span className="block font-mono text-xs font-semibold">03</span>
-              <span className="mt-1 block text-[0.65rem] font-semibold uppercase tracking-[0.12em]">
-                Review
-              </span>
-            </li>
-          </ol>
         </div>
       </div>
     </header>

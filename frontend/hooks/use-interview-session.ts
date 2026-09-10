@@ -2,7 +2,11 @@ import { useRef, useState } from "react";
 
 import { endInterviewSession } from "@/app/actions/end-session";
 import { SESSION_COPY, SESSION_STATES } from "@/constants/session";
-import { type TranscriptTurn, type TurnResult } from "@/lib/schemas/session";
+import {
+  type InterviewReport,
+  type TranscriptTurn,
+  type TurnResult,
+} from "@/lib/schemas/session";
 
 import { useAudioRecorder } from "./use-audio-recorder";
 import { useInterviewerPlayback } from "./use-interviewer-playback";
@@ -13,6 +17,8 @@ type UseInterviewSessionOptions = {
   initialTranscript: TranscriptTurn[];
   initialAudioBase64: string;
   initialAudioError: string | null;
+  initialReport: InterviewReport | null;
+  initialReportError: string | null;
 };
 
 function findLatestQuestion(transcript: TranscriptTurn[]) {
@@ -29,6 +35,8 @@ export function useInterviewSession({
   initialTranscript,
   initialAudioBase64,
   initialAudioError,
+  initialReport,
+  initialReportError,
 }: UseInterviewSessionOptions) {
   const [transcript, setTranscript] = useState(initialTranscript);
   const [turnState, setTurnState] = useState<string>(
@@ -39,6 +47,8 @@ export function useInterviewSession({
   );
   const [isEnding, setIsEnding] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [report, setReport] = useState(initialReport);
+  const [reportError, setReportError] = useState(initialReportError);
   const audioLevelRef = useRef<HTMLDivElement | null>(null);
   const currentQuestion = findLatestQuestion(transcript);
   const playback = useInterviewerPlayback({
@@ -98,6 +108,8 @@ export function useInterviewSession({
     }
 
     setTranscript(result.data.transcript);
+    setReport(result.data.report);
+    setReportError(result.data.report_error);
     setTurnState(result.data.state);
     setIsEnding(false);
     setIsEnded(true);
@@ -118,6 +130,8 @@ export function useInterviewSession({
     isEnded,
     hasStarted: playback.hasStarted,
     error,
+    report,
+    reportError,
     playbackNotice: playback.playbackNotice,
     audioLevelRef,
     playCurrentQuestion: () => playback.playQuestion(currentQuestion),

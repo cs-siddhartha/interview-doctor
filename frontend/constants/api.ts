@@ -8,6 +8,7 @@ export const SESSION_API = {
   method: "POST",
   updateMethod: "PATCH",
   contentTypeHeader: "Content-Type",
+  backendTokenHeader: "X-Interview-Doctor-Key",
   jsonContentType: "application/json",
   fetchCache: "no-store",
   createErrorPrefix: "Failed to create session:",

@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from typing import Annotated
 from uuid import uuid4
 
-from fastapi import APIRouter, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from redis.exceptions import RedisError
 
 from app.resumes.chunker import chunk_resume
@@ -17,9 +17,17 @@ from app.resumes.parser import (
 )
 from app.schemas.common import ApiMeta, ApiResponse
 from app.schemas.resume import ResumeDocument
+from app.security import require_api_rate_limit, require_backend_token
 from app.stores.resumes import build_resume_document
 
-router = APIRouter(prefix="/resumes", tags=["resumes"])
+router = APIRouter(
+    prefix="/resumes",
+    tags=["resumes"],
+    dependencies=[
+        Depends(require_backend_token),
+        Depends(require_api_rate_limit),
+    ],
+)
 logger = logging.getLogger("interview_doctor.resumes")
 
 
@@ -30,8 +38,14 @@ logger = logging.getLogger("interview_doctor.resumes")
 )
 async def upload_resume(
     resume: Annotated[UploadFile, File()],
+    allow_openai_embedding: Annotated[bool, Form()],
     resume_store: ResumeStoreDep,
 ) -> ApiResponse[ResumeDocument]:
+    if not allow_openai_embedding:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Resume embedding consent is required.",
+        )
     data = await resume.read(MAX_RESUME_BYTES + 1)
     filename = resume.filename or ""
     content_type = resume.content_type or ""

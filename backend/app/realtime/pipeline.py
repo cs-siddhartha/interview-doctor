@@ -15,7 +15,11 @@ from app.schemas.session import (
     TTSProvider,
 )
 from app.stores.resumes import ResumeStore
-from app.stores.sessions import SessionStore
+from app.stores.sessions import (
+    SessionStore,
+    SessionStoreConflictError,
+    SessionStoreNotFoundError,
+)
 
 REALTIME_AUDIO_SAMPLE_RATE = 24000
 logger = logging.getLogger("interview_doctor.realtime.pipeline")
@@ -69,69 +73,97 @@ class RealtimeTurnPipeline:
             await self.websocket.send_json({"type": "interviewer.audio.end"})
             logger.info("[backend.realtime.tts] streaming ended")
 
-    async def process_answer(self, session: Session, transcript: str) -> None:
+    async def process_answer(self, session: Session, transcript: str) -> Session:
         """Generate, persist, and stream the next interview turn."""
         logger.info(
             "[backend.realtime.turn] processing session_id=%s transcript_chars=%d",
             session.id,
             len(transcript),
         )
-        session.state = SessionState.LLM_THINKING
-        session.updated_at = datetime.now(UTC)
-        await self.session_store.save(session)
-        await self.websocket.send_json({"type": "stt.final", "text": transcript})
+        current = session
 
-        provider_stack = build_provider_stack(session.providers)
-        resume_evidence = await get_resume_evidence(
-            session.mode,
-            session.setup,
-            self.resume_store,
-            candidate_answer=transcript,
-            current_question=get_current_question(session),
-        )
-        context = session.model_dump(mode="json")
-        context["resume_evidence"] = resume_evidence
-        ai_text = await provider_stack.llm.generate_response(
-            candidate_answer=transcript,
-            context=context,
-        )
-        logger.info(
-            "[backend.realtime.turn] response generated "
-            "session_id=%s response_chars=%d",
-            session.id,
-            len(ai_text),
-        )
-        now = datetime.now(UTC)
-        candidate_turn = TranscriptTurn(
-            speaker=TranscriptSpeaker.CANDIDATE,
-            text=transcript,
-            created_at=now,
-        )
-        ai_turn = TranscriptTurn(
-            speaker=TranscriptSpeaker.AI_INTERVIEWER,
-            text=ai_text,
-            created_at=datetime.now(UTC),
-        )
+        try:
+            current = await self.session_store.transition(
+                current.id,
+                current.version,
+                SessionState.LLM_THINKING,
+            )
+            await self.websocket.send_json({"type": "stt.final", "text": transcript})
 
-        session.transcript.extend([candidate_turn, ai_turn])
-        session.state = SessionState.AI_SPEAKING
-        session.updated_at = datetime.now(UTC)
-        await self.session_store.save(session)
-        await self.speak_question(ai_text)
+            provider_stack = build_provider_stack(current.providers)
+            resume_evidence = await get_resume_evidence(
+                current.mode,
+                current.setup,
+                self.resume_store,
+                candidate_answer=transcript,
+                current_question=get_current_question(current),
+            )
+            context = current.model_dump(mode="json")
+            context["resume_evidence"] = resume_evidence
+            ai_text = await provider_stack.llm.generate_response(
+                candidate_answer=transcript,
+                context=context,
+            )
+            logger.info(
+                "[backend.realtime.turn] response generated "
+                "session_id=%s response_chars=%d",
+                current.id,
+                len(ai_text),
+            )
+            now = datetime.now(UTC)
+            candidate_turn = TranscriptTurn(
+                speaker=TranscriptSpeaker.CANDIDATE,
+                text=transcript,
+                created_at=now,
+            )
+            ai_turn = TranscriptTurn(
+                speaker=TranscriptSpeaker.AI_INTERVIEWER,
+                text=ai_text,
+                created_at=datetime.now(UTC),
+            )
 
-        session.state = SessionState.LISTENING
-        session.updated_at = datetime.now(UTC)
-        await self.session_store.save(session)
-        await self.websocket.send_json(
-            {
-                "type": "turn.completed",
-                "candidateTurn": candidate_turn.model_dump(mode="json"),
-                "aiTurn": ai_turn.model_dump(mode="json"),
-                "state": session.state,
-            }
-        )
+            current = await self.session_store.complete_turn(
+                current.id,
+                current.version,
+                candidate_turn,
+                ai_turn,
+                SessionState.AI_SPEAKING,
+            )
+            await self.speak_question(ai_text)
+            current = await self.session_store.transition(
+                current.id,
+                current.version,
+                SessionState.LISTENING,
+            )
+            await self.websocket.send_json(
+                {
+                    "type": "turn.completed",
+                    "candidateTurn": candidate_turn.model_dump(mode="json"),
+                    "aiTurn": ai_turn.model_dump(mode="json"),
+                    "state": current.state,
+                }
+            )
+        except (RuntimeError, SessionStoreConflictError, SessionStoreNotFoundError):
+            await self.restore_listening(current)
+            raise
+
         logger.info(
             "[backend.realtime.turn] completed session_id=%s transcript_turns=%d",
-            session.id,
-            len(session.transcript),
+            current.id,
+            len(current.transcript),
         )
+        return current
+
+    async def restore_listening(self, session: Session) -> None:
+        """Release a realtime turn unless another writer ended or replaced it."""
+        try:
+            await self.session_store.transition(
+                session.id,
+                session.version,
+                SessionState.LISTENING,
+            )
+        except (SessionStoreConflictError, SessionStoreNotFoundError):
+            logger.warning(
+                "[backend.realtime.turn] could not restore session_id=%s",
+                session.id,
+            )

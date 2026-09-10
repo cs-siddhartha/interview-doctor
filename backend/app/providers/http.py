@@ -140,10 +140,16 @@ def read_json_response(
 ) -> dict[str, Any]:
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:
-            return json.loads(response.read().decode("utf-8"))
+            payload = json.loads(response.read().decode("utf-8"))
+            if not isinstance(payload, dict):
+                raise RuntimeError("Provider returned an invalid JSON response")
+            return payload
     except urllib.error.HTTPError as error:
-        detail = error.read().decode("utf-8")
-        raise RuntimeError(f"Provider request failed: {detail}") from error
+        raise_provider_http_error(error)
+    except (urllib.error.URLError, TimeoutError) as error:
+        raise RuntimeError("Provider request could not be completed") from error
+    except (json.JSONDecodeError, UnicodeDecodeError) as error:
+        raise RuntimeError("Provider returned an invalid JSON response") from error
 
 
 def read_bytes_response(
@@ -152,7 +158,18 @@ def read_bytes_response(
 ) -> bytes:
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:
-            return response.read()
+            payload = response.read()
+            if not payload:
+                raise RuntimeError("Provider returned an empty response")
+            return payload
     except urllib.error.HTTPError as error:
-        detail = error.read().decode("utf-8")
-        raise RuntimeError(f"Provider request failed: {detail}") from error
+        raise_provider_http_error(error)
+    except (urllib.error.URLError, TimeoutError) as error:
+        raise RuntimeError("Provider request could not be completed") from error
+
+
+def raise_provider_http_error(error: urllib.error.HTTPError) -> None:
+    """Normalize provider HTTP failures without exposing arbitrary response bodies."""
+    raise RuntimeError(
+        f"Provider request failed with HTTP status {error.code}"
+    ) from error

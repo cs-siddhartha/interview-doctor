@@ -22,6 +22,7 @@ export function ResumeUploadField({ onStateChange }: ResumeUploadFieldProps) {
   const [document, setDocument] = useState<ResumeDocument | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [hasEmbeddingConsent, setHasEmbeddingConsent] = useState(false);
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -37,13 +38,21 @@ export function ResumeUploadField({ onStateChange }: ResumeUploadFieldProps) {
     setIsUploading(true);
     const formData = new FormData();
     formData.set(RESUME_SETUP_FIELDS.file.name, file);
+    formData.set("allowOpenAIEmbedding", String(hasEmbeddingConsent));
 
     startTransition(async () => {
-      const result = await uploadResumeFromSetup(formData);
-      setDocument(result.document);
-      setError(result.error);
-      setIsUploading(false);
-      onStateChange(result.document?.id ?? "", false);
+      try {
+        const result = await uploadResumeFromSetup(formData);
+        setDocument(result.document);
+        setError(result.error);
+        onStateChange(result.document?.id ?? "", false);
+      } catch {
+        setDocument(null);
+        setError(SETUP_COPY.resumeUploadError);
+        onStateChange("", false);
+      } finally {
+        setIsUploading(false);
+      }
     });
   }
 
@@ -52,7 +61,10 @@ export function ResumeUploadField({ onStateChange }: ResumeUploadFieldProps) {
       <Label htmlFor={RESUME_SETUP_FIELDS.file.name}>
         {RESUME_SETUP_FIELDS.file.label}
       </Label>
-      <div className="grid min-h-44 place-items-center gap-3 rounded-sm border border-dashed border-black/20 bg-[#f7f5ef] px-4 py-7 text-center">
+      <div
+        className="grid min-h-44 place-items-center gap-3 rounded-sm border border-dashed border-black/20 bg-[#f7f5ef] px-4 py-7 text-center"
+        aria-live="polite"
+      >
         {isUploading ? (
           <IconLoader2 className="size-8 animate-spin text-muted-foreground" />
         ) : document ? (
@@ -83,13 +95,23 @@ export function ResumeUploadField({ onStateChange }: ResumeUploadFieldProps) {
         <Input
           id={RESUME_SETUP_FIELDS.file.name}
           type="file"
-          name={RESUME_SETUP_FIELDS.file.name}
           accept={RESUME_SETUP_FIELDS.file.accept}
           required
-          disabled={isUploading}
+          disabled={isUploading || !hasEmbeddingConsent}
           onChange={handleFileChange}
           className="h-11 w-full max-w-sm rounded-sm bg-white"
         />
+        <label className="flex max-w-sm items-start gap-2 text-left text-xs leading-5 text-black/60">
+          <input
+            type="checkbox"
+            checked={hasEmbeddingConsent}
+            onChange={(event) => setHasEmbeddingConsent(event.target.checked)}
+            className="mt-1"
+          />
+          I agree that extracted resume text and retrieval queries are sent to
+          OpenAI for embeddings, with derived data retained here for up to 24
+          hours.
+        </label>
         {error ? (
           <p className="text-sm font-medium text-destructive" role="alert">
             {error}

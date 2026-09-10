@@ -116,6 +116,14 @@ class ResumeStore:
             return None
 
         return StoredResumeDocument.model_validate_json(payload)
+
+    async def delete(self, document: StoredResumeDocument) -> None:
+        """Delete resume metadata and every vector chunk linked to the document."""
+        keys = [
+            self.document_key(document.id),
+            *[f"{CHUNK_KEY_PREFIX}{chunk_id}" for chunk_id in document.chunk_ids],
+        ]
+        await self.redis.delete(*keys)
     
     # retrieval
     # Restricts every semantic search by document id so content from separate
@@ -138,18 +146,6 @@ class ResumeStore:
         results = await self.index.query(query)
 
         return [result["text"] for result in results if result.get("text")]
-
-    async def refresh(self, document: StoredResumeDocument) -> None:
-        keys = [
-            self.document_key(document.id),
-            *[f"{CHUNK_KEY_PREFIX}{chunk_id}" for chunk_id in document.chunk_ids],
-        ]
-        pipeline = self.redis.pipeline()
-
-        for key in keys:
-            pipeline.expire(key, RESUME_TTL_SECONDS)
-
-        await pipeline.execute()
 
     @staticmethod
     def document_key(document_id: str) -> str:

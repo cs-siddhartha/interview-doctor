@@ -11,3 +11,7 @@ class LLMProviderBase(Provider):
         context: dict,
     ) -> str:
         """Generate the interviewer response for the current turn."""
+
+    @abstractmethod
+    async def generate_evaluation(self, context: dict) -> str:
+        """Generate the structured final evaluation payload."""

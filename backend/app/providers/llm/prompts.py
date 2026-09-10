@@ -65,6 +65,17 @@ Intensity behavior:
   weak tradeoffs while remaining professional.
 """.strip()
 
+EVALUATOR_SYSTEM_PROMPT = """You evaluate a completed mock interview.
+Return only valid JSON with this exact shape:
+{"overall_score": 0-100, "summary": "...", "categories": [
+{"name": "...", "score": 1-5, "rationale": "...",
+"evidence_turn_indices": [0]}], "strengths": ["..."],
+"improvements": [{"area": "...", "action": "..."}]}
+Use 3-5 categories appropriate to the interview mode. Reference only candidate turn
+indices supplied in the transcript. Do not invent quotes or experience. Make every
+improvement action concrete and practicable. If evidence is thin, lower confidence
+in the summary and scores instead of filling gaps with assumptions."""
+
 
 # Serializes the same compact interview state for every LLM provider so prompt
 # behavior cannot drift between OpenAI and Anthropic implementations.
@@ -81,5 +92,24 @@ def build_interviewer_context(
                 "transcript": context.get("transcript", []),
                 "resume_evidence": context.get("resume_evidence", []),
             },
+        }
+    )
+
+
+def build_evaluator_context(context: dict) -> str:
+    """Serialize the bounded session evidence used by final evaluation providers."""
+    transcript = [
+        {
+            "turn_index": index,
+            "speaker": turn.get("speaker"),
+            "text": turn.get("text"),
+        }
+        for index, turn in enumerate(context.get("transcript", []))
+    ]
+    return json.dumps(
+        {
+            "mode": context.get("mode"),
+            "setup": context.get("setup"),
+            "transcript": transcript,
         }
     )

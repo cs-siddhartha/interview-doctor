@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { endInterviewSession } from "@/app/actions/end-session";
+import { getRealtimeAccessToken } from "@/app/actions/realtime-access";
 import { type RecorderState } from "@/components/interview/session/session-types";
 import { SESSION_COPY } from "@/constants/session";
 import { PcmStreamPlayer } from "@/lib/media/pcm-player";
@@ -10,12 +11,17 @@ import {
   realtimeServerEventSchema,
   type RealtimeServerEvent,
 } from "@/lib/schemas/realtime";
-import { type TranscriptTurn } from "@/lib/schemas/session";
+import {
+  type InterviewReport,
+  type TranscriptTurn,
+} from "@/lib/schemas/session";
 
 type RealtimeInterviewOptions = {
   sessionId: string;
   initialState: string;
   initialTranscript: TranscriptTurn[];
+  initialReport: InterviewReport | null;
+  initialReportError: string | null;
 };
 
 // Finds the question used for immediate rendering while completed transcript
@@ -32,6 +38,8 @@ export function useRealtimeInterviewSession({
   sessionId,
   initialState,
   initialTranscript,
+  initialReport,
+  initialReportError,
 }: RealtimeInterviewOptions) {
   const [transcript, setTranscript] = useState(initialTranscript);
   const [currentQuestion, setCurrentQuestion] = useState(
@@ -47,6 +55,8 @@ export function useRealtimeInterviewSession({
   const [isEnded, setIsEnded] = useState(initialState === "session_end");
   const [error, setError] = useState<string | null>(null);
   const [playbackNotice, setPlaybackNotice] = useState<string | null>(null);
+  const [report, setReport] = useState(initialReport);
+  const [reportError, setReportError] = useState(initialReportError);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isAnswerActive, setIsAnswerActive] = useState(false);
   const audioLevelRef = useRef<HTMLDivElement | null>(null);
@@ -389,47 +399,72 @@ export function useRealtimeInterviewSession({
       return socketPromiseRef.current;
     }
 
-    socketPromiseRef.current = new Promise<WebSocket>((resolve, reject) => {
-      const socketUrl = getRealtimeSessionUrl(sessionId);
-      console.info("[frontend.realtime] connecting socket", {
-        sessionId,
-        url: socketUrl,
-      });
-      const socket = new WebSocket(socketUrl);
-      socket.binaryType = "arraybuffer";
-      socket.onmessage = (event) => {
-        socketMessageQueueRef.current = socketMessageQueueRef.current.then(() =>
-          handleSocketMessage(event),
-        );
-      };
-      socket.onopen = () => {
-        socketRef.current = socket;
-        console.info("[frontend.realtime] socket connected", { sessionId });
-        resolve(socket);
-      };
-      socket.onerror = (error) => {
-        console.error("[frontend.realtime] socket error", { sessionId, error });
-        reject(new Error(SESSION_COPY.realtimeConnectionError));
-      };
-      socket.onclose = (event) => {
-        console.info("[frontend.realtime] socket closed", {
+    socketPromiseRef.current = (async () => {
+      const accessToken = await getRealtimeAccessToken(sessionId);
+      return await new Promise<WebSocket>((resolve, reject) => {
+        let isSettled = false;
+        const socketUrl = getRealtimeSessionUrl(sessionId, accessToken);
+        console.info("[frontend.realtime] connecting socket", {
           sessionId,
-          code: event.code,
-          reason: event.reason,
-          clean: event.wasClean,
+          url: socketUrl,
         });
-        socketRef.current = null;
-        socketPromiseRef.current = null;
-        turnActiveRef.current = false;
-        setIsAnswerActive(false);
-        commitInFlightRef.current = false;
-        microphoneRef.current?.discard();
-        microphoneRef.current = null;
+        const socket = new WebSocket(socketUrl);
+        socket.binaryType = "arraybuffer";
+        socket.onmessage = (event) => {
+          socketMessageQueueRef.current = socketMessageQueueRef.current.then(
+            () => handleSocketMessage(event),
+          );
+        };
+        socket.onopen = () => {
+          isSettled = true;
+          socketRef.current = socket;
+          console.info("[frontend.realtime] socket connected", { sessionId });
+          resolve(socket);
+        };
+        socket.onerror = (error) => {
+          console.error("[frontend.realtime] socket error", {
+            sessionId,
+            error,
+          });
+          if (!isSettled) {
+            isSettled = true;
+            reject(new Error(SESSION_COPY.realtimeConnectionError));
+          }
+        };
+        socket.onclose = (event) => {
+          console.info("[frontend.realtime] socket closed", {
+            sessionId,
+            code: event.code,
+            reason: event.reason,
+            clean: event.wasClean,
+          });
+          socketRef.current = null;
+          socketPromiseRef.current = null;
+          turnActiveRef.current = false;
+          setIsAnswerActive(false);
+          commitInFlightRef.current = false;
+          microphoneRef.current?.discard();
+          microphoneRef.current = null;
+          playerRef.current.stop();
+          window.speechSynthesis?.cancel();
+          browserFallbackActiveRef.current = false;
+          setIsPlaying(false);
+          setRecorderState("idle");
+          setTurnState(SESSION_COPY.metrics.state.value);
 
-        if (!endedRef.current) {
-          setError(SESSION_COPY.realtimeDisconnectedMessage);
-        }
-      };
+          if (!endedRef.current) {
+            setError(SESSION_COPY.realtimeDisconnectedMessage);
+          }
+          if (!isSettled) {
+            isSettled = true;
+            reject(new Error(SESSION_COPY.realtimeDisconnectedMessage));
+          }
+        };
+      });
+    })();
+
+    void socketPromiseRef.current.catch(() => {
+      socketPromiseRef.current = null;
     });
 
     return socketPromiseRef.current;
@@ -496,6 +531,8 @@ export function useRealtimeInterviewSession({
 
     socketRef.current?.close();
     setTranscript(result.data.transcript);
+    setReport(result.data.report);
+    setReportError(result.data.report_error);
     setTurnState(result.data.state);
     setIsEnding(false);
     setIsEnded(true);
@@ -563,6 +600,8 @@ export function useRealtimeInterviewSession({
     isEnded,
     error,
     playbackNotice,
+    report,
+    reportError,
     audioLevelRef,
     playCurrentQuestion,
     finishAnswer: handleAnswerAction,

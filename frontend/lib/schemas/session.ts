@@ -40,10 +40,18 @@ export const searchParamsSchema = z.record(
 export const setupValueSchema = z
   .string()
   .trim()
+  .max(500)
   .optional()
   .transform((value) => value ?? "");
 
-const requiredSetupValueSchema = z.string().trim().min(1);
+const requiredSetupValueSchema = z.string().trim().min(1).max(500);
+const supportedAudioMimeTypes = [
+  "audio/mp4",
+  "audio/mpeg",
+  "audio/wav",
+  "audio/webm",
+  "audio/webm;codecs=opus",
+] as const;
 
 export const resumeSetupSchema = z.object({
   [RESUME_SETUP_FIELDS.targetRole.name]: requiredSetupValueSchema,
@@ -109,6 +117,31 @@ export const transcriptTurnSchema = z.object({
   created_at: z.string(),
 });
 
+export const interviewReportSchema = z.object({
+  overall_score: z.number().int().min(0).max(100),
+  summary: z.string().min(1),
+  categories: z.array(
+    z.object({
+      name: z.string().min(1),
+      score: z.number().int().min(1).max(5),
+      rationale: z.string().min(1),
+      evidence: z.array(
+        z.object({
+          turn_index: z.number().int().nonnegative(),
+          quote: z.string().min(1),
+        }),
+      ),
+    }),
+  ),
+  strengths: z.array(z.string().min(1)),
+  improvements: z.array(
+    z.object({
+      area: z.string().min(1),
+      action: z.string().min(1),
+    }),
+  ),
+});
+
 export const createSessionResponseSchema = z.object({
   data: z.object({
     id: z.string().min(1),
@@ -120,6 +153,9 @@ export const createSessionResponseSchema = z.object({
     transcript: z.array(transcriptTurnSchema).default([]),
     opening_audio_base64: z.string().default(""),
     opening_audio_error: z.string().nullable().default(null),
+    report: interviewReportSchema.nullable().default(null),
+    report_error: z.string().nullable().default(null),
+    version: z.number().int().nonnegative().default(0),
     created_at: z.string(),
     updated_at: z.string(),
   }),
@@ -136,8 +172,8 @@ export const resumeDocumentResponseSchema = z.object({
 });
 
 export const createTurnRequestSchema = z.object({
-  audio_base64: z.string(),
-  mime_type: z.string().min(1),
+  audio_base64: z.string().min(1).max(8 * 1024 * 1024),
+  mime_type: z.enum(supportedAudioMimeTypes),
 });
 
 export const turnResultSchema = z.object({
@@ -172,6 +208,7 @@ export type ResumeDocument = z.infer<
   typeof resumeDocumentResponseSchema
 >["data"];
 export type TurnResult = z.infer<typeof turnResultSchema>;
+export type InterviewReport = z.infer<typeof interviewReportSchema>;
 export type TranscriptTurn = z.infer<
   typeof createSessionResponseSchema
 >["data"]["transcript"][number];

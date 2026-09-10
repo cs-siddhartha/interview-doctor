@@ -6,6 +6,16 @@ from pydantic import BaseModel, Field
 
 from app.providers.base import ProviderTransport
 
+MAX_AUDIO_BASE64_CHARACTERS = 8 * 1024 * 1024
+MAX_SETUP_VALUE_CHARACTERS = 500
+SUPPORTED_AUDIO_MIME_TYPES = (
+    "audio/mp4",
+    "audio/mpeg",
+    "audio/wav",
+    "audio/webm",
+    "audio/webm;codecs=opus",
+)
+
 
 class InterviewMode(StrEnum):
     RESUME = "resume"
@@ -58,15 +68,14 @@ class ProviderSelection(BaseModel):
     tts: TTSProviderConfig = Field(default_factory=TTSProviderConfig)
 
 
-
 class ResumeSetup(BaseModel):
-    targetRole: str = Field(min_length=1)
+    targetRole: str = Field(min_length=1, max_length=200)
     intensity: Literal["Balanced", "Strict", "Very strict"]
     resumeDocumentId: str = Field(min_length=1)
 
 
 class DomainSetup(BaseModel):
-    domain: str = Field(min_length=1)
+    domain: str = Field(min_length=1, max_length=MAX_SETUP_VALUE_CHARACTERS)
     seniority: Literal["Junior", "Mid-level", "Senior", "Staff"]
     style: Literal["Conversational", "Structured", "Rapid follow-up"]
 
@@ -74,11 +83,11 @@ class DomainSetup(BaseModel):
 class AlgorithmsSetup(BaseModel):
     topic: Literal["Arrays", "Strings", "Graphs", "Dynamic programming"]
     difficulty: Literal["Easy", "Medium", "Hard"]
-    language: str = Field(min_length=1)
+    language: str = Field(min_length=1, max_length=100)
 
 
 class SystemDesignSetup(BaseModel):
-    problem: str = ""
+    problem: str = Field(default="", max_length=MAX_SETUP_VALUE_CHARACTERS)
     seniority: Literal["Mid-level", "Senior", "Staff"]
 
 
@@ -98,13 +107,47 @@ class TranscriptSpeaker(StrEnum):
 
 class TranscriptTurn(BaseModel):
     speaker: TranscriptSpeaker
-    text: str = Field(min_length=1)
+    text: str = Field(min_length=1, max_length=8000)
     created_at: datetime
 
 
+class ReportEvidence(BaseModel):
+    turn_index: int = Field(ge=0)
+    quote: str = Field(min_length=1, max_length=500)
+
+
+class ReportCategory(BaseModel):
+    name: str = Field(min_length=1, max_length=80)
+    score: int = Field(ge=1, le=5)
+    rationale: str = Field(min_length=1, max_length=1000)
+    evidence: list[ReportEvidence] = Field(min_length=1, max_length=3)
+
+
+class ReportImprovement(BaseModel):
+    area: str = Field(min_length=1, max_length=120)
+    action: str = Field(min_length=1, max_length=500)
+
+
+class InterviewReport(BaseModel):
+    overall_score: int = Field(ge=0, le=100)
+    summary: str = Field(min_length=1, max_length=1200)
+    categories: list[ReportCategory] = Field(min_length=1, max_length=5)
+    strengths: list[Annotated[str, Field(min_length=1, max_length=500)]] = Field(
+        min_length=1,
+        max_length=5,
+    )
+    improvements: list[ReportImprovement] = Field(min_length=1, max_length=5)
+
+
 class CreateTurnRequest(BaseModel):
-    audio_base64: str = Field(default="")
-    mime_type: str = Field(default="application/octet-stream", min_length=1)
+    audio_base64: str = Field(min_length=1, max_length=MAX_AUDIO_BASE64_CHARACTERS)
+    mime_type: Literal[
+        "audio/mp4",
+        "audio/mpeg",
+        "audio/wav",
+        "audio/webm",
+        "audio/webm;codecs=opus",
+    ]
 
 
 # Restricts session updates to the supported terminal transition so clients
@@ -171,5 +214,8 @@ class Session(BaseModel):
     transcript: list[TranscriptTurn] = Field(default_factory=list)
     opening_audio_base64: str = ""
     opening_audio_error: str | None = None
+    report: InterviewReport | None = None
+    report_error: str | None = None
+    version: int = Field(default=0, ge=0)
     created_at: datetime
     updated_at: datetime

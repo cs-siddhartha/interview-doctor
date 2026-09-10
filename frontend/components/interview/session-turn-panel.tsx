@@ -15,6 +15,8 @@ export function SessionTurnPanel({
   initialTranscript,
   initialAudioBase64,
   initialAudioError,
+  initialReport,
+  initialReportError,
 }: SessionExperienceProps) {
   const session = useInterviewSession({
     sessionId,
@@ -22,6 +24,8 @@ export function SessionTurnPanel({
     initialTranscript,
     initialAudioBase64,
     initialAudioError,
+    initialReport,
+    initialReportError,
   });
 
   if (session.isEnded) {
@@ -29,6 +33,9 @@ export function SessionTurnPanel({
       <CompletedInterviewSummary
         modeId={modeId}
         transcript={session.transcript}
+        report={session.report}
+        reportError={session.reportError}
+        sessionId={sessionId}
       />
     );
   }

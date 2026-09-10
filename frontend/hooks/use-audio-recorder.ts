@@ -36,6 +36,7 @@ export function useAudioRecorder({
   const analyserFrameRef = useRef<number | null>(null);
   const smoothedLevelRef = useRef(0);
   const audioLevelHandlerRef = useRef(onAudioLevel);
+  const recordingRequestRef = useRef(0);
   audioLevelHandlerRef.current = onAudioLevel;
 
   const stopAudioLevelAnalysis = useCallback(() => {
@@ -58,6 +59,7 @@ export function useAudioRecorder({
   // explicitly stopped during unmount.
   useEffect(() => {
     return () => {
+      recordingRequestRef.current += 1;
       const recorder = recorderRef.current;
 
       if (recorder && recorder.state !== "inactive") {
@@ -95,8 +97,15 @@ export function useAudioRecorder({
     }
 
     try {
+      const recordingRequest = ++recordingRequestRef.current;
       console.info("[frontend.audio] requesting microphone", { sessionId });
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      if (recordingRequest !== recordingRequestRef.current) {
+        stopMediaStream(stream);
+        return;
+      }
+
       const mimeType = getSupportedRecordingMimeType();
       const recorder = new MediaRecorder(
         stream,
@@ -246,6 +255,7 @@ export function useAudioRecorder({
   }
 
   function discardRecordingResources() {
+    recordingRequestRef.current += 1;
     const recorder = recorderRef.current;
 
     if (recorder && recorder.state !== "inactive") {

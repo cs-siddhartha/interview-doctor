@@ -15,6 +15,7 @@ export class RealtimeMicrophone {
   private recorder: MediaRecorder | null = null;
   private stream: MediaStream | null = null;
   private pendingChunks = Promise.resolve();
+  private lifecycle = 0;
   private readonly voiceActivityDetector = new VoiceActivityDetector();
 
   constructor(
@@ -29,16 +30,24 @@ export class RealtimeMicrophone {
       throw new Error("Microphone recording is unavailable");
     }
 
+    const lifecycle = ++this.lifecycle;
     await this.voiceActivityDetector.activate();
-    this.stream = await navigator.mediaDevices.getUserMedia({
+    const stream = await navigator.mediaDevices.getUserMedia({
       audio: {
         autoGainControl: true,
         echoCancellation: true,
         noiseSuppression: true,
       },
     });
+
+    if (lifecycle !== this.lifecycle) {
+      stopMediaStream(stream);
+      throw new Error("Microphone request was cancelled");
+    }
+
+    this.stream = stream;
     await this.voiceActivityDetector.start(
-      this.stream,
+      stream,
       () => {},
       onSpeech,
       this.onLevel,
@@ -104,6 +113,7 @@ export class RealtimeMicrophone {
   // Discards live browser resources when the connection fails or the session
   // ends without committing the current answer.
   discard() {
+    this.lifecycle += 1;
     this.voiceActivityDetector.stop();
     if (this.recorder && this.recorder.state !== "inactive") {
       this.recorder.ondataavailable = null;
